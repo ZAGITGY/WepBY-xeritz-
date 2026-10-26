@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f4ee" />
+    <script src="./theme.js?v=2026-10-26.10.0"></script>
+    <script src="./preview-kit.js?v=2026-10-26.10.0"></script>
+    <meta name="description" content="รู้จักวิทยาลัยอาชีวศึกษาเลย สำรวจหลักสูตร ข่าวสาร และเข้าถึงบริการสำหรับนักเรียน นักศึกษา และประชาชน" />
+    <!-- ฉบับทดลอง: ไม่ให้ Google เก็บเข้าผลค้นหา (ลบบรรทัดนี้ตอนเปิดใช้จริง) -->
+    <meta name="robots" content="noindex, nofollow" />
+    <!-- ภาพตัวอย่างเวลาแชร์ลิงก์ (LINE / Facebook / Messenger) · หลังอัปขึ้นโฮสต์ให้แก้ ./images/og-cover.jpg เป็น URL เต็ม เช่น https://ชื่อเว็บ/images/og-cover.jpg -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="th_TH" />
+    <meta property="og:site_name" content="วิทยาลัยอาชีวศึกษาเลย" />
+    <meta property="og:title" content="วิทยาลัยอาชีวศึกษาเลย — สร้างทักษะ สู่อนาคตที่เลือกได้" />
+    <meta property="og:description" content="รู้จักวิทยาลัยอาชีวศึกษาเลย สำรวจหลักสูตร ข่าวสาร และเข้าถึงบริการสำหรับนักเรียน นักศึกษา และประชาชน" />
+    <meta property="og:image" content="./images/og-cover.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="./images/apple-touch-icon.png" />
+    <title>วิทยาลัยอาชีวศึกษาเลย — สร้างทักษะ สู่อนาคตที่เลือกได้</title>
+    <link rel="icon" href="./images/crest.png" />
+    <link rel="preload" href="./fonts/kanit-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/kanit-300.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/kanit-500.woff2" as="font" type="font/woff2" crossorigin />
+    <!--
+      v10: ฉากเข้าเว็บด้วยภาพวิทยาลัย (intro.js + campus-gl.js) แทนหน้าโหลดโลโก้หมุนเดิม · พื้นหลังหน้าแรกภาพสีน้ำ (campus-backdrop.js)
+      · อนิเมชันตอนเลื่อน (scroll-fx.js) · ปุ่มโลหะเหลว (metal-button.js) · โมเดลหน้าแรกเอียงตามเมาส์ (hero-motion.js)
+      · ข่าวล่าสุด/แถบสาขา/แกลเลอรีเปลี่ยนเอง (alive.js)
+      - ข้ามฉากเข้าเว็บอัตโนมัติเมื่อ: เปิด Reduced Motion, URL มี #anchor, มี ?noloader
+        หรือกดลิงก์กลับมาจากหน้าอื่นในเว็บเดียวกัน (รีโหลดหน้ายังเห็นฉากเข้าเว็บ แต่เร็วขึ้น · บังคับแสดงด้วย ?loader)
+      - ถ้า scroll-fx.js โหลดไม่สำเร็จ เว็บจะกลับไปใช้อนิเมชันเดิมที่มากับ app.js เอง
+      - v9.2: motion.css (เปลี่ยนหน้า / เปลี่ยนโหมด / เมนู) · doc-links.js (เอกสารที่ไม่มีในชุด เปิดต้นฉบับออนไลน์แทน)
+    -->
+    <script>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add("js");
+        window.__LVC_FX = 1;
+        // v9.3: เข้าหน้าแรกไม่ใช้การจางเปลี่ยนหน้า หน้าแรกสร้างเนื้อหาด้วย JS และมีการเปิดตัวของตัวเอง
+        // (Safari จะเล่นการเปิดตัวซ้ำเมื่อการเปลี่ยนหน้าจบ)
+        window.addEventListener("pagereveal", function (e) {
+          var vt = e.viewTransition;
+          if (!vt) return;
+          var quiet = function () {};
+          if (vt.ready) vt.ready.catch(quiet);
+          if (vt.finished) vt.finished.catch(quiet);
+          if (vt.updateCallbackDone) vt.updateCallbackDone.catch(quiet);
+          try { vt.skipTransition(); } catch (_) {}
+        }, { once: true });
+        try {
+          var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+          // กลับมาหน้าแรกจากหน้าอื่นในเว็บเดียวกัน (ไม่ใช่การรีโหลด) ไม่ต้องดูหน้าโหลดซ้ำ
+          var entry = performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
+          var reload = entry ? entry.type === "reload" : !!(performance.navigation && performance.navigation.type === 1);
+          var internal = false;
+          try { internal = !!document.referrer && new URL(document.referrer).origin === location.origin && !reload; } catch (e) {}
+          var skip = reduce || internal || location.hash.length > 1 || /[?&]noloader(=|&|$)/.test(location.search);
+          if (!reduce && /[?&]loader(=|&|$)/.test(location.search)) skip = false;
+          if (skip) {
+            // เข้าหน้าแรกโดยไม่มีหน้าโหลด: หัวข้อและเมนูเปิดตัวสั้น ๆ แทน (motion.css)
+            if (!reduce && location.hash.length < 2) {
+              d.classList.add("lvc-return");
+              setTimeout(function () { d.classList.remove("lvc-return"); }, 2600);
+            }
+            return;
+          }
+          d.classList.add("lvc-loading");
+          if ("scrollRestoration" in history) {
+            window.__LVC_PREV_SCROLL_RESTORATION = history.scrollRestoration;
+            history.scrollRestoration = "manual";
+          }
+          window.scrollTo(0, 0);
+          // กันพลาด: เข้าเว็บได้ภายในราว 15 วินาทีเสมอ
+          //   ฉากยังเล่นอยู่ (เน็ต/เครื่องช้า) → สั่งข้ามแบบนุ่มนวล · สคริปต์ฉากไม่ทำงาน/ค้าง → ปิดม่านทันที
+          var slow = 1 / Math.min(1, window.__LVC_INTRO_SPEED || 1);
+          var hard = function () {
+            if (window.__LVC_LOADER_DONE) return;
+            try { if (window.__LVC_SKIP_LOADER) window.__LVC_SKIP_LOADER(); } catch (e) {}
+            if (window.__LVC_LOADER_DONE) return;
+            window.__LVC_LOADER_DONE = true;
+            d.classList.remove("lvc-loading");
+            var l = document.getElementById("lvc-intro"); if (l) l.remove();
+            var a = document.getElementById("app"); if (a) a.inert = false;
+            if ("scrollRestoration" in history) {
+              var restore = window.__LVC_PREV_SCROLL_RESTORATION || "auto";
+              history.scrollRestoration = restore;
+              if (window.__LVC && window.__LVC.ScrollTrigger) window.__LVC.ScrollTrigger.clearScrollMemory(restore);
+            }
+            window.dispatchEvent(new CustomEvent("lvc:loaded"));
+          };
+          setTimeout(function () {
+            if (window.__LVC_LOADER_DONE) return;
+            var L = window.__LVC_LOADER;
+            if (L && (L.auto || L.skip)) {
+              try { (L.auto || L.skip)(); } catch (e) {}
+              setTimeout(hard, 3000 * slow);
+              return;
+            }
+            hard();
+          }, 15000 * slow);
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="./style.css?v=2026-10-26.10.0">
+    <link rel="stylesheet" href="./enhance.css?v=2026-10-26.10.0">
+    <link rel="stylesheet" href="./theme.css?v=2026-10-26.10.0">
+    <link rel="stylesheet" href="./motion.css?v=2026-10-26.10.0">
+    <link rel="stylesheet" href="./showcase.css?v=2026-10-26.10.0">
+    <link rel="stylesheet" href="./extras.css?v=2026-10-26.10.0">
+    <link rel="stylesheet" href="./campus.css?v=2026-10-26.10.0">
+    <link rel="stylesheet" href="./alive.css?v=2026-10-26.10.0">
+    <link rel="preload" href="./images/campus.webp" as="image" type="image/webp" fetchpriority="high" />
+    <script defer src="./scroll-fx.js?v=2026-10-26.10.0" onerror="window.__LVC_FX=0"></script>
+    <script defer src="./app.js?v=2026-10-26.10.0"></script>
+    <script defer src="./campus-gl.js?v=2026-10-26.10.0"></script>
+    <script defer src="./campus-backdrop.js?v=2026-10-26.10.0"></script>
+    <script defer src="./lvc-showcase.js?v=2026-10-26.10.0"></script>
+    <script defer src="./vendor/paper-liquid-metal.js?v=2026-10-26.10.0"></script>
+    <script defer src="./metal-button.js?v=2026-10-26.10.0"></script>
+    <script defer src="./hero-motion.js?v=2026-10-26.10.0"></script>
+    <script defer src="./intro.js?v=2026-10-26.10.0"></script>
+    <link rel="stylesheet" href="./assets/glass-folder/documents.css?v=2026-10-26.10.0">
+    <script defer src="./assets/glass-folder/documents.js?v=2026-10-26.10.0"></script>
+    <script defer src="./doc-links.js?v=2026-10-26.10.0"></script>
+    <script defer src="./extras.js?v=2026-10-26.10.0"></script>
+    <script defer src="./alive.js?v=2026-10-26.10.0"></script>
+</head>
+  <body>
+    <!-- ฉากเข้าเว็บ: ภาพวิทยาลัยจากหุ่นจำลองสีขาว สีซึมแบบสีน้ำ แล้วเลื่อนเป็นพื้นหลังหน้าแรก (ควบคุมโดย intro.js) -->
+    <div id="lvc-intro" class="lvc-intro" role="status" aria-live="polite" aria-label="กำลังเปิดเว็บไซต์วิทยาลัยอาชีวศึกษาเลย">
+      <canvas class="lvc-intro__gl" aria-hidden="true"></canvas>
+      <div class="lvc-intro__fb" aria-hidden="true">
+        <img class="lvc-intro__ghost" alt="" data-src="./images/campus.webp" />
+        <img class="lvc-intro__color" alt="" data-src="./images/campus.webp" />
+      </div>
+      <div class="lvc-intro__shade" aria-hidden="true"></div>
+      <div class="lvc-intro__title" aria-hidden="true">
+        <span class="lvc-intro__eyebrow"><i></i>ยินดีต้อนรับสู่</span>
+        <p class="lvc-intro__name"><span>วิทยาลัย</span><span>อาชีวศึกษาเลย</span></p>
+        <span class="lvc-intro__sub">LEARN · CREATE · GROW</span>
+      </div>
+      <div class="lvc-intro__hud">
+        <div class="lvc-intro__top">
+          <span class="lvc-intro__brand"><img src="./images/crest.png" width="26" height="33" alt="" /><span>LOEI VOCATIONAL COLLEGE</span></span>
+          <button class="lvc-intro__skip" type="button" onclick="window.__LVC_SKIP_REQ=1;this.setAttribute('aria-busy','true')">ข้ามฉากเปิด <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></button>
+        </div>
+        <div class="lvc-intro__bottom">
+          <span class="lvc-intro__label">กำลังเตรียมภาพวิทยาลัย</span>
+          <span class="lvc-intro__bar" aria-hidden="true"><i></i></span>
+          <span class="lvc-intro__count" aria-hidden="true"><b>000</b>%</span>
+        </div>
+      </div>
+    </div>
+    <div id="app"></div>
+    <script>
+      // ระหว่างฉากเข้าเว็บ ไม่ให้ Tab / screen reader เข้าไปในหน้าที่ถูกบังไว้
+      (function () {
+        var a = document.getElementById("app");
+        if (a && document.documentElement.classList.contains("lvc-loading")) a.inert = true;
+      })();
+    </script>
+    <noscript><main style="padding:40px;font-family:sans-serif"><h1>วิทยาลัยอาชีวศึกษาเลย</h1><p>สร้างทักษะ สู่อนาคตที่เลือกได้</p><a href="https://lvc.ac.th/www2026/">เข้าสู่เว็บไซต์ทางการและบริการของวิทยาลัย</a></main></noscript>
+  </body>
+</html>

@@ -1,0 +1,287 @@
+{
+  "version": "2026-10-26.10.0",
+  "verifiedAt": "2026-10-14",
+  "officialHomepage": "https://lvc.ac.th/www2026/",
+  "curriculum": {
+    "url": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf",
+    "status": 200,
+    "pdfPages": [
+      31,
+      32,
+      33
+    ],
+    "printedPages": [
+      29,
+      30,
+      31
+    ],
+    "note": "Grouped for discovery; original category for bachelor digital business is business administration."
+  },
+  "contact": {
+    "url": "https://lvc.ac.th/www2026/about.html",
+    "status": 200,
+    "fields": [
+      "address",
+      "phone",
+      "email",
+      "map coordinates"
+    ]
+  },
+  "documents": [
+    {
+      "title": "คู่มือนักเรียน นักศึกษา ปีการศึกษา 2569",
+      "url": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "format": "PDF",
+      "bytes": 25505495,
+      "status": 200
+    },
+    {
+      "title": "แผนการเรียนระดับ ปวช. ปีการศึกษา 2569",
+      "url": "https://lvc.ac.th/www2026/ita2569/oit-22/Vocational_Certificate_Curriculum_Plan_2569.pdf",
+      "format": "PDF",
+      "bytes": 4587418,
+      "status": 200
+    },
+    {
+      "title": "แผนการเรียนระดับ ปวส. ปีการศึกษา 2569",
+      "url": "https://lvc.ac.th/www2026/ita2569/oit-22/Vocational_Diploma_Curriculum_Plan_2569.pdf",
+      "format": "PDF",
+      "bytes": 6794329,
+      "status": 200
+    }
+  ],
+  "news": [
+    {
+      "url": "https://lvc.ac.th/www2026/activities/activities-24-04-69/activity-detail-24-04-69.html",
+      "title": "วิทยาลัยออกหน่วยบริการประชาชน โครงการหน่วยแพทย์เคลื่อนที่ พอ.สว. จังหวัดเลย",
+      "eventDate": "2026-04-24",
+      "status": 200
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/activities/activities-25-03-69/activity-detail-25-03-69.html",
+      "title": "รับประกาศเกียรติคุณสถานศึกษาผ่านเกณฑ์การประเมิน ITA ประจำปีงบประมาณ 2568",
+      "eventDate": "2026-03-25",
+      "status": 200
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/activities/activities-23-03-69/activity-detail-23-03-69.html",
+      "title": "การประเมินเพื่อรับรางวัลโรงเรียนพระราชทานระดับอาชีวศึกษา จังหวัดเลย ประจำปี 2569",
+      "eventDate": "2026-03-23",
+      "status": 200
+    }
+  ],
+  "achievements": [
+    {
+      "url": "https://lvc.ac.th/www2026/congratulate/congratulate-69-07-01.jpg",
+      "title": "นักศึกษารางวัลพระราชทาน ประจำปีการศึกษา 2568 — นางสาวศิริรัตน์ อุ่นแก้ว",
+      "status": 200,
+      "verification": "Read from original poster"
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/congratulate/congratulate-69-07-02.jpg",
+      "title": "ชนะเลิศระดับจังหวัดเลย การประกวดโครงงานวิทยาศาสตร์ ระดับ ปวช. ประจำปี 2569",
+      "status": 200,
+      "verification": "Read from original poster"
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/congratulate/congratulate-69-07-03.jpg",
+      "title": "ชนะเลิศระดับจังหวัดเลย การประกวดโครงงานวิทยาศาสตร์ ระดับ ปวส. ประจำปี 2569",
+      "status": 200,
+      "verification": "Read from original poster"
+    }
+  ],
+  "onlineServices": [
+    {
+      "url": "https://rms.lvc.ac.th/?p=login",
+      "status": 200,
+      "verification": "Browser-rendered login screen; no credentials submitted"
+    },
+    {
+      "url": "https://elibrary-lvcac.cu-elibrary.com/",
+      "status": 200,
+      "verification": "Browser-rendered college library"
+    }
+  ],
+  "publicInformation": [
+    {
+      "title": "คุณธรรมและความโปร่งใส (ITA)",
+      "links": [
+        {
+          "title": "ข้อมูลสาธารณะ ITA 2569",
+          "url": "https://lvc.ac.th/www2026/ita2569/ita-2569.html"
+        },
+        {
+          "title": "นโยบาย No Gift",
+          "url": "https://lvc.ac.th/www2026/ita2569/oit-20/No_Gift_Policy.pdf"
+        },
+        {
+          "title": "ข้อควรทำและไม่ควรทำ",
+          "url": "https://lvc.ac.th/www2026/ita2569/oit-17/Do's_and_Don't.pdf"
+        }
+      ]
+    },
+    {
+      "title": "ร้องเรียน / ร้องทุกข์",
+      "links": [
+        {
+          "title": "แจ้งร้องเรียน",
+          "url": "https://lvc.ac.th/www2026/complaints.html"
+        },
+        {
+          "title": "แจ้งร้องทุกข์",
+          "url": "https://lvc.ac.th/www2026/grievance.html"
+        },
+        {
+          "title": "คู่มือการร้องเรียน",
+          "url": "https://lvc.ac.th/www2026/ita2569/oit-18/Complaints_step.png"
+        }
+      ]
+    },
+    {
+      "title": "คู่มือและเอกสารการศึกษา",
+      "links": [
+        {
+          "title": "คู่มือนักเรียน นักศึกษา ปีการศึกษา 2569 (PDF)",
+          "url": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31"
+        },
+        {
+          "title": "แผนการเรียนระดับ ปวช. ปีการศึกษา 2569 (PDF)",
+          "url": "https://lvc.ac.th/www2026/ita2569/oit-22/Vocational_Certificate_Curriculum_Plan_2569.pdf"
+        },
+        {
+          "title": "แผนการเรียนระดับ ปวส. ปีการศึกษา 2569 (PDF)",
+          "url": "https://lvc.ac.th/www2026/ita2569/oit-22/Vocational_Diploma_Curriculum_Plan_2569.pdf"
+        }
+      ]
+    }
+  ],
+  "socials": [
+    {
+      "title": "Facebook",
+      "url": "https://www.facebook.com/profile.php?id=100063629303711",
+      "source": "https://lvc.ac.th/www2026/about.html",
+      "reachability": "Officially listed; YouTube connection blocked in audit environment, Facebook/TikTok fetched"
+    },
+    {
+      "title": "YouTube",
+      "url": "https://www.youtube.com/@Loei-Vocational-College-2026",
+      "source": "https://lvc.ac.th/www2026/about.html",
+      "reachability": "Officially listed; YouTube connection blocked in audit environment, Facebook/TikTok fetched"
+    },
+    {
+      "title": "TikTok",
+      "url": "https://www.tiktok.com/@lvc.ac.th",
+      "source": "https://lvc.ac.th/www2026/about.html",
+      "reachability": "Officially listed; YouTube connection blocked in audit environment, Facebook/TikTok fetched"
+    }
+  ],
+  "omitted": [
+    {
+      "url": "https://lvc.ac.th/www2026/web-data/Basic-Data/curriculum-data.html",
+      "reason": "HTTP 200 แต่หน้าแจ้งว่าอยู่ระหว่างการรวบรวมข้อมูล"
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/departments/tourism.html",
+      "reason": "HTTP 200 แต่หน้าแจ้งว่าอยู่ระหว่างการจัดทำข้อมูล"
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/departments/ict.html",
+      "reason": "HTTP 200 แต่หน้าแจ้งว่าอยู่ระหว่างการจัดทำข้อมูล"
+    },
+    {
+      "url": "https://www.lvc.ac.th/lvc_ita2568/9.2-13/9-2-13-01.pdf",
+      "reason": "คู่มือปี 2568 เก่าที่ปรากฏใน search index ให้ HTTP 404; ไม่ใช้"
+    },
+    {
+      "url": "https://std2018.vec.go.th/",
+      "reason": "Officially listed, but repeated connection timeout from audit environment. Omitted in this release pending a successful live check; this is not proof that the service is unavailable to everyone."
+    },
+    {
+      "url": "https://v-cop.go.th/",
+      "reason": "Officially listed, but repeated connection timeout from audit environment; omitted pending live verification."
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/activities/activities-03-04-69/activity-detail-03-04-69.html",
+      "reason": "Feed identifies Songkran but article body describes orientation. Omitted to avoid conflicting event information."
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/hr-news/all-jobs.html",
+      "reason": "Listing includes placeholder links and stale open labels. No current hiring claims or application forms added."
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/announcement-news/all-announcements.html",
+      "reason": "Listing includes many href=# placeholders. Only verified activity articles are included."
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/procurement/all-procurements.html",
+      "reason": "Some real archived PDFs but several placeholder links. Procurement navigation omitted from this curated release."
+    }
+  ],
+  "offlineDocumentsManifest": "documents/sources.json",
+  "offlineDocumentsBytes": 39075991,
+  "v10": {
+    "verifiedAt": "2026-10-26",
+    "usedBy": "alive.js (news ticker, e-service chips), intro.js / campus-backdrop.js (campus photo)",
+    "newsTicker": [
+      {
+        "url": "https://lvc.ac.th/www2026/activities/activities-24-04-69/activity-detail-24-04-69.html",
+        "title": "วิทยาลัยออกหน่วยบริการประชาชน โครงการหน่วยแพทย์เคลื่อนที่ พอ.สว. จังหวัดเลย",
+        "eventDate": "2026-04-24",
+        "tag": "บริการสังคม",
+        "note": "Same item as news[0]"
+      },
+      {
+        "url": "https://lvc.ac.th/www2026/activities/activities-03-04-69/activity-detail-03-04-69.html",
+        "title": "กิจกรรมสืบสานประเพณีสงกรานต์ ประจำปี 2569",
+        "eventDate": "2026-04-03",
+        "tag": "วัฒนธรรม",
+        "note": "Title and date from the official page. Its body text describes a new-student orientation, a mismatch on the official site; the ticker shows only the title, date and link."
+      },
+      {
+        "url": "https://lvc.ac.th/www2026/activities/activities-25-03-69/activity-detail-25-03-69.html",
+        "title": "รับประกาศเกียรติคุณสถานศึกษาผ่านเกณฑ์การประเมิน ITA ประจำปีงบประมาณ 2568",
+        "eventDate": "2026-03-25",
+        "tag": "ความโปร่งใส",
+        "note": "Same item as news[1]"
+      },
+      {
+        "url": "https://lvc.ac.th/www2026/activities/activities-23-03-69/activity-detail-23-03-69.html",
+        "title": "การประเมินเพื่อรับรางวัลโรงเรียนพระราชทานระดับอาชีวศึกษา จังหวัดเลย ประจำปี 2569",
+        "eventDate": "2026-03-23",
+        "tag": "รางวัล",
+        "note": "Same item and category label as news.html"
+      },
+      {
+        "url": "https://lvc.ac.th/www2026/announcement-news/announce-16-03-69/announce-detail-16-03-69.html",
+        "title": "กำหนดวันเปิดและปิดภาคเรียน ปีการศึกษา 2569",
+        "eventDate": "2026-03-16",
+        "tag": "ประกาศ",
+        "note": "Official title: \"ประกาศวิทยาลัยอาชีวศึกษาเลย เรื่องกำหนดวัดเปิดและปิดภาคเรียน ปีการศึกษา 2569\". Shortened (the tag says ประกาศ) and the typo วัด → วัน corrected in the ticker."
+      }
+    ],
+    "allActivities": "https://lvc.ac.th/www2026/activities/all-activities.html",
+    "eServices": [
+      {
+        "title": "ศธ.02 ออนไลน์",
+        "url": "https://std2018.vec.go.th/",
+        "foundOn": "official homepage, E-Service (บริการสารสนเทศ) section"
+      },
+      {
+        "title": "ศูนย์กำลังคนอาชีวศึกษา",
+        "url": "https://v-cop.go.th/",
+        "foundOn": "official homepage, E-Service (บริการสารสนเทศ) section"
+      },
+      {
+        "title": "หลักสูตรต้านทุจริตศึกษา",
+        "url": "https://aced.nacc.go.th/",
+        "foundOn": "official homepage, ITA links"
+      }
+    ],
+    "campusPhoto": {
+      "file": "images/campus.webp",
+      "from": "Photo supplied by the site owner with the v10 request (1536×1024), converted to WebP q84",
+      "alsoUsedIn": "images/og-cover.jpg (rendered with the intro shader + site text)"
+    },
+    "programGroups": "Ribbon and showcase count-up use the 8 groups / 3 levels already on the programs page (curriculum source above)"
+  }
+}

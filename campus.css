@@ -1,0 +1,169 @@
+/* ============================================================================
+ * campus.css — LVC v10 ฉากเข้าเว็บ (intro.js) + พื้นหลังภาพวิทยาลัยหน้าแรก (campus-backdrop.js)
+ * ============================================================================ */
+:root {
+  --intro-paper: #fbfaf7;
+  --intro-ink: #241f20;
+  --intro-muted: #5f5658;
+  --intro-line: rgba(36, 31, 32, .16);
+  --intro-gold: #a8884f;
+  --intro-ease: cubic-bezier(.22, .8, .25, 1);
+}
+html[data-theme="dark"] {
+  --intro-paper: #181619;
+  --intro-ink: #f3eee7;
+  --intro-muted: #c4bbb9;
+  --intro-line: rgba(243, 238, 231, .18);
+  --intro-gold: #d5c298;
+}
+
+/* ---------- ล็อกหน้าระหว่างฉากเข้าเว็บ ---------- */
+html.lvc-loading { overflow: hidden; scrollbar-gutter: stable; background: var(--intro-paper); }
+.lvc-intro { display: none; }
+html.lvc-loading .lvc-intro {
+  display: block;
+  position: fixed; inset: 0; z-index: 2147483000; overflow: hidden;
+  background: var(--intro-paper); color: var(--intro-ink);
+  font-family: Kanit, sans-serif;
+  touch-action: none; -webkit-user-select: none; user-select: none; overscroll-behavior: none;
+}
+.lvc-intro__gl { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+
+/* แบบไม่มี WebGL: ภาพจาง (ใช้ filter) + ภาพสีที่เปิดออกเป็นวงจากป้ายชื่อวิทยาลัย */
+.lvc-intro__fb { position: absolute; inset: 0; display: none; }
+.lvc-intro.is-fallback .lvc-intro__fb { display: block; }
+.lvc-intro.is-fallback .lvc-intro__gl { display: none; }
+.lvc-intro__fb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 55% 42%; }
+.lvc-intro__ghost { opacity: 0; filter: grayscale(.85) contrast(.42) brightness(1.5); transition: opacity 1s ease; }
+html[data-theme="dark"] .lvc-intro__ghost { filter: grayscale(.85) contrast(.55) brightness(.45); }
+.lvc-intro__color { clip-path: circle(0% at var(--fb-x, 70%) var(--fb-y, 38%)); transition: clip-path 2.4s cubic-bezier(.65, 0, .35, 1); }
+.lvc-intro.fb-ghost .lvc-intro__ghost { opacity: 1; }
+.lvc-intro.fb-bloom .lvc-intro__color { clip-path: circle(150% at var(--fb-x, 70%) var(--fb-y, 38%)); }
+
+/* เงากระดาษใต้ชื่อวิทยาลัย ให้อ่านง่ายบนภาพสี */
+.lvc-intro__shade {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(0deg, rgba(251, 250, 247, .95) 4%, rgba(251, 250, 247, .74) 24%, rgba(251, 250, 247, .34) 40%, rgba(251, 250, 247, 0) 56%);
+  transition: opacity 1s ease;
+}
+html[data-theme="dark"] .lvc-intro__shade { background: linear-gradient(0deg, rgba(24, 22, 25, .95) 4%, rgba(24, 22, 25, .76) 24%, rgba(24, 22, 25, .36) 40%, rgba(24, 22, 25, 0) 56%); }
+.lvc-intro.is-title .lvc-intro__shade { opacity: 1; }
+
+/* ชื่อวิทยาลัย */
+.lvc-intro__title {
+  position: absolute; left: var(--gutter, 24px); right: var(--gutter, 24px);
+  bottom: calc(clamp(92px, 13vh, 146px) + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+.lvc-intro__eyebrow {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px; letter-spacing: .04em; color: var(--intro-ink);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .8s ease, transform 1s var(--intro-ease);
+}
+.lvc-intro__eyebrow i { display: block; width: 36px; height: 1px; background: var(--intro-gold); transform: scaleX(0); transform-origin: left; transition: transform 1.1s var(--intro-ease) .1s; }
+.lvc-intro__name { margin: 10px 0 0; font-size: clamp(40px, 6.4vw, 100px); font-weight: 300; line-height: 1.18; letter-spacing: -.02em; }
+.lvc-intro__name span {
+  display: inline-block; opacity: 0; transform: translateY(.42em); filter: blur(8px);
+  transition: opacity .9s ease, transform 1.2s var(--intro-ease), filter 1s ease;
+}
+.lvc-intro__name span + span { transition-delay: .12s; }
+.lvc-intro__sub {
+  display: block; margin-top: 14px; font-size: 12px; letter-spacing: .5em; color: var(--intro-muted); opacity: 0;
+  transition: opacity 1s ease .35s, letter-spacing 1.6s var(--intro-ease) .35s;
+}
+.lvc-intro.is-title .lvc-intro__eyebrow { opacity: 1; transform: none; }
+.lvc-intro.is-title .lvc-intro__eyebrow i { transform: none; }
+.lvc-intro.is-title .lvc-intro__name span { opacity: 1; transform: none; filter: none; }
+.lvc-intro.is-title .lvc-intro__sub { opacity: 1; letter-spacing: .28em; }
+.lvc-intro.is-leaving .lvc-intro__title { opacity: 0; transform: translateY(-16px); transition: opacity .45s ease, transform .7s var(--intro-ease); }
+.lvc-intro.is-leaving .lvc-intro__shade { opacity: 0; transition-duration: .55s; }
+
+/* HUD */
+.lvc-intro__hud {
+  position: absolute; inset: 0; pointer-events: none;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: calc(18px + env(safe-area-inset-top)) var(--gutter, 24px) calc(22px + env(safe-area-inset-bottom));
+  transition: opacity .45s ease;
+}
+.lvc-intro.is-leaving .lvc-intro__hud { opacity: 0; }
+.lvc-intro__top { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.lvc-intro__brand {
+  display: inline-flex; align-items: center; gap: 12px; padding: 6px 14px 6px 8px; border-radius: 999px;
+  font-size: 11px; letter-spacing: .22em; color: var(--intro-ink);
+  background: rgba(251, 250, 247, .62); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+html[data-theme="dark"] .lvc-intro__brand { background: rgba(24, 22, 25, .58); }
+.lvc-intro__brand img { width: 26px; height: 33px; object-fit: contain; }
+.lvc-intro__skip {
+  pointer-events: auto;
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 10px 18px;
+  border: 1px solid var(--intro-line); border-radius: 999px;
+  background: rgba(251, 250, 247, .72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  color: var(--intro-ink); font: inherit; font-size: 13px; cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, transform .12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+html[data-theme="dark"] .lvc-intro__skip { background: rgba(24, 22, 25, .66); }
+.lvc-intro__skip svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; transition: transform .4s var(--intro-ease); }
+@media (hover: hover) and (pointer: fine) {
+  .lvc-intro__skip:hover { border-color: var(--intro-muted); }
+  .lvc-intro__skip:hover svg { transform: translateX(3px); }
+}
+.lvc-intro__skip:active { transform: scale(.96); }
+.lvc-intro__skip[aria-busy="true"] { opacity: .55; cursor: progress; }
+.lvc-intro__skip:focus-visible { outline: 2px solid var(--intro-gold); outline-offset: 4px; }
+.lvc-intro__bottom {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px;
+  padding: 8px 16px; border-radius: 999px;
+  background: rgba(251, 250, 247, .55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+html[data-theme="dark"] .lvc-intro__bottom { background: rgba(24, 22, 25, .5); }
+.lvc-intro__label { font-size: 12px; letter-spacing: .04em; color: var(--intro-muted); white-space: nowrap; }
+.lvc-intro__bar { display: block; height: 1px; background: var(--intro-line); overflow: hidden; }
+.lvc-intro__bar i { display: block; height: 100%; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, #a61d2d, var(--intro-gold)); }
+.lvc-intro:not(.is-live) .lvc-intro__bar i { animation: lvc-intro-wait 2.4s ease-in-out infinite; }
+@keyframes lvc-intro-wait { 0% { transform: scaleX(0); } 60% { transform: scaleX(.35); } 100% { transform: scaleX(.42); } }
+.lvc-intro__count { font-size: 13px; letter-spacing: .1em; font-variant-numeric: tabular-nums; color: var(--intro-muted); }
+.lvc-intro__count b { font-weight: 400; color: var(--intro-ink); }
+
+@media (max-width: 600px) {
+  .lvc-intro__brand > span { display: none; }
+  .lvc-intro__brand { padding: 6px; }
+  .lvc-intro__name span { display: block; }
+  .lvc-intro__sub { letter-spacing: .32em; font-size: 11px; }
+  .lvc-intro.is-title .lvc-intro__sub { letter-spacing: .2em; }
+  .lvc-intro__bottom { gap: 12px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .lvc-intro__title { bottom: calc(66px + env(safe-area-inset-bottom)); }
+  .lvc-intro__name { font-size: clamp(30px, 7vh + 2vw, 54px); }
+  .lvc-intro__sub { margin-top: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lvc-intro { display: none !important; }
+  html.lvc-loading { overflow: auto; }
+}
+
+/* ---------- พื้นหลังภาพวิทยาลัยในหน้าแรก ---------- */
+.lvc-campus { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.lvc-campus__gl { display: block; width: 100%; height: 100%; }
+.lvc-campus.is-fallback .lvc-campus__gl { display: none; }
+.lvc-campus.is-fallback { background: url(./images/campus.webp) 62% 34% / cover no-repeat; }
+.lvc-campus.is-fallback::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgba(250, 249, 246, 1) 18%, rgba(250, 249, 246, .62) 44%, rgba(250, 249, 246, .1) 64%),
+    linear-gradient(0deg, rgba(250, 249, 246, 1) 1%, rgba(250, 249, 246, 0) 14%);
+}
+html[data-theme="dark"] .lvc-campus.is-fallback::after {
+  background:
+    linear-gradient(90deg, rgba(24, 22, 25, 1) 18%, rgba(24, 22, 25, .66) 44%, rgba(24, 22, 25, .2) 64%),
+    linear-gradient(0deg, rgba(24, 22, 25, 1) 1%, rgba(24, 22, 25, 0) 14%);
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  .lvc-campus.is-fallback { background-size: auto 100%; background-position: 66% 50%; }
+  .lvc-campus.is-fallback::after { background: linear-gradient(180deg, rgba(250, 249, 246, 1) 36%, rgba(250, 249, 246, .3) 62%, rgba(250, 249, 246, .08) 100%); }
+  html[data-theme="dark"] .lvc-campus.is-fallback::after { background: linear-gradient(180deg, rgba(24, 22, 25, 1) 36%, rgba(24, 22, 25, .4) 62%, rgba(24, 22, 25, .2) 100%); }
+}
+@media print { .lvc-campus, .lvc-intro { display: none !important; } }

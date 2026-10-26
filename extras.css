@@ -1,0 +1,151 @@
+/* ============================================================================
+ * extras.css — LVC v9.4 การเคลื่อนไหวเสริม + ความรู้สึกตอนกดบนมือถือ (คู่กับ extras.js)
+ *   1) เส้นความคืบหน้าการอ่านใต้แถบเมนู
+ *   2) ปุ่มกลับด้านบนลอย พร้อมวงแสดงความคืบหน้า
+ *   3) มือถือ: ปุ่มยุบตัวตอนกด · ล้างสถานะ hover ที่ค้างหลังแตะ
+ *   4) รูปภาพจางเข้าเมื่อโหลดเสร็จ (เน็ตช้าไม่เห็นรูปโผล่ทีละครึ่ง)
+ *   5) ตัวอักษร LVC ขนาดใหญ่ท้ายหน้า ไหลขึ้นตอนเลื่อนถึง
+ *   6) แสงนวลตามเมาส์ในช่วงผลงาน (คอมเท่านั้น)
+ *   7) ตราวิทยาลัยขยับเบา ๆ เมื่อชี้ · ช่องค้นหาสาขาเปลี่ยนตัวอย่างคำค้น
+ * ทุกอย่างปิดเองเมื่อเปิด Reduced Motion และไม่แสดงตอนพิมพ์
+ * ============================================================================ */
+:root { --x-ease: cubic-bezier(.22, .8, .25, 1); --x-gold: #c9a96a; }
+html[data-theme="dark"] { --x-gold: #d5c298; }
+
+/* ---------- 1) เส้นความคืบหน้า ---------- */
+.lvc-progress {
+  position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  overflow: hidden; pointer-events: none; z-index: 1;
+}
+.lvc-progress i {
+  display: block; height: 100%;
+  transform-origin: 0 50%; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--red), var(--x-gold));
+  will-change: transform;
+}
+html.lvc-loading .lvc-progress { opacity: 0; }
+
+/* ---------- 2) ปุ่มกลับด้านบน ---------- */
+.lvc-top {
+  position: fixed; z-index: 42;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  width: 50px; height: 50px; padding: 0; border: 0; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  color: var(--ink);
+  background: rgba(250, 249, 246, .9);
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px -14px rgba(36, 25, 28, .45);
+  opacity: 0; visibility: hidden; transform: translateY(16px) scale(.86);
+  transition: opacity .3s ease, transform .5s var(--x-ease), visibility 0s linear .5s, bottom .35s var(--x-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.lvc-top.is-on { opacity: 1; visibility: visible; transform: none; transition: opacity .3s ease, transform .5s var(--x-ease), visibility 0s, bottom .35s var(--x-ease); }
+.lvc-top .lvc-top__ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.lvc-top__ring circle { fill: none; stroke-width: 1.4; }      /* v10: ไม่ใช้ non-scaling-stroke + pathLength (Safari วาดความยาวเส้นผิด) */
+.lvc-top__track { stroke: var(--line); }
+.lvc-top__bar { stroke: var(--red); stroke-linecap: round; stroke-dasharray: 150.8; stroke-dashoffset: 150.8; }
+.lvc-top__arrow { position: relative; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .45s var(--x-ease); }
+.lvc-top:focus-visible { outline: 3px solid #b18a00; outline-offset: 4px; }
+.lvc-top:active { transform: scale(.9); transition-duration: .12s; }
+.lvc-top.is-going .lvc-top__arrow { animation: lvc-top-lift .6s var(--x-ease); }
+@keyframes lvc-top-lift { 0% { transform: none; } 45% { transform: translateY(-9px); opacity: 0; } 46% { transform: translateY(9px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@media (hover: hover) and (pointer: fine) {
+  .lvc-top:hover .lvc-top__arrow { transform: translateY(-3px); }
+}
+html.lvc-loading .lvc-top { display: none; }
+
+/* ---------- 3) มือถือ: กดแล้วยุบ + ไม่ค้างสถานะ hover ---------- */
+@media (hover: none) {
+  .button:not(.lvc-metal):active,
+  .icon-button:active,
+  .theme-toggle:active,
+  .menu-toggle:active,
+  .quiet-button:active,
+  .theme-option:active,
+  .poster-button:active { transform: scale(.96); transition: transform .1s ease-out; }
+  .service-link:active,
+  .program-row:active,
+  .news-item:active,
+  .featured-news:active,
+  .menu-content > a:active,
+  .page-nav a:active,
+  .document-links a:active,
+  .footer a:active,
+  .page-footer a:active { opacity: .6; transition: opacity .08s; }
+
+  /* iOS/Android เก็บ :hover ไว้หลังแตะจนกว่าจะแตะที่อื่น → แถวขยับ ปุ่มค้างสีทอง */
+  .program-row:hover { padding-inline: 0; color: inherit; }
+  .program-row:hover::after { transform: scaleX(0); }
+  .program-row:hover .arrow { opacity: .5; }
+  .gallery-controls .icon-button:hover { background: transparent; border-color: #ffffff40; color: #fff; }
+  html[data-theme="dark"] .gallery-controls .icon-button:hover { background: transparent; color: #fff; }
+  .icon-button:hover { background: transparent; }                       /* ช่องแกลเลอรีมีกฎที่เจาะจงกว่าด้านบน */
+  html[data-theme="dark"] .icon-button:hover { background: transparent; }
+  .theme-toggle:not([aria-expanded="true"]):hover { background: transparent; border-color: var(--theme-border); }
+  .quiet-button:not([aria-pressed="true"]):hover { border-color: #cfc5b5; color: var(--ink); }
+  html[data-theme="dark"] .quiet-button:not([aria-pressed="true"]):hover { border-color: var(--theme-border); }
+  .button:not(.lvc-metal):hover { transform: none; }
+}
+
+/* ---------- 4) รูปจางเข้าเมื่อโหลดเสร็จ ---------- */
+img.lvc-img-wait { opacity: 0; }
+
+/* ---------- 5) ตัวอักษร LVC ท้ายหน้า ---------- */
+.lvc-mark {
+  position: relative; overflow: hidden; pointer-events: none; user-select: none;
+  margin: clamp(18px, 4vw, 48px) auto 0; padding-inline: var(--gutter, 24px);
+  display: flex; justify-content: center; gap: .02em;
+  font-size: clamp(100px, 22vw, 320px); font-weight: 300; line-height: .78; letter-spacing: -.045em;
+  color: transparent; -webkit-text-stroke: 1.2px rgba(183, 156, 95, .85);
+  -webkit-text-stroke: 1.2px color-mix(in srgb, var(--x-gold) 88%, var(--ink));
+  height: .74em;
+}
+.lvc-mark span { display: inline-block; transform: translateY(0); }
+.lvc-mark::after {
+  content: ""; position: absolute; left: var(--gutter, 24px); right: var(--gutter, 24px); bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--x-gold), transparent);
+  transform: scaleX(1);
+}
+html.lvcx-on .lvc-mark span { transform: translateY(105%); transition: transform 1.25s var(--x-ease); }
+html.lvcx-on .lvc-mark span:nth-child(2) { transition-delay: .09s; }
+html.lvcx-on .lvc-mark span:nth-child(3) { transition-delay: .18s; }
+html.lvcx-on .lvc-mark::after { transform: scaleX(0); transition: transform 1.4s var(--x-ease) .25s; }
+html.lvcx-on .lvc-mark.is-in span { transform: translateY(0); }
+html.lvcx-on .lvc-mark.is-in::after { transform: scaleX(1); }
+.content-page .lvc-mark { background: transparent; }
+
+/* ---------- 6) แสงตามเมาส์ในช่วงผลงาน ---------- */
+.lvc-spot {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(520px circle at var(--sx, 50%) var(--sy, 50%), rgba(255, 222, 190, .11), rgba(255, 222, 190, 0) 62%);
+  transition: opacity .6s ease;
+}
+.lvc-spot.is-on { opacity: 1; }
+
+/* ---------- 7) ตราวิทยาลัย + ช่องค้นหา ---------- */
+@media (hover: hover) and (pointer: fine) {
+  html.lvcx-on .site-header .brand img { transition: transform .7s var(--x-ease); }
+  html.lvcx-on .site-header .brand:hover img { transform: rotate(-8deg) scale(1.06); }
+}
+#program-search::placeholder { transition: opacity .35s ease; }
+#program-search.is-swapping::placeholder { opacity: 0; }
+/* ปุ่มล้างคำค้นของเบราว์เซอร์เป็นสีน้ำเงินไม่เข้ากับเว็บ → เปลี่ยนเป็น × สีเดียวกับตัวหนังสือ */
+#program-search::-webkit-search-cancel-button {
+  -webkit-appearance: none; appearance: none; width: 16px; height: 16px; cursor: pointer;
+  background: currentColor; opacity: .55;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 3.5l9 9m0-9l-9 9' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / 16px no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 3.5l9 9m0-9l-9 9' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center / 16px no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }                 /* ลิงก์ในหน้า/กลับด้านบน กระโดดทันที ไม่เลื่อนไหล */
+  .lvc-top, .lvc-top.is-on { transition: opacity .01s, visibility 0s; transform: none; }
+  .lvc-top.is-going .lvc-top__arrow { animation: none; }
+  .lvc-spot { display: none; }
+}
+@media print {
+  .lvc-progress, .lvc-top, .lvc-mark, .lvc-spot { display: none !important; }
+  img.lvc-img-wait { opacity: 1 !important; }
+}

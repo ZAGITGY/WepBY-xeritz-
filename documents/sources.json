@@ -1,0 +1,109 @@
+{
+  "version": "2026-10-14.9.1",
+  "verifiedAt": "2026-10-14",
+  "totalBytes": 39075991,
+  "documents": [
+    {
+      "filename": "student-handbook-2569.pdf",
+      "path": "documents/student-handbook-2569.pdf",
+      "title": "คู่มือนักเรียน นักศึกษา ปีการศึกษา 2569",
+      "titleEnglish": "Student handbook 2569",
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf",
+      "bytes": 25505495,
+      "sha256": "9293fcf7ce1145ef7836f38b13a69d8567f6ff931c7424a4d6bbd22344551078",
+      "format": "PDF",
+      "success": true,
+      "source": "Previously fetched official document, retained byte-for-byte",
+      "verification": {
+        "magic": "%PDF-",
+        "pdfinfoExitCode": 0,
+        "pages": 56
+      }
+    },
+    {
+      "filename": "certificate-plan-2569.pdf",
+      "path": "documents/certificate-plan-2569.pdf",
+      "title": "แผนการเรียนระดับ ปวช. ปีการศึกษา 2569",
+      "titleEnglish": "Vocational certificate curriculum plan 2569",
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-22/Vocational_Certificate_Curriculum_Plan_2569.pdf",
+      "bytes": 4587418,
+      "sha256": "51962337208b8914d91fc938ecce219c5ee772bc5ad2efc7ec83006b64d95d7a",
+      "format": "PDF",
+      "success": true,
+      "source": "Previously fetched official document, retained byte-for-byte",
+      "verification": {
+        "magic": "%PDF-",
+        "pdfinfoExitCode": 0,
+        "pages": 57
+      }
+    },
+    {
+      "filename": "diploma-plan-2569.pdf",
+      "path": "documents/diploma-plan-2569.pdf",
+      "title": "แผนการเรียนระดับ ปวส. ปีการศึกษา 2569",
+      "titleEnglish": "Vocational diploma curriculum plan 2569",
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-22/Vocational_Diploma_Curriculum_Plan_2569.pdf",
+      "bytes": 6794329,
+      "sha256": "3e0cbae8d7f23b65763e40ea25bd436adfc6c02025df9c90d2dbf602468a050c",
+      "format": "PDF",
+      "success": true,
+      "source": "Previously fetched official document, retained byte-for-byte",
+      "verification": {
+        "magic": "%PDF-",
+        "pdfinfoExitCode": 0,
+        "pages": 84
+      }
+    },
+    {
+      "filename": "no-gift-policy-2569.pdf",
+      "path": "documents/no-gift-policy-2569.pdf",
+      "title": "นโยบายไม่รับของขวัญ (No Gift Policy)",
+      "titleEnglish": "No Gift Policy",
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-20/No_Gift_Policy.pdf",
+      "bytes": 126204,
+      "sha256": "67a9f27dd51e9ade90fae6529cc4ca7fa5ebdce0fecdbec39e1a71c07fa5d850",
+      "format": "PDF",
+      "success": true,
+      "source": "Previously fetched official document, retained byte-for-byte",
+      "verification": {
+        "magic": "%PDF-",
+        "pdfinfoExitCode": 0,
+        "pages": 1
+      }
+    },
+    {
+      "filename": "dos-and-donts-2569.pdf",
+      "path": "documents/dos-and-donts-2569.pdf",
+      "title": "ข้อควรทำและไม่ควรทำ",
+      "titleEnglish": "Dos and Don'ts",
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-17/Do's_and_Don't.pdf",
+      "bytes": 1349729,
+      "sha256": "d042c5df88a9585c833c9b699b68570635d091d284783151c741440b8b925a1f",
+      "format": "PDF",
+      "success": true,
+      "source": "Previously fetched official document, retained byte-for-byte",
+      "verification": {
+        "magic": "%PDF-",
+        "pdfinfoExitCode": 0,
+        "pages": 8
+      }
+    },
+    {
+      "filename": "complaints-guide-2569.png",
+      "path": "documents/complaints-guide-2569.png",
+      "title": "คู่มือการร้องเรียน",
+      "titleEnglish": "Complaints guide",
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-18/Complaints_step.png",
+      "bytes": 712816,
+      "sha256": "d6982f8ebee44e0022bd5d5252851b59d3705c857532dd253cd2e2a9b80e7ee8",
+      "format": "PNG",
+      "success": true,
+      "source": "Previously fetched official document, retained byte-for-byte",
+      "verification": {
+        "magic": "PNG",
+        "width": 1000,
+        "height": 600
+      }
+    }
+  ]
+}

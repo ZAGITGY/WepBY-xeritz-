@@ -1,0 +1,355 @@
+{
+  "verifiedAt": "2026-10-14",
+  "academicYear": 2569,
+  "sourceTitle": "คู่มือนักเรียน นักศึกษา ปีการศึกษา 2569 วิทยาลัยอาชีวศึกษาเลย",
+  "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf",
+  "sourceIndexUrl": "https://lvc.ac.th/www2026/ita2569/ita-2569.html",
+  "sourcePages": {
+    "printed": [
+      29,
+      30,
+      31
+    ],
+    "pdf": [
+      31,
+      32,
+      33
+    ]
+  },
+  "sourcePublicationEvidence": "ชื่อคู่มือระบุปีการศึกษา 2569; PDF metadata Created 2026-03-27, Modified 2026-07-17. ไม่มีวันเผยแพร่บนหน้าเว็บ",
+  "intro": "สำรวจสาขาวิชาที่วิทยาลัยระบุในคู่มือนักเรียน นักศึกษา ปีการศึกษา 2569 พร้อมระดับการศึกษาและช่องทางสอบถามการสมัครเรียน",
+  "scopeNote": "ข้อมูลสาขาวิชาอ้างอิงคู่มือปีการศึกษา 2569 กรุณาสอบถามวิทยาลัยเกี่ยวกับรอบรับสมัคร คุณสมบัติเฉพาะสาขา และจำนวนที่เปิดรับ",
+  "programs": [
+    {
+      "slug": "business",
+      "title": "บริหารธุรกิจ",
+      "shortDescription": "การบัญชี การตลาด งานสำนักงาน และภาษาต่างประเทศธุรกิจบริการ",
+      "description": "เลือกเรียนด้านการบัญชี การตลาด และงานสำนักงาน โดยมีสาขาแตกต่างกันในแต่ละระดับการศึกษา",
+      "levels": [
+        {
+          "name": "ปวช.",
+          "branches": [
+            "การบัญชี",
+            "การตลาด",
+            "การเลขานุการ",
+            "การจัดการสำนักงานดิจิทัล",
+            "ภาษาต่างประเทศธุรกิจบริการ"
+          ]
+        },
+        {
+          "name": "ปวส.",
+          "branches": [
+            "การบัญชี",
+            "การตลาด",
+            "การจัดการสำนักงานดิจิทัล"
+          ]
+        },
+        {
+          "name": "ปริญญาตรี",
+          "branches": [
+            "การบัญชี"
+          ]
+        }
+      ],
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "printedPages": [
+        29,
+        30,
+        31
+      ],
+      "pdfPages": [
+        31,
+        32,
+        33
+      ],
+      "officialDepartmentUrl": "https://lvc.ac.th/www2026/departments/commerce.html"
+    },
+    {
+      "slug": "digital",
+      "title": "ดิจิทัลและเทคโนโลยีสารสนเทศ",
+      "shortDescription": "เทคโนโลยีสารสนเทศ ธุรกิจดิจิทัล และคอมพิวเตอร์เกมและแอนิเมชัน",
+      "description": "สาขาด้านเทคโนโลยีและธุรกิจดิจิทัล รวมถึงคอมพิวเตอร์เกมและแอนิเมชันในระดับ ปวส.",
+      "levels": [
+        {
+          "name": "ปวช.",
+          "branches": [
+            "เทคโนโลยีสารสนเทศ",
+            "เทคโนโลยีธุรกิจดิจิทัล"
+          ]
+        },
+        {
+          "name": "ปวส.",
+          "branches": [
+            "คอมพิวเตอร์เกมและแอนิเมชัน",
+            "เทคโนโลยีธุรกิจดิจิทัล"
+          ]
+        },
+        {
+          "name": "ปริญญาตรี",
+          "branches": [
+            "เทคโนโลยีธุรกิจดิจิทัล"
+          ]
+        }
+      ],
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "printedPages": [
+        29,
+        30,
+        31
+      ],
+      "pdfPages": [
+        31,
+        32,
+        33
+      ],
+      "classificationNote": "ปริญญาตรีเทคโนโลยีธุรกิจดิจิทัลอยู่ในประเภทวิชาบริหารธุรกิจตามคู่มือ; หน้านี้จัดกลุ่มตามเรื่องที่เรียน ไม่อ้างว่าเป็นการจัดประเภทวิชาอย่างเป็นทางการ"
+    },
+    {
+      "slug": "arts",
+      "title": "ศิลปกรรมและเศรษฐกิจสร้างสรรค์",
+      "shortDescription": "สาขาดิจิทัลกราฟิก ระดับ ปวช. และ ปวส.",
+      "description": "สาขาดิจิทัลกราฟิกอยู่ในกลุ่มอาชีพศิลปะและการออกแบบ เปิดสอนทั้งระดับ ปวช. และ ปวส.",
+      "levels": [
+        {
+          "name": "ปวช.",
+          "branches": [
+            "ดิจิทัลกราฟิก"
+          ]
+        },
+        {
+          "name": "ปวส.",
+          "branches": [
+            "ดิจิทัลกราฟิก"
+          ]
+        }
+      ],
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "printedPages": [
+        29,
+        30
+      ],
+      "pdfPages": [
+        31,
+        32
+      ],
+      "officialDepartmentUrl": "https://lvc.ac.th/www2026/departments/arts.html"
+    },
+    {
+      "slug": "home-economics",
+      "title": "คหกรรม",
+      "shortDescription": "คหกรรมศาสตร์และการบริหารงานคหกรรมศาสตร์",
+      "description": "เรียนสาขาคหกรรมศาสตร์ในระดับ ปวช. และการบริหารงานคหกรรมศาสตร์ในระดับ ปวส.",
+      "levels": [
+        {
+          "name": "ปวช.",
+          "branches": [
+            "คหกรรมศาสตร์"
+          ]
+        },
+        {
+          "name": "ปวส.",
+          "branches": [
+            "การบริหารงานคหกรรมศาสตร์"
+          ]
+        }
+      ],
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "printedPages": [
+        29,
+        30
+      ],
+      "pdfPages": [
+        31,
+        32
+      ],
+      "officialDepartmentUrl": "https://lvc.ac.th/www2026/departments/home-economics.html"
+    },
+    {
+      "slug": "tourism",
+      "title": "อุตสาหกรรมท่องเที่ยว",
+      "shortDescription": "การโรงแรมและการท่องเที่ยว ระดับ ปวช. และ ปวส.",
+      "description": "สาขาการโรงแรมและการท่องเที่ยว โดยระดับ ปวส. การโรงแรมเป็นระบบทวิภาคีตามคู่มือของวิทยาลัย",
+      "levels": [
+        {
+          "name": "ปวช.",
+          "branches": [
+            "การโรงแรม",
+            "การท่องเที่ยว"
+          ]
+        },
+        {
+          "name": "ปวส.",
+          "branches": [
+            "การโรงแรม",
+            "การท่องเที่ยว"
+          ]
+        }
+      ],
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "printedPages": [
+        29,
+        31
+      ],
+      "pdfPages": [
+        31,
+        33
+      ]
+    },
+    {
+      "slug": "food",
+      "title": "อุตสาหกรรมอาหาร",
+      "shortDescription": "สาขาอาหารและโภชนาการ ระดับ ปวช. และ ปวส.",
+      "description": "สาขาอาหารและโภชนาการอยู่ในกลุ่มงานด้านการประกอบอาหารและบริการอาหาร",
+      "levels": [
+        {
+          "name": "ปวช.",
+          "branches": [
+            "อาหารและโภชนาการ"
+          ]
+        },
+        {
+          "name": "ปวส.",
+          "branches": [
+            "อาหารและโภชนาการ"
+          ]
+        }
+      ],
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "printedPages": [
+        29,
+        30
+      ],
+      "pdfPages": [
+        31,
+        32
+      ]
+    },
+    {
+      "slug": "fashion",
+      "title": "อุตสาหกรรมแฟชั่นสิ่งทอ",
+      "shortDescription": "แฟชั่นสิ่งทอ เทคโนโลยีแฟชั่นและเครื่องแต่งกาย",
+      "description": "เรียนแฟชั่นสิ่งทอในระดับ ปวช. และเทคโนโลยีแฟชั่นและเครื่องแต่งกายในระดับ ปวส.",
+      "levels": [
+        {
+          "name": "ปวช.",
+          "branches": [
+            "แฟชั่นสิ่งทอ"
+          ]
+        },
+        {
+          "name": "ปวส.",
+          "branches": [
+            "เทคโนโลยีแฟชั่นและเครื่องแต่งกาย"
+          ]
+        }
+      ],
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "printedPages": [
+        29,
+        30
+      ],
+      "pdfPages": [
+        31,
+        32
+      ]
+    },
+    {
+      "slug": "logistics",
+      "title": "อุตสาหกรรมโลจิสติกส์",
+      "shortDescription": "โลจิสติกส์และการจัดการโลจิสติกส์และซัพพลายเชน",
+      "description": "เรียนโลจิสติกส์ในระดับ ปวช. และการจัดการโลจิสติกส์และซัพพลายเชนในระดับ ปวส. ระบบทวิภาคี",
+      "levels": [
+        {
+          "name": "ปวช.",
+          "branches": [
+            "โลจิสติกส์"
+          ]
+        },
+        {
+          "name": "ปวส.",
+          "branches": [
+            "การจัดการโลจิสติกส์และซัพพลายเชน"
+          ]
+        }
+      ],
+      "sourceUrl": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "printedPages": [
+        29,
+        31
+      ],
+      "pdfPages": [
+        31,
+        33
+      ]
+    }
+  ],
+  "levelOverview": [
+    {
+      "name": "ปวช.",
+      "fullName": "ประกาศนียบัตรวิชาชีพ",
+      "qualification": "สำหรับผู้สำเร็จการศึกษาระดับ ม.3",
+      "sourcePdfPage": 31
+    },
+    {
+      "name": "ปวส.",
+      "fullName": "ประกาศนียบัตรวิชาชีพชั้นสูง",
+      "qualification": "สำหรับผู้สำเร็จการศึกษาระดับ ปวช.3 ม.6 หรือเทียบเท่า",
+      "sourcePdfPage": 32
+    },
+    {
+      "name": "ปริญญาตรี",
+      "fullName": "เทคโนโลยีบัณฑิตสายปฏิบัติการ",
+      "description": "สาขาการบัญชีและเทคโนโลยีธุรกิจดิจิทัล ระบบทวิภาคี",
+      "sourcePdfPage": 33
+    }
+  ],
+  "admissions": {
+    "label": "สอบถามการสมัครเรียน",
+    "url": "https://lvc.ac.th/www2026/about.html",
+    "phoneLabel": "042-812-395",
+    "phoneUrl": "tel:042812395",
+    "description": "ติดต่อวิทยาลัยเพื่อสอบถามรอบรับสมัคร คุณสมบัติผู้สมัคร และเอกสารที่ใช้",
+    "status": "ช่องทางติดต่อสถานศึกษา ยืนยันจากหน้าข้อมูลติดต่อ ไม่พบระบบสมัครเรียนออนไลน์หรือกำหนดการรับสมัครที่ยืนยันได้"
+  },
+  "documents": [
+    {
+      "title": "คู่มือนักเรียน นักศึกษา ปีการศึกษา 2569",
+      "url": "https://lvc.ac.th/www2026/ita2569/oit-13/Student_Handbook_2569.pdf#page=31",
+      "format": "PDF",
+      "bytes": 25505495,
+      "status": 200
+    },
+    {
+      "title": "แผนการเรียนระดับ ปวช. ปีการศึกษา 2569",
+      "url": "https://lvc.ac.th/www2026/ita2569/oit-22/Vocational_Certificate_Curriculum_Plan_2569.pdf",
+      "format": "PDF",
+      "bytes": 4587418,
+      "status": 200
+    },
+    {
+      "title": "แผนการเรียนระดับ ปวส. ปีการศึกษา 2569",
+      "url": "https://lvc.ac.th/www2026/ita2569/oit-22/Vocational_Diploma_Curriculum_Plan_2569.pdf",
+      "format": "PDF",
+      "bytes": 6794329,
+      "status": 200
+    }
+  ],
+  "omittedDestinations": [
+    {
+      "url": "https://lvc.ac.th/www2026/web-data/Basic-Data/curriculum-data.html",
+      "reason": "HTTP 200 แต่หน้าแจ้งว่าอยู่ระหว่างการรวบรวมข้อมูล"
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/departments/tourism.html",
+      "reason": "HTTP 200 แต่หน้าแจ้งว่าอยู่ระหว่างการจัดทำข้อมูล"
+    },
+    {
+      "url": "https://lvc.ac.th/www2026/departments/ict.html",
+      "reason": "HTTP 200 แต่หน้าแจ้งว่าอยู่ระหว่างการจัดทำข้อมูล"
+    },
+    {
+      "url": "https://www.lvc.ac.th/lvc_ita2568/9.2-13/9-2-13-01.pdf",
+      "reason": "คู่มือปี 2568 เก่าที่ปรากฏใน search index ให้ HTTP 404; ไม่ใช้"
+    }
+  ]
+}

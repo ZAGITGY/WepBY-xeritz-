@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#faf9f6">
+  <title>ไม่พบหน้านี้ — วิทยาลัยอาชีวศึกษาเลย</title>
+  <!-- v9.4: GitHub Pages / Netlify / Cloudflare Pages แสดงไฟล์นี้อัตโนมัติเมื่อเปิดลิงก์ที่ไม่มีอยู่
+       สไตล์อยู่ในไฟล์เดียว เพราะหน้านี้อาจถูกเปิดจากโฟลเดอร์ไหนก็ได้ -->
+  <style>
+    @font-face { font-family: Kanit; src: url(./fonts/kanit-300.woff2) format("woff2"); font-weight: 300; font-display: swap; }
+    @font-face { font-family: Kanit; src: url(./fonts/kanit-500.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+    :root { --paper: #faf9f6; --ink: #241f20; --muted: #686d72; --line: #dfd9d2; --red: #a61d2d; --gold: #c9a96a; color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) { :root { --paper: #181619; --ink: #f3eee7; --muted: #b9b1b0; --line: #40373b; --red: #ef929c; --gold: #d5c298; } }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 32px 20px; background: var(--paper); color: var(--ink);
+      font-family: Kanit, "Noto Sans Thai", "Sukhumvit Set", Tahoma, sans-serif; font-weight: 300; }
+    main { width: min(560px, 100%); text-align: center; }
+    .code { font-size: clamp(110px, 32vw, 210px); line-height: .9; letter-spacing: -.05em; color: transparent; -webkit-text-stroke: 1px var(--gold); margin: 0;
+      animation: rise 1.1s cubic-bezier(.22,.8,.25,1) both; }
+    h1 { margin: 26px 0 10px; font-weight: 500; font-size: clamp(24px, 5vw, 32px); animation: rise 1s .1s cubic-bezier(.22,.8,.25,1) both; }
+    p { margin: 0; color: var(--muted); line-height: 1.8; animation: rise 1s .18s cubic-bezier(.22,.8,.25,1) both; }
+    nav { margin-top: 32px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; animation: rise 1s .26s cubic-bezier(.22,.8,.25,1) both; }
+    a { display: inline-flex; align-items: center; min-height: 46px; padding: 10px 20px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink); text-decoration: none; transition: border-color .2s, transform .12s; }
+    a.main { background: var(--red); border-color: var(--red); color: #fff; }
+    a:hover { border-color: var(--red); }
+    a:active { transform: scale(.96); }
+    a:focus-visible { outline: 3px solid #b18a00; outline-offset: 3px; }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="code" aria-hidden="true">404</p>
+    <h1>ไม่พบหน้าที่คุณกำลังหา</h1>
+    <p>ลิงก์อาจพิมพ์ผิด หรือหน้านี้ถูกย้ายไปแล้ว<br>เลือกไปต่อจากเมนูด้านล่างได้เลย</p>
+    <nav aria-label="ไปยังหน้าอื่น">
+      <a class="main" href="./index.html">หน้าหลัก</a>
+      <a href="./programs.html">หลักสูตร</a>
+      <a href="./news.html">ข่าวและผลงาน</a>
+      <a href="./contact.html">ติดต่อวิทยาลัย</a>
+    </nav>
+  </main>
+</body>
+</html>

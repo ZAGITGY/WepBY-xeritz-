@@ -1,0 +1,162 @@
+/* ============================================================================
+ * motion.css  (LVC v9.2 — 2026-10-25)
+ * ภาษาการเคลื่อนไหวเดียวกับหน้าแรก: เส้นลากเข้า · หัวข้อไหลขึ้นจากเส้นตัด · จางและยกขึ้นเล็กน้อย
+ *   A) เปลี่ยนหน้าแบบจางต่อเนื่อง (View Transitions ระหว่างหน้า)
+ *   B) เปลี่ยนโหมดสว่าง/มืด: สีใหม่แผ่เป็นวงจากปุ่ม
+ *   C) เมนูโหมดหน้าจอ เมนูมือถือ ปุ่มสามขีด และหน้าต่างภาพ/ตาราง
+ *   D) หน้าแรกเมื่อกลับมาจากหน้าอื่น (ไม่มีหน้าโหลด) เปิดตัวสั้น ๆ
+ *   E) หน้าหลักสูตร / ข่าว / ติดต่อ เปิดตัวและทยอยปรากฏตอนเลื่อน (page-fx.js)
+ *   F) รายละเอียดหน้าหลักสูตร: แถบเปรียบเทียบ ปุ่มบันทึก ผลการกรอง
+ * เปิด Reduced Motion = ไม่มีการเคลื่อนไหวในไฟล์นี้ทั้งหมด
+ * ============================================================================ */
+
+@keyframes lvc-fade-in { from { opacity: 0; } }
+@keyframes lvc-fade-out { to { opacity: 0; } }
+@keyframes lvc-rise { from { opacity: 0; transform: translate3d(0, 22px, 0); } }
+@keyframes lvc-rise-sm { from { opacity: 0; transform: translate3d(0, 10px, 0); } }
+@keyframes lvc-drop { from { opacity: 0; transform: translate3d(0, -6px, 0); } }
+@keyframes lvc-pop { from { opacity: 0; transform: translate3d(0, -4px, 0) scale(.98); } }
+@keyframes lvc-dialog-in { from { opacity: 0; transform: translate3d(0, 14px, 0) scale(.985); } }
+@keyframes lvc-curtain { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes lvc-theme-reveal {
+  from { clip-path: circle(0 at var(--theme-x, 100%) var(--theme-y, 0)); }
+  to { clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 100%) var(--theme-y, 0)); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* ---------- A) เปลี่ยนหน้า ---------- */
+  @view-transition { navigation: auto; }
+  .site-header { view-transition-name: lvc-header; }
+  ::view-transition-group(lvc-header) { animation-duration: .4s; animation-timing-function: var(--ease-lux); }
+  ::view-transition-old(root) { animation: lvc-fade-out .26s cubic-bezier(.4, 0, 1, 1) both; }
+  ::view-transition-new(root) { animation: lvc-fade-in .42s cubic-bezier(0, 0, .2, 1) both; }
+
+  /* ---------- B) เปลี่ยนโหมดหน้าจอ ---------- */
+  html.theme-switching .site-header { view-transition-name: none; }
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after { transition: none !important; }
+  html.theme-switching::view-transition-old(root),
+  html.theme-switching::view-transition-new(root) { mix-blend-mode: normal; }
+  html.theme-switching::view-transition-old(root) { animation: none; }
+  html.theme-switching::view-transition-new(root) { animation: lvc-theme-reveal .9s cubic-bezier(.7, 0, .25, 1) both; }
+
+  /* ---------- C) เมนูและหน้าต่าง ---------- */
+  .theme-menu:not([hidden]) { transform-origin: top right; animation: lvc-pop .24s var(--ease-lux) both; }
+
+  .menu-panel[open] { animation: lvc-curtain .6s var(--ease-lux) both; }
+  .menu-panel[open]::backdrop { animation: lvc-fade-in .4s ease both; }
+  .menu-panel[open] .menu-content > * {
+    animation: lvc-rise-sm .62s var(--ease-lux) both;
+    animation-delay: calc(.1s + var(--mi, 0) * .035s);
+  }
+  .menu-content > :nth-child(2) { --mi: 1; }
+  .menu-content > :nth-child(3) { --mi: 2; }
+  .menu-content > :nth-child(4) { --mi: 3; }
+  .menu-content > :nth-child(5) { --mi: 4; }
+  .menu-content > :nth-child(6) { --mi: 5; }
+  .menu-content > :nth-child(7) { --mi: 6; }
+  .menu-content > :nth-child(8) { --mi: 7; }
+  .menu-content > :nth-child(9) { --mi: 8; }
+  .menu-content > :nth-child(10) { --mi: 9; }
+  .menu-content > :nth-child(n + 11) { --mi: 10; }
+
+  .menu-toggle span { transition: transform .5s var(--ease-lux); }
+  .menu-toggle[aria-expanded="true"] span:first-child { transform: translateY(3px) rotate(45deg); }
+  .menu-toggle[aria-expanded="true"] span:last-child { transform: translateY(-3px) rotate(-45deg); }
+
+  .poster-dialog[open],
+  .compare-dialog[open] { animation: lvc-dialog-in .5s var(--ease-lux) both; }
+  .poster-dialog[open]::backdrop,
+  .compare-dialog[open]::backdrop { animation: lvc-fade-in .35s ease both; }
+
+  /* ---------- D) หน้าแรกเมื่อกลับมาจากหน้าอื่น ----------
+   * ใช้ fill-mode: backwards — จบแล้วไม่ค้างค่า
+   * ห้ามใส่อนิเมชันที่ตัวที่ฉากเล่าเรื่อง (GSAP) ขยับเอง เช่น "h1 span" หรือ ".scene-opening":
+   * GSAP จดค่าเริ่มต้นจากสถานะที่เห็นตอนสร้างฉาก ถ้าตอนนั้นกำลังจางอยู่ หัวข้อจะค้างโปร่งใส
+   * จึงขยับที่ตัว h1 ทั้งก้อน (GSAP ไม่ได้ใช้) แทนทีละบรรทัด */
+  html.lvc-return .site-header .header-inner { animation: lvc-drop .7s var(--ease-lux) backwards; }
+  html.lvc-return .scene-opening h1 { animation: lvc-rise 1.05s var(--ease-lux) .12s backwards; }
+  html.lvc-return .scene-opening > p:not(.hero-note) { animation: lvc-rise-sm .85s var(--ease-lux) .4s backwards; }
+  html.lvc-return .scene-opening .hero-actions { animation: lvc-rise-sm .85s var(--ease-lux) .5s backwards; }
+  html.lvc-return .hero-bottom { animation: lvc-fade-in .8s ease .65s backwards; }
+
+  /* ---------- E) หน้าเนื้อหา: page-fx.js ใส่คลาสก่อนหน้าแสดงผลครั้งแรก ----------
+   * pfx-i  = รายการที่ทยอยปรากฏ (ยกขึ้น 18px + จาง)   pfx-fade = จางอย่างเดียว
+   * pfx-lines = แยกบรรทัด ไหลขึ้นจากเส้นตัด          pfx-img / pfx-zoom = รูปค่อย ๆ หายซูม
+   * pfx-draw  = เส้นคั่นลากจากซ้ายไปขวา             pfx-in (ที่กลุ่ม) = ถึงเวลาแสดง */
+  html.pfx-on .pfx-g:not(.pfx-in) .pfx-i { opacity: 0; transform: translate3d(0, 18px, 0); }
+  html.pfx-on .pfx-g:not(.pfx-in) .pfx-i.pfx-fade { transform: none; }
+  html.pfx-on .pfx-g.pfx-in .pfx-i {
+    transition:
+      opacity .9s cubic-bezier(.25, .1, .25, 1) var(--pfx-d, 0s),
+      transform 1.1s var(--ease-lux) var(--pfx-d, 0s);
+  }
+
+  /* flex: ระยะติดลบของแต่ละบรรทัดไม่ยุบรวมกัน ความสูงหัวข้อจึงเท่าเดิมทุกพิกเซล */
+  html.pfx-on .pfx-lines { display: flex; flex-direction: column; }
+  html.pfx-on .pfx-lines .fx-line { padding: .2em 0 .26em; margin: -.2em 0 -.26em; }
+  /* เลื่อนลงพ้นกรอบทั้งบรรทัด รวมวรรณยุกต์ที่ซ้อนสูงเหนือบรรทัด */
+  html.pfx-on .pfx-g:not(.pfx-in) .pfx-lines .fx-line__in { transform: translate3d(0, calc(100% + .75em), 0); }
+  html.pfx-on .pfx-g.pfx-in .pfx-lines .fx-line__in { transition: transform 1.15s var(--ease-lux) var(--pfx-d, 0s); }
+  /* กรอบบรรทัดไม่รับสไตล์ของ span เดิมในหน้า (สีทองของบรรทัดที่สอง / ตัวเล็ก 12px ของพิกัด) */
+  html:root .page-intro h1 span.fx-line,
+  html:root .page-intro h1 span.fx-line__in,
+  html:root .location-mark strong span.fx-line,
+  html:root .location-mark strong span.fx-line__in { color: inherit; font-size: inherit; letter-spacing: inherit; }
+
+  html.pfx-on .pfx-g:not(.pfx-in) .pfx-img img,
+  html.pfx-on .pfx-g:not(.pfx-in) .pfx-zoom img { transform: scale(1.07); }
+  html.pfx-on .pfx-g.pfx-in .pfx-img img,
+  html.pfx-on .pfx-g.pfx-in .pfx-zoom img { transition: transform 1.6s var(--ease-lux) var(--pfx-d, 0s); }
+  html.pfx-on .pfx-zoom > a:first-child { display: block; overflow: hidden; border-radius: 6px; }
+
+  /* เส้นคั่น: เปลี่ยนเส้นขอบเป็นพื้นหลัง 1px เพื่อลากเข้ามาได้ (ความหนาและระยะเท่าเดิม) */
+  html.pfx-on .pfx-draw {
+    --pfx-line: var(--line);
+    border-color: transparent;
+    background-origin: border-box;
+    background-repeat: no-repeat;
+    transition: background-size 1.25s var(--ease-lux) .05s;
+  }
+  html.pfx-on .pfx-draw.pfx-undrawn { transition: none; }
+  html.pfx-on .pfx-draw--top { background-image: linear-gradient(var(--pfx-line), var(--pfx-line)); background-position: left top; background-size: 100% 1px; }
+  html.pfx-on .pfx-draw--bottom { background-image: linear-gradient(var(--pfx-line), var(--pfx-line)); background-position: left bottom; background-size: 100% 1px; }
+  html.pfx-on .pfx-draw--both {
+    background-image: linear-gradient(var(--pfx-line), var(--pfx-line)), linear-gradient(var(--pfx-line), var(--pfx-line));
+    background-position: left top, left bottom;
+    background-size: 100% 1px, 100% 1px;
+  }
+  html.pfx-on .pfx-draw.pfx-undrawn { background-size: 0% 1px, 0% 1px; }
+  html.pfx-on .location-mark.pfx-draw { --pfx-line: #c8b792; }
+  html[data-theme="dark"].pfx-on .location-mark.pfx-draw { --pfx-line: #6f6048; }
+
+  /* ข้ามการเคลื่อนไหว (เนื้อหาที่อยู่เหนือจอแล้ว / โฟกัสด้วยคีย์บอร์ด) */
+  html.pfx-on .pfx-now,
+  html.pfx-on .pfx-now * { transition: none !important; }
+
+  /* ---------- F) หน้าหลักสูตร ---------- */
+  .compare-bar:not([hidden]) { animation: lvc-bar-in .55s var(--ease-lux) both; }
+  @keyframes lvc-bar-in { from { opacity: 0; transform: translate(-50%, 26px); } to { transform: translate(-50%, 0); } }
+
+  .quiet-button { transition: background-color .35s ease, border-color .35s ease, color .35s ease; }
+  .save-program[aria-pressed="true"]::before {
+    content: "✓";
+    display: inline-block;
+    margin-right: 7px;
+    animation: lvc-check .5s var(--ease-lux) both;
+  }
+  @keyframes lvc-check { from { opacity: 0; transform: scale(.3) rotate(-30deg); } }
+
+  .pfx-pop { animation: lvc-rise-sm .5s var(--ease-lux) both; }
+  #result-count.pfx-pop { animation: lvc-fade-in .4s ease both; }
+}
+
+@media print {
+  html.pfx-on .pfx-i,
+  html.pfx-on .fx-line__in,
+  html.pfx-on .pfx-img img,
+  html.pfx-on .pfx-zoom img { opacity: 1 !important; transform: none !important; }
+  html.pfx-on .pfx-draw.pfx-undrawn { background-size: 100% 1px, 100% 1px !important; }
+}

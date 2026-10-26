@@ -1,0 +1,395 @@
+/* ============================================================================
+ * enhance.css  (รุ่น 2026-10-14.9)
+ *   0) ตัวแปร + ฟอนต์น้ำหนักเบา
+ *   1) งานปรับให้เรียบหรูขึ้น (ตัดของตกแต่งเกินจำเป็น, เส้นละเอียด, ปุ่ม, ลิงก์)
+ *   2) (v10: หน้าโหลดเดิมถูกแทนด้วยฉากเข้าเว็บใน campus.css + intro.js)
+ *   3) อนิเมชันตอนเลื่อน (scroll-fx.js)
+ *   4) ปุ่มโลหะเหลว (metal-button.js)
+ * วางต่อจาก style.css เดิม ไม่ได้แก้ style.css
+ * ============================================================================ */
+
+/* ---------- 0) ตัวแปร + ฟอนต์ ---------- */
+@font-face {
+  font-family: Kanit;
+  src: url(./fonts/kanit-300.woff2) format("woff2"), url(./fonts/kanit-300.ttf) format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+html { scrollbar-gutter: stable; }
+:root {
+  --champagne: #cdbb94;           /* สีเดียวกับขอบโลหะของประติมากรรม */
+  --line: #e3dccd;
+  --radius: 6px;
+  --ease-lux: cubic-bezier(.16, 1, .3, 1);
+}
+
+/* ---------- 1) เรียบหรู ---------- */
+
+/* หัวข้อใหญ่ใช้ Kanit น้ำหนักเบา — ให้ความโปร่งแทนความหนา */
+.scene h1,
+.scene h2,
+.section-heading h2,
+.achievement h2,
+.public-info h2 { font-weight: 300; }
+.scene h1 { letter-spacing: -.03em; }
+.scene h2,
+.section-heading h2,
+.achievement h2,
+.public-info h2 { letter-spacing: -.02em; }
+.scene h1 .accent { color: inherit; }                 /* ไม่เน้นสีแค่คำเดียวในหัวข้อ */
+.featured-news h3,
+.news-item h3 { font-weight: 400; }
+
+/* ---- ตัดของตกแต่งที่ไม่ได้บอกข้อมูลอะไร ----
+ * ป้ายเล็กเหนือหัวข้อ (มีเส้น/เลขลำดับ), ข้อความคั่นด้วยจุดกลาง, ตัวหนังสือโครงเส้น/วงกลมลอยหลังโมเดล,
+ * ตารางกริด, เส้นไล่สีแนวตั้ง, ตัวนับ 01—04 ที่ซ้ำกับแถบบอกตอน และข้อความ "เรียนรู้·ลงมือทำ·เติบโต" ที่ซ้ำหลายที่
+ * (ข้อความยังอยู่ใน app.js เหมือนเดิม แค่ไม่แสดง — ถ้าอยากเอากลับ ลบกฎในบล็อกนี้ได้) */
+.hero-meta,
+.decorative-lvc,
+.technical-grid,
+.stage-halo,
+.story-rail,
+.story-counter,
+.scene .hero-note,
+.scene .intro-rule,
+.eyebrow,
+.programs-content .label,
+.program-row .number,
+.theme-list small,
+.achievement:after { display: none; }
+.scene h1,
+.scene h2,
+.section-heading h2,
+.achievement h2,
+.public-info h2 { margin-top: 0; }
+.theme-list span { padding-top: 18px; font-size: 20px; font-weight: 300; }
+.program-row small { margin-left: 0; }
+
+/* โทนทองเหลืองอ่อน (champagne) แทนเหลืองสด — ใช้กับเส้น/ไฮไลต์ที่เหลือทั้งเว็บ */
+:root { --gold: #b79c5f; }
+::selection { background: #ecdcb4; color: #241f20; }
+.chapter.active .chapter-line { background: var(--red); }
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible { outline: 2px solid #8a1527; outline-offset: 5px; }
+.achievement a:focus-visible,
+.achievement button:focus-visible { outline-color: #ecdcb4; }
+
+/* ข้อความเล็กสุดไม่ต่ำกว่า 12px และไม่เว้นตัวอักษรกว้างเกินจำเป็น */
+.news-meta,
+.category,
+.photo-caption,
+.poster-zoom,
+.poster-caption,
+.footer-bottom { font-size: 12px; }
+.photo-caption span { font-size: 12px; letter-spacing: 0; }
+.photo-caption:before { display: none; }
+
+/* จังหวะหน้าให้โปร่งขึ้น */
+@media (min-width: 1000px) {
+  .section { padding: 132px 0; }
+  .section-heading { margin-bottom: 56px; }
+  .public-info { padding: 96px 0; }
+  .achievement { padding: 120px 0; }
+}
+
+/* รูปถ่ายจริงของวิทยาลัยถ่ายหลายแสง หลายกล้อง — ลดสีเล็กน้อยให้ทั้งหน้าดูเป็นชุดเดียวกัน */
+.program-photo img,
+.featured-news img,
+.news-item img { filter: saturate(.9) contrast(1.02); }
+
+/* แถบบริการ: ลูกศรเป็นเส้นเฉย ๆ ไม่มีวงกลม/ปุ่มสีเหลือง */
+.service-link .arrow {
+  width: 20px; height: 20px; padding: 0;
+  border: 0; border-radius: 0; background: none;
+  opacity: .5;
+  transition: transform .7s var(--ease-lux), opacity .4s ease;
+}
+.service-link:hover .arrow,
+.service-link:focus-visible .arrow { background: none; border-color: transparent; opacity: 1; transform: translate(3px, -3px) rotate(-45deg); }
+
+/* A single selected menu owns the red underline. Hover only changes text;
+ * the previous line disappears immediately, so fast switches cannot leave trails. */
+.desktop-nav > a { transition: color .18s ease; }
+.desktop-nav > a:hover { color: var(--red); }
+.desktop-nav > a:after,
+.desktop-nav > a:hover:after { transform: scaleX(0); transition: none; }
+.desktop-nav > a.is-current:after {
+  transform: scaleX(1);
+  transition: transform .22s var(--ease-lux);
+}
+/* The document already reserves space for the sticky header. */
+.services { scroll-margin-top: 0; }
+
+/* ส่วนผลงาน: แดงเข้มขึ้น ให้ตัวหนังสือสีงาช้างอ่านสบายและดูหนักแน่น */
+.achievement { background: #5b1220; }
+
+/* รูปร่าง: ปุ่ม = ทรงแคปซูล, ภาพ = มุมมนน้อย */
+.button,
+.header-admission { border-radius: 999px; }
+.news-item img { border-radius: 4px; }
+.poster-button { border-radius: 8px; }
+.poster-dialog { border-radius: 8px; }
+
+/* เส้นคั่น: วาดด้วยพื้นหลังเพื่อให้ "ลากเส้นเข้ามา" ตอนเลื่อนถึงได้ (--draw 0 → 1, ค่าเริ่มต้น 1 = เส้นเต็ม) */
+.section-heading,
+.program-row,
+.news-item,
+.public-links details,
+.public-links,
+.footer-bottom { border-width: 0; }
+.section-heading,
+.program-row,
+.news-item:not(:last-child),
+.public-links details {
+  background: linear-gradient(var(--hl, var(--line)), var(--hl, var(--line))) left bottom / calc(var(--draw, 1) * 100%) 1px no-repeat;
+}
+.public-links,
+.footer-bottom {
+  background: linear-gradient(var(--hl, var(--line)), var(--hl, var(--line))) left top / calc(var(--draw, 1) * 100%) 1px no-repeat;
+}
+.public-links,
+.public-links details { --hl: #d9d0c1; }
+.public-links details { background-position: left bottom; }
+
+/* แถวหลักสูตร: เส้นสีแดงไล่ตามเมาส์ */
+.program-row { position: relative; }
+.program-row::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .8s var(--ease-lux);
+  pointer-events: none;
+}
+.program-row:hover::after,
+.program-row:focus-visible::after { transform: scaleX(1); }
+
+/* ลิงก์ข้อความ: เส้นใต้บาง ๆ แล้วมีเส้นวิ่งออกขวา-กลับเข้าซ้ายเมื่อชี้ */
+.text-link { position: relative; border-bottom: 0; }
+.text-link::before,
+.text-link::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: currentColor;
+  pointer-events: none;
+}
+.text-link::before { opacity: .3; }
+.text-link::after { transform-origin: left; }
+.text-link:hover::after,
+.text-link:focus-visible::after { animation: lvc-underline .9s var(--ease-lux); }
+@keyframes lvc-underline {
+  0%   { transform: scaleX(1); transform-origin: right; }
+  45%  { transform: scaleX(0); transform-origin: right; }
+  46%  { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+
+/* ---------- 2) หน้าโหลด: v10 ย้ายไป campus.css (ฉากเข้าเว็บด้วยภาพวิทยาลัย) ---------- */
+
+/* ---------- 3) อนิเมชันตอนเลื่อน ---------- */
+
+/* เงาใต้ header เมื่อเลื่อนลง */
+.site-header { transition: box-shadow .5s var(--ease-lux); }
+.site-header.is-scrolled { box-shadow: 0 12px 30px -24px rgba(36, 25, 28, .5); }
+
+/* หัวข้อแยกบรรทัด: มีที่เผื่อวรรณยุกต์/สระไทยด้านบน-ล่าง ไม่ให้ถูก mask ตัด */
+.fx-line { display: block; overflow: hidden; padding: .16em 0 .22em; margin: -.16em 0 -.22em; }
+.fx-line__in { display: block; }
+
+/* ม่านยกของรูป: กรอบต้องตัดขอบ ไม่ให้รูปที่ขยายตอน parallax ล้นออกมา */
+.featured-news .image-wrap { overflow: hidden; border-radius: var(--radius, 6px); }
+
+/* parallax ภาพถ่าย: ใช้ translate/scale แยกจาก transform เดิม (hover ซูมยังทำงาน) */
+.program-photo { overflow: hidden; border-radius: var(--radius, 6px); }
+.program-photo img,
+.featured-news .image-wrap img { translate: 0 var(--fx-y, 0%); scale: var(--fx-scale, 1); }
+
+/* แก้เล็ก ๆ: จอแคบมาก (≤ 420px เช่น 320px) แถว "ติดตามเรา" ที่ footer ไม่ตัดบรรทัดจนหน้าเลื่อนด้านข้างได้ */
+@media (max-width: 420px) {
+  .footer-top > * { min-width: 0; }
+  .footer-social { flex-wrap: wrap; gap: 4px 18px; }
+}
+
+/* ---------- 3.5) เก็บรายละเอียดจากการรีวิวภาพ ---------- */
+.chapter { opacity: .68; }                      /* ชื่อตอนที่ยังไม่ถึง: เดิมจางจนอ่านยาก */
+.chapter.active { opacity: 1; }
+.brand small,
+.footer .brand small { letter-spacing: .06em; }
+.public-links summary:after { font-weight: 300; }
+.scene p,
+.section-heading > p,
+.achievement p,
+.public-info p { text-wrap: pretty; }           /* กันคำสุดท้ายโดดเดี่ยวบรรทัดสุดท้าย */
+
+/* แถวหลักสูตร: คำอธิบายใต้ชื่อซ้ำกันเกือบทุกแถว ("ข้อมูลประเภทวิชาจากวิทยาลัย") → ตัด เหลือชื่อกับลูกศร */
+.program-row small { display: none; }
+.program-row .arrow { opacity: .5; transition: opacity .4s ease, transform .7s var(--ease-lux); }
+.program-row:hover .arrow,
+.program-row:focus-visible .arrow { opacity: 1; }
+
+/* ข่าว: ให้รายการด้านขวายืดเท่าความสูงข่าวเด่น ไม่ทิ้งที่ว่างใต้รายการ */
+@media (min-width: 901px) {
+  .news-layout { align-items: stretch; }
+  .support-news .news-item { flex: 1 1 0; }
+  .support-news .news-item:first-child { padding-top: 25px; }
+}
+
+/* โปสเตอร์ผลงาน: การ์ดแนบรูปพอดี และมีแถบด้านล่างสำหรับปุ่ม "ดูภาพเต็ม" ไม่ทับข้อความบนโปสเตอร์ */
+.poster-button { padding-bottom: 68px; }
+.poster-button img { height: auto; max-height: 440px; }
+.poster-zoom { right: 20px; bottom: 18px; }
+
+/* ฟุตเตอร์: ลูกศรโซเชียลเรียงเป็นแนวเดียวกัน */
+.footer-social a { width: 148px; justify-content: space-between; }
+@media (max-width: 600px) {
+  .footer-social a { width: auto; justify-content: flex-start; }
+  .footer-bottom { flex-direction: column; }
+  .footer-bottom p { max-width: none; }
+}
+
+/* ---------- 4) ปุ่มโลหะเหลว (metal-button.js) ----------
+ * โครง: ขอบโลหะ (shader) → หน้าปุ่ม → ข้อความ → ชั้นระลอก   (ตัว <a> เดิมยังเป็นลิงก์ ไม่ได้เปลี่ยนเป็น <button>)
+ * ถ้า WebGL ใช้ไม่ได้ ขอบจะเป็นไล่สีแชมเปญนิ่ง ๆ แทน (ยังสวย ไม่พัง)
+ */
+.button.lvc-metal {
+  --h: 54px;
+  --px: 30px;
+  --rim: 2px;
+  position: relative;
+  isolation: isolate;
+  padding: 0;
+  gap: 0;
+  min-height: var(--h);
+  background: transparent;
+  color: #fbf4e6;
+  box-shadow: 0 18px 30px -18px rgba(96, 14, 28, .6), 0 2px 5px rgba(36, 25, 28, .14);
+  transition: box-shadow .35s var(--ease-lux);
+}
+.button.lvc-metal:hover { background: transparent; }
+.header-admission.lvc-metal { --h: 44px; --px: 22px; font-size: 13px; color: var(--ink); box-shadow: 0 6px 14px -8px rgba(36, 31, 32, .22), 0 1px 2px rgba(36, 31, 32, .1); }
+@media (max-width: 600px) {
+  .header-admission.lvc-metal { --h: 40px; --px: 15px; --rim: 1.5px; font-size: 12px; }
+}
+
+.lvc-metal__rim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  background: conic-gradient(from 210deg at 50% 50%, #7d6a45, #e9dcb8, #a8935f, #fff4d4, #8f7b4f, #e2d3a8, #7d6a45);
+}
+.lvc-metal__gl { position: absolute; inset: 0; border-radius: inherit; }
+.lvc-metal__gl canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  border-radius: inherit;
+}
+.lvc-metal__face {
+  position: absolute;
+  inset: var(--rim);
+  z-index: 1;
+  border-radius: inherit;
+  transition: transform .5s var(--ease-lux), box-shadow .3s ease, filter .6s var(--ease-lux);
+}
+/* ปุ่มหลัก: แดงเคลือบ เหมือนหน้าตัวอักษรของประติมากรรม */
+.lvc-metal--dark .lvc-metal__face {
+  background: linear-gradient(180deg, #b02335 0%, #8a1527 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -14px 22px -12px rgba(52, 5, 13, .65);
+}
+.lvc-metal--dark:hover .lvc-metal__face { filter: brightness(1.07); }
+/* ปุ่มใน header: งาช้าง ตัวหนังสือสีเข้ม (เป็นรองปุ่มหลักในหน้าแรก) */
+.lvc-metal--light .lvc-metal__face {
+  background: linear-gradient(180deg, #fffdf8 0%, #f1e9d6 100%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -10px 16px -10px rgba(125, 106, 69, .35);
+}
+.lvc-metal--light:hover .lvc-metal__face { filter: brightness(1.02); }
+
+.lvc-metal__label {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--h);
+  padding: 0 var(--px);
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  transition: transform .5s var(--ease-lux);
+}
+.lvc-metal--dark .lvc-metal__label { text-shadow: 0 1px 1px rgba(60, 6, 14, .4); }
+.lvc-metal.is-pressed .lvc-metal__face { transform: translateY(1px) scale(.985); box-shadow: inset 0 2px 6px rgba(40, 3, 10, .45); }
+.lvc-metal.is-pressed .lvc-metal__label { transform: translateY(1px); }
+.lvc-metal:focus-visible { outline: 2px solid #8a1527; outline-offset: 5px; }
+
+.lvc-metal__fx {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+.lvc-metal__fx span {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, .42) 0%, rgba(255, 255, 255, 0) 70%);
+  transform: translate(-50%, -50%) scale(0);
+  animation: lvc-ripple .75s ease-out forwards;
+}
+@keyframes lvc-ripple {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: .75; }
+  100% { transform: translate(-50%, -50%) scale(8); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lvc-metal__fx { display: none; }
+  .lvc-metal__face, .lvc-metal__label { transition: none; }
+}
+
+/* Small interaction details share the same restrained rhythm as the reveals. */
+.service-link { transition: color .25s ease, background-color .25s ease; }
+.icon-button { transition: background-color .25s ease, border-color .25s ease; }
+.news-item img, .featured-news img { transition-duration: .55s; }
+.public-links details[open] .public-detail { animation: lvc-detail-in .28s ease-out; }
+@keyframes lvc-detail-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-links details[open] .public-detail { animation: none; }
+}
+
+/* v9: real program descriptions and room for the complete verified catalog. */
+.program-row small { display: block; font-size: 12px; line-height: 1.75; margin-top: 6px; color: var(--muted); }
+.program-row strong { font-size: clamp(18px,1.65vw,23px); line-height: 1.65; }
+.program-row > span { min-width: 0; }
+.program-row .arrow { flex-shrink: 0; }
+@media (min-width:901px) { .program-image { position: sticky; top: 112px; align-self: start; } }
+
+/* ---------- v9.2 (2026-10-25) แก้จากการตรวจรอบนี้ ---------- */
+/* หัวข้อภาษาไทยตัดบรรทัดสมดุล ไม่เหลือคำโดด ๆ เช่น "ความ / โปร่งใส" หรือ "ให้ / จดจำ" บนมือถือ
+ * (ชื่อข่าวยาว 3 บรรทัดคงการตัดแบบเดิม เพราะการจัดสมดุลอาจแยกคำประสม เช่น "สถาน / ศึกษา") */
+h1, h2 { text-wrap: balance; }
+.news-story h2 { text-wrap: wrap; }
+/* แฟ้มเอกสาร: จอ 700–1179px มีสองคอลัมน์ แฟ้มที่สามอยู่กึ่งกลางแทนชิดซ้ายเดี่ยว ๆ */
+@media (min-width: 700px) and (max-width: 1179px) {
+  .document-folders-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 19px); }
+}
+/* เส้นใต้ลิงก์ที่วิ่งตอนชี้ เคารพ Reduced Motion เหมือนส่วนอื่น */
+@media (prefers-reduced-motion: reduce) {
+  .text-link:hover::after, .text-link:focus-visible::after { animation: none; }
+  .service-link .arrow, .program-row::after, .program-row .arrow { transition: none; }
+}

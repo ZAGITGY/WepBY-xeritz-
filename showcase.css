@@ -1,0 +1,172 @@
+/* ============================================================================
+ * showcase.css — LVC v9.3 ช่วงประติมากรรม LVC (lvc-showcase.js)
+ * ชั้นจากหลังไปหน้า: พื้น → ห้องมืด → เส้นไหม → วงหน้าปัด → ตัวอักษรใหญ่ → โมเดล 3D → เส้นตัวอักษรด้านหน้า → ข้อความ
+ * ============================================================================ */
+.lvc-show { position: relative; z-index: 1; background: var(--paper); }
+.lvc-show__stage {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--paper);
+  color: var(--ink);
+  --show-line: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+.lvc-show__dark { position: absolute; inset: 0; z-index: 0; visibility: hidden; clip-path: circle(0% at 50% 50%); background: radial-gradient(70% 80% at 55% 45%, #24171b 0%, #0d090b 70%); pointer-events: none; }
+.lvc-show__flow { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; opacity: 0; clip-path: circle(0% at 50% 50%); pointer-events: none; }
+
+/* วงหน้าปัดบาง ๆ หลังโมเดล */
+.lvc-show__dial {
+  position: absolute; left: 50%; top: 50%; z-index: 1;
+  width: min(74vh, 84vw); height: auto; aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  overflow: visible; pointer-events: none;
+}
+.lvc-dial__track { fill: none; stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+/* v10: เส้นเป็น path ที่ lvc-showcase.js วาดใหม่ทุกเฟรม ปลายเส้นอยู่ใต้จุดพอดี + หางสว่างช่วงท้ายแบบดาวหาง */
+.lvc-dial__arc { fill: none; stroke: #b79c5f; stroke-width: 1.2; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: .8; }
+.lvc-dial__tail { fill: none; stroke: #caa968; stroke-width: 2.6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.lvc-dial__tail--long { stroke-width: 1.8; opacity: .55; }
+.lvc-dial__core { fill: #a61d2d; }
+.lvc-dial__halo { fill: #a61d2d; opacity: .16; transform-box: fill-box; transform-origin: center; animation: lvc-dial-pulse 1.8s ease-in-out infinite; }
+@keyframes lvc-dial-pulse { 0%, 100% { transform: scale(.8); opacity: .22; } 50% { transform: scale(1.35); opacity: .08; } }
+@media (prefers-reduced-motion: reduce) { .lvc-dial__halo { animation: none; } }
+
+/* ตัวอักษรใหญ่ */
+.lvc-show__type, .lvc-show__front { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.lvc-show__type { z-index: 2; }
+.lvc-show__model { position: absolute; inset: 0; z-index: 3; }
+.lvc-show__front { z-index: 4; }
+.lvc-row {
+  position: absolute; left: 0; right: 0;
+  padding-inline: var(--gutter);
+  font-size: clamp(76px, 14.6vw, 260px);
+  font-weight: 300; line-height: .92; letter-spacing: -.035em;
+  white-space: nowrap; color: var(--ink);
+}
+.lvc-row span { display: inline-block; }
+.lvc-row--1 { top: 10%; }
+.lvc-row--2 { top: 36%; text-align: right; }
+.lvc-row--3 { top: 62%; }
+.lvc-show__front .lvc-row--outline { color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--ink) 70%, transparent); }
+.lvc-show__type .lvc-row--2 { color: var(--ink); -webkit-text-stroke: 0; }
+
+.lvc-word, .lvc-num {
+  position: absolute; left: 0; right: 0; top: 50%;
+  transform: translateY(-50%);
+  text-align: center; white-space: nowrap; opacity: 0;
+  font-weight: 300; line-height: 1; letter-spacing: -.04em;
+  color: transparent; -webkit-text-stroke: 1px #b79c5f;
+}
+.lvc-word span, .lvc-num span { display: inline-block; }
+.lvc-word { font-size: clamp(110px, 21vw, 380px); padding-left: 22vw; }
+.lvc-num { font-size: min(80vh, 60vw); left: auto; right: 3vw; text-align: right; -webkit-text-stroke: 1.5px #b9a06a; }
+
+/* โมเดล: ภาพสำรองจนกว่า WebGL จะพร้อม */
+.lvc-show__model canvas { display: block; width: 100%; height: 100%; }
+.lvc-show__poster {
+  position: absolute; left: 50%; top: 50%; width: min(62vw, 900px); height: auto;
+  transform: translate(-50%, -46%); transition: opacity .6s ease; pointer-events: none;
+}
+.lvc-show.has-gl .lvc-show__poster { opacity: 0; }
+
+/* ข้อความแต่ละบท: ทุกบทซ้อนในช่องเดียวกัน แสดงทีละบทตามการเลื่อน */
+.lvc-show__copy {
+  position: absolute; inset: 0; z-index: 5;
+  display: grid; grid-template-columns: minmax(0, min(400px, 32vw)); align-items: center;
+  padding-top: 88px; pointer-events: none;
+}
+.lvc-ch { grid-area: 1 / 1; opacity: 1; color: inherit; }
+.lvc-ch:not(.lvc-ch--0) { opacity: 0; }
+.lvc-ch.is-active { pointer-events: auto; }
+/* บทแรกอยู่มุมขวาล่าง ไม่ทับตัวอักษรใหญ่ COLLEGE */
+.lvc-ch--0 { align-self: end; justify-self: end; margin-bottom: 7vh; text-align: right; }
+@media (min-width: 901px), (orientation: landscape) { .lvc-show__copy { grid-template-columns: minmax(0, min(400px, 32vw)) 1fr; } .lvc-ch--0 { grid-column: 1 / -1; } }
+.lvc-kicker { margin: 0 0 14px; font-size: 13px; letter-spacing: .08em; color: var(--red); }
+.lvc-kicker b { font-weight: 500; }
+.lvc-ch h2, .lvc-ch h3 { margin: 0; font-size: clamp(34px, 3.7vw, 56px); font-weight: 300; line-height: 1.32; letter-spacing: -.02em; }
+.lvc-ch p:not(.lvc-kicker) { margin: 18px 0 0; color: var(--muted); font-size: 16px; line-height: 1.85; }
+.lvc-ch--0 h2 { font-size: clamp(30px, 2.9vw, 44px); }
+.lvc-facts { display: flex; gap: 40px; margin: 30px 0 0; }
+.lvc-facts div { margin: 0; }
+.lvc-facts dt { font-size: 52px; font-weight: 300; line-height: 1; color: #d9c08a; }
+.lvc-facts dd { margin: 10px 0 0; font-size: 13px; line-height: 1.7; color: #c9bdb6; }
+.lvc-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; margin-top: 28px; }
+.lvc-actions .button { border-radius: 999px; }
+
+/* ห้องมืด: ตัวหนังสือสว่าง */
+.lvc-show__stage { transition: color .45s ease; }
+.lvc-show__stage.is-dark { color: #f3eee7; }
+.lvc-show__stage.is-dark .lvc-kicker { color: #e6b3ba; }
+.lvc-show__stage.is-dark .lvc-ch p:not(.lvc-kicker) { color: #cdbfb9; }
+
+/* มือถือ / แท็บเล็ตแนวตั้ง: โมเดลด้านบน ข้อความด้านล่าง (v9.4: เฉพาะแนวตั้ง ตรงกับ narrow ใน lvc-showcase.js) */
+@media (max-width: 900px) and (orientation: portrait) {
+  .lvc-show__copy { grid-template-columns: minmax(0, 1fr); align-items: end; padding: 74px 0 7vh; }
+  .lvc-ch--0 { margin-bottom: 0; justify-self: start; text-align: left; }
+  .lvc-ch h2, .lvc-ch h3 { font-size: clamp(30px, 8.4vw, 44px); }
+  .lvc-ch p:not(.lvc-kicker) { font-size: 15px; margin-top: 12px; }
+  .lvc-row { font-size: clamp(64px, 23vw, 200px); }
+  .lvc-row--1 { top: 10%; }
+  .lvc-row--2 { top: 26%; }
+  .lvc-row--3 { top: 42%; }
+  .lvc-word { font-size: 31vw; top: 34%; padding-left: 0; }
+  .lvc-num { font-size: 92vw; top: 34%; right: auto; left: 0; text-align: center; }
+  .lvc-show__dial { top: 38%; width: min(92vw, 60vh); }
+  .lvc-show__poster { width: 86vw; top: 36%; }
+  .lvc-facts { gap: 28px; margin-top: 20px; }
+  .lvc-facts dt { font-size: 42px; }
+}
+@media (max-width: 900px) and (orientation: portrait) and (max-height: 700px) {
+  .lvc-ch p:not(.lvc-kicker) br { display: none; }
+}
+
+/* v9.4 มือถือแนวนอน / หน้าต่างเตี้ย: ผังซ้าย-ขวา ย่อตัวหนังสือ ไม่ให้ฉากสูงเกินจอ */
+@media (orientation: landscape) and (max-height: 560px) {
+  .lvc-show__stage { min-height: 0; }
+  .lvc-show__copy { padding-top: 78px; grid-template-columns: minmax(0, min(340px, 38vw)) 1fr; }
+  .lvc-ch--0 { margin-bottom: 4vh; }
+  .lvc-kicker { margin-bottom: 8px; font-size: 11px; }
+  .lvc-ch h2, .lvc-ch h3 { font-size: clamp(22px, 3.4vw, 30px); line-height: 1.28; }
+  .lvc-ch--0 h2 { font-size: clamp(20px, 3vw, 28px); }
+  .lvc-ch p:not(.lvc-kicker) { margin-top: 8px; font-size: 13px; line-height: 1.6; }
+  .lvc-ch p:not(.lvc-kicker) br { display: none; }
+  .lvc-facts { gap: 24px; margin-top: 12px; }
+  .lvc-facts dt { font-size: 30px; }
+  .lvc-facts dd { margin-top: 4px; font-size: 11px; line-height: 1.5; }
+  .lvc-actions { margin-top: 14px; gap: 10px 18px; }
+  .lvc-actions .button { min-height: 42px; }
+  .lvc-show__dial { width: min(82vh, 60vw); }
+}
+
+/* ไม่มี WebGL: ภาพสำรองคงอยู่ ข้อความยังเล่าครบ */
+.lvc-show.no-gl .lvc-show__model canvas { display: none; }
+
+/* Reduced Motion: ไม่ตรึงจอ เรียงเนื้อหาให้อ่านต่อกันนิ่ง ๆ */
+.lvc-show.is-static .lvc-show__stage { height: auto; min-height: 0; overflow: visible; padding: 96px 0; }
+.lvc-show.is-static .lvc-show__dark,
+.lvc-show.is-static .lvc-show__flow,
+.lvc-show.is-static .lvc-show__dial,
+.lvc-show.is-static .lvc-show__type,
+.lvc-show.is-static .lvc-show__front { display: none; }
+.lvc-show.is-static .lvc-show__model { position: relative; inset: auto; height: min(56vh, 520px); }
+.lvc-show.is-static .lvc-show__copy {
+  position: relative; inset: auto; padding: 40px 0 0;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 40px 48px; align-items: start;
+  pointer-events: auto;
+}
+.lvc-show.is-static .lvc-ch { grid-area: auto; opacity: 1 !important; transform: none !important; margin: 0; align-self: start; }
+.lvc-show.is-static .lvc-ch--0 { grid-column: 1 / -1; justify-self: start; text-align: left; }
+.lvc-show.is-static .lvc-ch--5 { grid-column: span 2; }
+@media (max-width: 600px) { .lvc-show.is-static .lvc-ch--5 { grid-column: auto; } }
+.lvc-show.is-static .lvc-ch--4 { color: var(--ink); }
+.lvc-show.is-static .lvc-facts dt { color: var(--red); }
+.lvc-show.is-static .lvc-facts dd { color: var(--muted); }
+
+html[data-theme="dark"] .lvc-dial__dot circle { fill: #ef929c; }
+html[data-theme="dark"] .lvc-dial__tail { stroke: #e2c88f; }
+html[data-theme="dark"] .lvc-show__stage.is-dark .lvc-kicker { color: #f3b5bc; }
+
+@media print { .lvc-show { display: none; } }
