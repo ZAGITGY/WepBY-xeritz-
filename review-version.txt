@@ -1,1 +1,1 @@
-LVC v10 — 2026-10-26.10.0 (campus watercolour entry scene replaces the spinning-logo loader, living campus backdrop behind the hero, LVC dial line/dot fix, latest-news ticker and other home-page motion from lvc.ac.th data, new OG image)
+LVC v11 — 2026-11-01.11.0 (new type system: Noto Serif Thai display + IBM Plex Sans Thai text replace Kanit; editorial section headers and layout pass on every page; three.js silk ribbons in achievements, footer and sub-page heroes; curtain reveals for headings and images)
