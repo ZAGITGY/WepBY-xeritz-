@@ -219,13 +219,36 @@ class RibbonStage {
 
     this.near = new IntersectionObserver((e) => this.onNear(e[e.length - 1]), { rootMargin: "20% 0px" });
     this.far = new IntersectionObserver((e) => this.onFar(e[e.length - 1]), { rootMargin: "200% 0px" });
-    // คลี่ริบบิ้นเมื่อส่วนนั้นเข้าจอจริงราว 1 ใน 5 (ไม่ใช่ตอนเพิ่งใกล้)
+    // คลี่ริบบิ้นเมื่อส่วนนั้นเข้าจอจริงราว 1 ใน 5 และหน้าเว็บนิ่งแล้วเท่านั้น
+    // (v11.1 แก้บัค: เปิดลิงก์ที่มี #ส่วน เช่น contact.html#admissions ริบบิ้นเคยเริ่มคลี่ตอนหน้ายังอยู่บนสุด
+    //  แล้วเบราว์เซอร์เลื่อนไปที่ #ส่วนกลางการเปลี่ยนหน้า ริบบิ้นจึงพุ่งขึ้นหายไปให้เห็น)
+    this.onScreen = false;
     this.seen = new IntersectionObserver((e) => {
-      if (e[e.length - 1].isIntersecting && !this.revealStart) { this.revealStart = performance.now(); this.seen.disconnect(); }
-    }, { threshold: 0.2 });
+      this.onScreen = e[e.length - 1].isIntersecting;
+      if (this.onScreen) whenSettled(() => this.tryReveal());
+    }, { threshold: [0, 0.2, 0.5, 0.8, 1] });
     this.near.observe(this.el);
     this.far.observe(this.el);
     this.seen.observe(this.el);
+  }
+
+  // เริ่มคลี่เมื่อเห็นจริงอย่างน้อย 30% ของส่วนนั้น (หรือ 1/4 จอ) — ถูกเรียกจาก IntersectionObserver
+  // และจากลูปวาดทุกเฟรมจนกว่าจะเริ่ม (กันกรณีอัตราส่วนค้างเหนือเกณฑ์จน observer ไม่แจ้งซ้ำ)
+  tryReveal() {
+    if (this.revealStart || !settled) return;
+    const r = this.el.getBoundingClientRect();
+    const vh = window.innerHeight || 1;
+    const seen = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+    if (seen < Math.min(r.height * 0.3, vh * 0.25)) return;
+    this.revealStart = performance.now();
+    this.scrollS = this.scrollTarget();
+    this.seen.disconnect();
+  }
+
+  scrollTarget() {
+    const vh = window.innerHeight || 1;
+    const r = this.el.getBoundingClientRect();
+    return (r.top + r.height / 2 - vh / 2) / vh;
   }
 
   onNear(entry) {
@@ -386,11 +409,17 @@ class RibbonStage {
     this.last = now;
     this.time += dt;
     this.watch(dt);
+    if (!this.revealStart) this.tryReveal();
     if (this.revealStart && !this.revealed) {
       const p = (now - this.revealStart) / 2800;
       this.uniforms.uReveal.value = easeOutExpo(Math.min(1, p)) * 1.15;
       if (p >= 1) this.revealed = true;
     }
+    // การเลื่อนหน้าขับการไหลของริบบิ้นแบบหน่วง: กระโดดไกล (ลิงก์ #ส่วน, ปุ่มกลับด้านบน) ไม่ทำให้ริบบิ้นวิ่งพรวด
+    const target = this.scrollTarget();
+    if (this.scrollS === undefined) this.scrollS = target;
+    const cap = 0.5 * dt;
+    this.scrollS += Math.max(-cap, Math.min(cap, (target - this.scrollS) * (1 - Math.exp(-dt * 2.2))));
     const m = this.mouse;
     m.x += (m.tx - m.x) * 0.08;
     m.y += (m.ty - m.y) * 0.08;
@@ -426,9 +455,8 @@ class RibbonStage {
       this.uniforms.uReveal.value = 1.15;
       if (!this.time) this.time = 2.4;
     }
-    const vh = window.innerHeight || 1;
-    const r = this.el.getBoundingClientRect();
-    this.uniforms.uScroll.value = this.static ? 0 : (r.top + r.height / 2 - vh / 2) / vh;
+    if (this.scrollS === undefined) this.scrollS = this.scrollTarget();
+    this.uniforms.uScroll.value = this.static ? 0 : this.scrollS;
     this.uniforms.uTime.value = this.time;
     this.renderer.render(this.scene, this.camera);
   }
@@ -453,6 +481,7 @@ class RibbonStage {
     }
     this.renderer = this.scene = this.camera = this.mesh = this.geometry = this.material = this.uniforms = null;
     this.colA = this.colB = null;
+    this.scrollS = undefined;
     this.built = false;
     this.running = false;
     this.el.classList.remove("is-ready");
@@ -471,6 +500,22 @@ function name2seed(name) {
 /* ---------- 5) เริ่มทำงาน ---------- */
 const stages = [];
 
+// "หน้านิ่ง" = โหลดเสร็จ + ริบบิ้นเปลี่ยนหน้าแหวกแล้ว (ถ้ามี) + เผื่อเวลาให้การจางเปลี่ยนหน้า/เลื่อนไป #ส่วนจบ
+let settled = false;
+const settleQueue = [];
+function whenSettled(fn) { if (settled) fn(); else settleQueue.push(fn); }
+function armSettle() {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const loaded = new Promise((r) => (document.readyState === "complete" ? r() : window.addEventListener("load", r, { once: true })));
+  const txOpen = root.classList.contains("lvc-tx-in")
+    ? new Promise((r) => window.addEventListener("lvc:tx-open", r, { once: true }))
+    : Promise.resolve();
+  Promise.race([Promise.all([loaded, txOpen]), wait(7000)])
+    .then(() => wait(root.classList.contains("lvc-tx-in") ? 0 : 450))
+    .then(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))))
+    .then(() => { settled = true; settleQueue.splice(0).forEach((fn) => fn()); });
+}
+
 function mount() {
   Object.keys(PRESETS).forEach((name) => {
     if (stages.some((s) => s.name === name)) return;
@@ -483,6 +528,7 @@ function mount() {
 
 function boot() {
   if (!("IntersectionObserver" in window) || !("ResizeObserver" in window) || !hasWebGL()) return;
+  armSettle();
   mount();
   // หน้าแรกสร้างเนื้อหาด้วย app.js — รอจนส่วน "ผลงาน" และท้ายเว็บมีอยู่จริง
   const app = document.getElementById("app");
@@ -502,7 +548,7 @@ function boot() {
   new MutationObserver(() => stages.forEach((s) => { s.applyPalette(); if (!s.running) s.render(); }))
     .observe(root, { attributes: true, attributeFilter: ["data-theme"] });
 
-  window.__LVC_RIBBONS = { stages, version: "2026-11-01.11.0" };
+  window.__LVC_RIBBONS = { stages, version: "2026-11-02.11.1", get settled() { return settled; } };
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });

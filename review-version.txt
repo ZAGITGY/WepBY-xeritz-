@@ -1,1 +1,1 @@
-LVC v11 — 2026-11-01.11.0 (new type system: Noto Serif Thai display + IBM Plex Sans Thai text replace Kanit; editorial section headers and layout pass on every page; three.js silk ribbons in achievements, footer and sub-page heroes; curtain reveals for headings and images)
+LVC v11.1 — 2026-11-02.11.1 (fix: hero ribbons no longer jump when arriving at contact.html#admissions; ribbon page transitions between pages; touch/pointer feedback: ripple, card tilt, magnetic buttons, image parallax, footer LVC letters, cursor ring)

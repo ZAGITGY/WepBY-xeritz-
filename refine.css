@@ -420,3 +420,81 @@ html[data-theme="dark"] .poster-button { background: #2b2327; }
   .program-row > span, .program-row strong { transition: none; }
 }
 @media print { .lvc-ribbons { display: none !important; } }
+
+/* ---------- v11.1: เปลี่ยนหน้าด้วยริบบิ้น — หน้าแรกรอเปิดตัวจนริบบิ้นแหวก ---------- */
+html.lvc-tx-in.lvc-return * { animation-play-state: paused !important; }
+
+/* ---------- v11.1: ตอบสนองการสัมผัส (lvc-interact.js) ---------- */
+/* วงคลื่นจากจุดที่แตะ */
+.lvc-rp { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; z-index: 0; }
+.desktop-nav .lvc-rp, .page-nav .lvc-rp, .menu-content .lvc-rp, .footer-social .lvc-rp { border-radius: 10px; inset: 2px -8px; }
+.lvc-rp i {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--red) 15%, transparent) 0, color-mix(in srgb, var(--red) 9%, transparent) 46%, transparent 70%);
+  transform: translate(-50%, -50%) scale(.06);
+  animation: lvc-rp-in .7s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.lvc-rp i.is-out { opacity: 0; transition: opacity .65s ease; }
+.lvc-rp i.is-still { animation: none; transform: translate(-50%, -50%) scale(1); opacity: .55; }
+@keyframes lvc-rp-in { to { transform: translate(-50%, -50%) scale(1); } }
+.button .lvc-rp i, .achievement .lvc-rp i, .lvc-top .lvc-rp i { background: radial-gradient(circle, rgba(255, 248, 236, .34) 0 52%, transparent 70%); }
+/* ให้คลื่นเห็นชัด: เลิกจางทั้งการ์ดตอนกด (เดิม opacity .6) */
+@media (hover: none) {
+  .service-link:active, .program-row:active, .news-item:active, .featured-news:active,
+  .menu-content > a:active, .page-nav a:active, .document-links a:active { opacity: 1; }
+}
+
+/* ปุ่มหลัก: แสงวาบผ่านเมื่อชี้ */
+.button:not(.lvc-metal) { position: relative; overflow: hidden; isolation: isolate; }
+.button:not(.lvc-metal)::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(105deg, transparent 32%, rgba(255, 244, 226, .34) 50%, transparent 68%);
+  transform: translateX(-130%);
+}
+@media (hover: hover) {
+  .button:not(.lvc-metal):hover::before { transform: translateX(130%); transition: transform 1s cubic-bezier(.2, .8, .2, 1); }
+  .service-link { border-radius: 4px; }
+  .service-link:hover { background-color: color-mix(in srgb, var(--red) 4%, transparent); }
+}
+
+/* การ์ดเอียงตามนิ้วตอนกดค้าง (มือถือ) */
+html.lvcx-on .lvc-tilt {
+  transform: perspective(700px) rotateY(var(--tx, 0deg)) rotateX(var(--ty, 0deg));
+  transition: transform .45s cubic-bezier(.2, .8, .2, 1), color .3s ease, background-color .35s ease, opacity .1s;
+}
+
+/* ตัวอักษร LVC ท้ายเว็บ: แตะแล้วเด้งเป็นคลื่น */
+.lvc-mark.is-wave span { animation: lvc-mark-wave 1.15s cubic-bezier(.3, .7, .2, 1) both; }
+.lvc-mark.is-wave span:nth-child(2) { animation-delay: .09s; }
+.lvc-mark.is-wave span:nth-child(3) { animation-delay: .18s; }
+@keyframes lvc-mark-wave {
+  0% { translate: 0 0; rotate: 0deg; }
+  32% { translate: 0 -9%; rotate: -2deg; }
+  62% { translate: 0 2%; rotate: 1deg; }
+  100% { translate: 0 0; rotate: 0deg; }
+}
+.footer, .page-footer { touch-action: manipulation; }
+
+/* วงแหวนตามเมาส์ (คอม) — ใช้โหมดผสม difference จึงเห็นได้ทั้งบนพื้นอ่อนและพื้นเข้ม */
+.lvc-cursor {
+  position: fixed; left: 0; top: 0; z-index: 2147483000; width: 0; height: 0;
+  pointer-events: none; mix-blend-mode: difference; opacity: 0; transition: opacity .3s ease;
+}
+.lvc-cursor.is-on { opacity: .85; }
+.lvc-cursor.is-text { opacity: 0; }
+.lvc-cursor::before {
+  content: ""; position: absolute; left: -17px; top: -17px; width: 34px; height: 34px;
+  border-radius: 50%; border: 1.5px solid #fff; box-sizing: border-box;
+  transform: scale(var(--s, 1));
+  transition: transform .45s cubic-bezier(.2, .8, .2, 1), background-color .3s ease, border-width .3s ease;
+}
+.lvc-cursor.is-hot::before { --s: 1.65; background-color: rgba(255, 255, 255, .14); border-width: 1px; }
+.lvc-cursor.is-down::before { --s: .8; }
+@media (hover: none), (pointer: coarse) { .lvc-cursor { display: none !important; } }
+@media (prefers-reduced-motion: reduce) {
+  .lvc-cursor { display: none !important; }
+  .lvc-mark.is-wave span { animation: none; }
+  html .lvc-tilt { transform: none !important; }
+  .button:not(.lvc-metal):hover::before { transition: none; }
+}
+@media print { .lvc-cursor, .lvc-rp { display: none !important; } }
