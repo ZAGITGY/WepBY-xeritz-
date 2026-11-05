@@ -3,7 +3,7 @@
  *
  * ริบบิ้นสีเดียวกับวัสดุประติมากรรม LVC (งาช้าง · แดง · แชมเปญ) ไหลเป็นเส้นทางผ่านส่วนต่าง ๆ
  *   - หน้าแรก: ช่วง "ผลงาน" (พื้นแดงเข้ม) และท้ายเว็บ (ผ่านตัวอักษร LVC)
- *   - หน้าย่อย: ด้านขวาของหัวหน้า (หลักสูตร / ข่าว / ติดต่อ)
+ *   - หน้าย่อย: ด้านขวาของหัวหน้า (ข่าว) · v12: หน้าหลักสูตร/ติดต่อใช้โมเดล 3D ของ lvc-objects.js แทน (body[data-hero3d])
  * ริบบิ้นค่อย ๆ คลี่ออกเมื่อเลื่อนมาถึง ไหลตามการเลื่อน และนูนหลบตามเมาส์/นิ้ว
  *
  * three.js r180 (vendor/three, MIT) โหลดเฉพาะเมื่อส่วนนั้นใกล้เข้าจอ — ไม่เพิ่มเวลาโหลดหน้าแรก
@@ -48,7 +48,7 @@ const PRESETS = {
     count: 5, light: [-0.3, 0.75, 0.6], shade: [0.8, 0.71, 0.66], sheen: 0.7, opacity: 0.95
   },
   hero: {
-    host: ".content-page .page-main", where: "prepend", palette: (dark) => (dark ? "paperDark" : "paper"),
+    host: ".content-page:not([data-hero3d]) .page-main", where: "prepend", palette: (dark) => (dark ? "paperDark" : "paper"),
     path: [-1.2, -1.0, 1.25, 0.62], bend: 0.18, spread: 0.22, amp: 0.2, width: [0.07, 0.16], fit: ".page-intro",
     count: 5, light: [-0.3, 0.75, 0.6], shade: [0.8, 0.71, 0.66], sheen: 0.75, opacity: 0.96
   }
@@ -548,7 +548,7 @@ function boot() {
   new MutationObserver(() => stages.forEach((s) => { s.applyPalette(); if (!s.running) s.render(); }))
     .observe(root, { attributes: true, attributeFilter: ["data-theme"] });
 
-  window.__LVC_RIBBONS = { stages, version: "2026-11-02.11.1", get settled() { return settled; } };
+  window.__LVC_RIBBONS = { stages, version: "2026-11-05.12.0", get settled() { return settled; } };
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });

@@ -10,7 +10,7 @@
 
   /* ---------- ตั้งค่า ---------- */
   var CFG = {
-    version: "2026-11-02.11.1",
+    version: "2026-11-05.12.0",
     email: "",          // ใส่อีเมลผู้รับรายงาน เช่น "name@example.com" → มีปุ่ม "ส่งอีเมล"
     formUrl: "",        // ใส่ลิงก์ Google Form (ถ้ามี) → มีปุ่ม "เปิดแบบฟอร์ม"
     line: true,         // ปุ่ม "ส่งทาง LINE" (เปิดหน้าแชร์ของ LINE ให้เลือกแชตเอง) — ใช้เมื่อไม่ได้ใส่ lineAdmin
@@ -69,6 +69,18 @@
     if (s.failed) return "ภาพนิ่ง (WebGL ใช้ไม่ได้)";
     return (s.still ? "ภาพนิ่ง" : "เคลื่อนไหว") + " · ระดับ " + s.quality + " · เฟรมเฉลี่ย " + s.avgMs + " ms";
   }
+  // v12: โมเดล 3D ของ lvc-objects.js (ตู้โชว์ / วงหมุน / หมุด / เอกสาร)
+  function objectsState() {
+    var O = window.__LVC_OBJECTS, out = [];
+    if (!O) return document.querySelector("script[src*='lvc-objects']") ? "ไม่แสดง (ไม่มี WebGL หรือโหลดไม่ได้)" : "-";
+    try {
+      O.places.forEach(function (p) {
+        var n = String(p.el.className).split(" ")[0].replace("lvc-", "");
+        out.push(n + ":" + (p.failed ? "ใช้ไม่ได้" : !p.built ? "ยังไม่สร้าง" : p.static ? "นิ่ง" : p.running ? "เคลื่อนไหว" : "พัก") + (p.built ? " q" + p.quality : ""));
+      });
+    } catch (e) {}
+    return out.join(" · ") || "-";
+  }
   function deviceGuess() {
     var ua = navigator.userAgent;
     var m = ua.match(/iPhone|iPad|Android [\d.]+|Windows NT [\d.]+|Mac OS X [\d_]+|CrOS|Linux/);
@@ -93,6 +105,7 @@
       ["ประติมากรรม", webglState()],
       ["ฉากเข้าเว็บ", introState()],
       ["พื้นหลังภาพวิทยาลัย", backdropState()],
+      ["โมเดล 3D (v12)", objectsState()],
       ["เครือข่าย", conn || "-"],
       ["เวลา", new Date().toLocaleString("th-TH")]
     ];

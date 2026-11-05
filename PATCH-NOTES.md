@@ -1,4 +1,22 @@
-# Patch 2026-11-02.11.1 — ribbon jump fix, ribbon page transitions, touch feedback
+# Patch 2026-11-05.12.0 — procedural 3D models, program colours, aurora backgrounds
+
+## New: procedural three.js models (`lvc-objects.js`, styles in `v12.css`)
+- Eight program-group objects built in code (no model files): business (bars, coins, rising arrow), digital (laptop with a canvas-drawn code screen, floating cubes), arts (pen-tool nib drawing a Bézier curve), home economics (teapot, cup, saucer, steam), tourism (hotel bell, paper plane in orbit), food (red bowl, broth, chopsticks, steam), fashion (dress form, tape, spool), logistics (parcels on a pallet, looping arrow). Shared materials: porcelain/ivory clearcoat, red lacquer, champagne metal, plus one accent colour per group. Lighting is a PMREM environment built from a small emissive "softbox" scene (RoomEnvironment is not in the vendored build) plus one key light; contact shadows are radial-gradient planes (no shadow maps). Neutral tone mapping keeps the brand reds.
+- Home, programs section: a "display case" replaces the photo when WebGL is ready. The case background is the group's deep colour; big outline number, group name, dots. Desktop: hovering/focusing a row swaps the model (spin out / spin in with overshoot); while scrolling, the row nearest the viewport centre drives the case; the pointer tilts the model; drag to spin with inertia. Phone/tablet (case not sticky): advances every ~4.2 s, tap = next, horizontal drag spins (vertical drag still scrolls, `touch-action: pan-y`). The real photo stays as a tilted polaroid ("ชีวิตที่ LVC") in the corner. The active row gets the group colour wash and bar.
+- Programs page hero: turntable of all 8 objects (replaces the hero ribbons there via `body[data-hero3d]`). Prev/next buttons and a real link to the active group's section; auto-advance every ~4.6 s, paused while hovered/focused or for 7 s after any interaction; drag to rotate with snap; tapping an object brings it to the front, tapping the front one scrolls to its section.
+- Contact page hero: a contour-line mountain relief (vertex-shader fbm ridges with a flat valley in the middle, contour lines from `fwidth`, every 5th line red) rises, then a red lacquer pin with the college crest on a champagne medallion drops in and bounces; ripples spread from its base; the camera orbits slowly and follows the pointer. Labelled on the page as an illustration, not a map. Replaces the hero ribbons on that page.
+- Home, public information (≥ 901px): document stack, sweeping magnifier and a red wax seal with the crest, in the empty space beside the heading.
+- Same lifecycle as the ribbons: built within 25% of the viewport, render loop only while visible and the tab is visible, everything disposed and the context released beyond 2 viewports; frame-time watchdog (90 frames: > 30 ms → pixel ratio 1, > 48 ms → still frame). Save-Data / deviceMemory ≤ 1 / Reduced Motion → still frame, no auto-advance or auto-rotation (buttons still work). No WebGL → nothing is added and the page is exactly v11.1.
+
+## Colour (`v12.css`)
+- Eight program accent colours (amber, sapphire, orchid, rose, jade, persimmon, amethyst, ocean) with separate text shades for light and dark themes, all ≥ 5.4:1 against the page background. Used in the case, turntable, row numbers and hover/active wash, programs-page index numbers, level headings and list dashes, and the separators in the home program-name marquee.
+- Aurora layers (three radial-gradient blobs drifting slowly, no `filter: blur`) in Services, Public information and the sub-page intros.
+- Accent heading lines (home "ที่เลือกได้", sub-page second lines) use a slowly moving red → rose → copper gradient; every stop is ≥ 3:1 on the light page (large text). Dark theme has its own lighter gradient. Print and forced-colors fall back to solid text.
+- News: pointer-following glare on the featured card; secondary thumbnails zoom/tilt slightly on hover.
+
+## Other
+- `lvc-ribbons.js`: hero ribbons skip pages with `body[data-hero3d]` (programs, contact); news keeps them.
+- Asset version `2026-11-05.12.0` on every page.
 
 ## Bug fixed: hero ribbons "shot upward" after tapping สมัครเรียน (reported on iPad, screen recording 2 Nov)
 - Cause: `contact.html#admissions` rendered the sub-page hero ribbons at scroll 0 and started unfurling them; the browser then jumped to `#admissions` during the cross-document fade, so the half-drawn ribbons visibly slid up and away. The scroll-linked phase (`uScroll`) also jumped with the anchor scroll.

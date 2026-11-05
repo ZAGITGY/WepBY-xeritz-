@@ -1,3 +1,21 @@
+# QA — version 2026-11-05.12.0
+
+Chromium / Playwright over local HTTP, software WebGL (SwiftShader), viewport emulation. No physical device, no WebKit. Under SwiftShader the frame-time watchdog sometimes switches the home display case to its still frame (> 48 ms per frame); that is the intended fallback, not a bug, and says nothing about phone frame rates.
+
+- Model grid render of all 8 objects from two angles (QA page outside the site): geometry, materials, lathe normals (teapot lid and cup interior were inverted in the first pass and fixed), no shader or console errors.
+- Home display case: built when the programs section approaches, figure switches to `has-case`; hover on row 7 → fashion model, row 7 highlighted, accent `#9259d8`; keyboard focus on row 2 → digital; mouse drag spins (spin ≈ 2 rad). Phone 390×844 light/dark: model above the group name, polaroid in the corner, auto-advance running.
+- Public-information seal: built when near, torn down after scrolling back to the top (context released).
+- Programs turntable: next `#business → #digital`, prev wraps to `#logistics`, label link lands on the section (top ≈ 120 px below the header); hero ribbons not mounted on this page; desktop 1440 and phone 390, light and dark.
+- Contact pin: terrain rise, pin drop, crest medallion visible, tag visible; light ↔ dark switch recolours the terrain without errors.
+- Reduced Motion: contact pin built but static and not looping; aurora animation `none`; accent gradient static.
+- No WebGL (`--disable-webgl --disable-3d-apis`): no `__LVC_OBJECTS`, no case/turntable/pin/seal elements, home programs photo at full v11.1 size (560×603). The only console errors are the existing `app.js` sculpture messages (also present in v11.1).
+- Intro on a fresh load completes and unlocks the page (9.6 s under SwiftShader), no errors.
+- 5 pages × 1440 / 390 / 320 (touch emulation for the phone sizes), scrolled to the end: no horizontal overflow, no page errors.
+- Known console noise, same as v11.1 (checked side by side on the v11.1 files): `doc-links.js` HEAD probes for PDFs are reported as `net::ERR_ABORTED` by headless Chromium, and the 404 for the absent `student-handbook-2569.pdf`.
+- Contrast: program text colours 5.48–6.71:1 (light) and 8.72–10.35:1 (dark); white/ivory text on the case backgrounds ≥ 12.9:1; every stop of the accent-heading gradient ≥ 3:1 on the light page (large text).
+
+---
+
 # QA — version 2026-10-26.10.0
 
 Chromium 153 / Playwright 1.63 over local HTTP, software WebGL (SwiftShader: 0.6–0.9 s per frame while the intro, two sculptures and the backdrop run), viewport emulation. No physical device, no WebKit. v9.4 served side by side as the baseline.
