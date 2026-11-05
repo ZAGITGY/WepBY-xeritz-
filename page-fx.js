@@ -194,13 +194,24 @@
   window.addEventListener("pagereveal", function (event) {
     if (event.viewTransition) arriving = event.viewTransition;
   }, { once: true });
-  requestAnimationFrame(function () {
+  function begin() {
     var transition = arriving || document.activeViewTransition || null;
     if (!transition || !transition.finished) { startObserving(); return; }
     var started = false;
     var go = function () { if (started) return; started = true; startObserving(); };
     transition.finished.then(go, go);
     setTimeout(go, 1600);
+  }
+  requestAnimationFrame(function () {
+    // v11.1: มาด้วยการเปลี่ยนหน้าแบบริบบิ้น (tx-head.js) → เปิดตัวเนื้อหาตอนริบบิ้นเริ่มแหวก
+    if (root.classList.contains("lvc-tx-in")) {
+      var once = false;
+      var go = function () { if (once) return; once = true; begin(); };
+      window.addEventListener("lvc:tx-open", go, { once: true });
+      setTimeout(go, 7000);
+      return;
+    }
+    begin();
   });
 
   function revealAll() {

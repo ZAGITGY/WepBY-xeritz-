@@ -139,3 +139,17 @@ The "Liquid Metal Button" React component supplied with the request was re-imple
 ------------------------------
 
 Kanit Light (fonts/kanit-300.ttf) is part of the Kanit family listed at the top of this file (SIL OFL 1.1).
+
+
+------------------------------------------------------------------------
+v11 fonts (fonts/*.woff2, self-hosted from Google Fonts, subset thai + latin)
+
+Noto Serif Thai — Copyright 2022 The Noto Project Authors (https://github.com/notofonts/thai)
+IBM Plex Sans Thai — Copyright © 2017 IBM Corp. with Reserved Font Name "Plex"
+
+Both are licensed under the SIL Open Font License, Version 1.1 — the same licence
+as Kanit; full text in fonts/OFL.txt.
+
+three.js r180 (vendor/three/three.module.min.js, vendor/three/three.core.min.js)
+is the same MIT-licensed library listed above, shipped as a separate module for
+lvc-ribbons.js; licence text in vendor/three/LICENSE.txt.

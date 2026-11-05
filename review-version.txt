@@ -1,1 +1,1 @@
-LVC v10 — 2026-10-26.10.0 (campus watercolour entry scene replaces the spinning-logo loader, living campus backdrop behind the hero, LVC dial line/dot fix, latest-news ticker and other home-page motion from lvc.ac.th data, new OG image)
+LVC v11.1 — 2026-11-02.11.1 (fix: hero ribbons no longer jump when arriving at contact.html#admissions; ribbon page transitions between pages; touch/pointer feedback: ripple, card tilt, magnetic buttons, image parallax, footer LVC letters, cursor ring)
