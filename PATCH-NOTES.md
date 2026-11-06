@@ -1,3 +1,19 @@
+# Patch 2026-11-06.13.0 — cinematic scroll journey replaces the LVC showcase
+
+Direction from the reference video the owner sent (a product site where scrolling drives one continuous camera move): dark cinematic grade in LVC colours, the real campus photo as the fly-through scene.
+
+## New: `lvc-journey.js` + `journey.css` (replaces `lvc-showcase.js` + `showcase.css` on the home page; old files kept for rollback)
+- Pinned section (7.2 viewport heights desktop, 6.2 phone) driven by the existing GSAP ScrollTrigger (`window.__LVC`); progress is damped (exp, k = 7) and jumps larger than 0.22 snap (menu links, anchors, keyboard focus) so the camera never flies the whole path off-screen.
+- Beats: (1) campus photo at dusk with a giant "VOCATIONAL" between the buildings and the sky; (2) low fly-over of the forecourt to the college sign, light dust stretched into streaks by camera velocity, black veil cut; (3) the eight program objects from `lvc-objects.js` floating above the forecourt with projected DOM callouts and SVG leader lines (callouts link to programs.html#group); (4) ivory flash, giant grey "LVC" behind a procedural LVC sculpture (red caps, porcelain sides, red/ivory base): turn, close-up, exploded letters, 8 / 3 figures; (5) dark room: floor, light pool, back-wall light slits, additive spotlight cone, SpotLight, porcelain pedestal; sculpture lands; (6) giant layered Thai "ลงมือทำ" (canvas text slices, 22 desktop / 12 phone) rises behind; CTAs.
+- Campus photo depth: camera projection. A projector camera matching the photo (height 1.6, pitch 0.36 rad, vertical FOV 58°, horizon at v ≈ 0.16) casts rays; three meshes are built along those rays with depth from simple proxies (ground-plane intersection, wall depth by image region, far backdrop) and `uv` = image coordinate, so the start pose reproduces the photo exactly and parallax appears as the camera moves. A building/tree silhouette polygon (image pixels) becomes a two-channel mask (sharp / wide blur) for the sky cut, backlight glow and rim light. Outside the photo the image fades to the fog colour instead of stretching edge pixels. On screens wider than 3:2 the vertical FOV shrinks so the photo still fills the width.
+- Grade (shader): split-tone (oxblood shadows, warm mids, champagne highlights) mixed with a desaturated photo, darkened sky with a warm glow behind the gap between the buildings, distance fog.
+- Overlays: vignette, animated SVG film grain, black and ivory veils hiding the camera cuts, chapter copy (real DOM text, focusable; focusing a hidden chapter scrolls to it), 01–06 counter and progress bar. Back-to-top still hides during the section via `window.__LVC_SHOWCASE.trigger`.
+- Performance: WebGL built within 120% of the viewport, released beyond 250%; renders only while the progress moves or idle motion is on; frame-time watchdog (> 30 ms → pixel ratio 1, > 48 ms → idle motion off); phone: pixel ratio ≤ 1.5, fewer dust particles and text slices, smaller objects.
+- Fallbacks: no WebGL → still pinned, CSS-graded campus photo and the existing sculpture poster carry the story; Reduced Motion (or switching it on) → not pinned, all six chapters stacked and readable; print → hidden.
+- Tester report adds the journey state (3D / still / static, quality level, position).
+
+---
+
 # Patch 2026-11-05.12.0 — procedural 3D models, program colours, aurora backgrounds
 
 ## New: procedural three.js models (`lvc-objects.js`, styles in `v12.css`)

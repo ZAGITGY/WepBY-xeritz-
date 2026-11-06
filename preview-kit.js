@@ -10,7 +10,7 @@
 
   /* ---------- ตั้งค่า ---------- */
   var CFG = {
-    version: "2026-11-05.12.0",
+    version: "2026-11-06.13.0",
     email: "",          // ใส่อีเมลผู้รับรายงาน เช่น "name@example.com" → มีปุ่ม "ส่งอีเมล"
     formUrl: "",        // ใส่ลิงก์ Google Form (ถ้ามี) → มีปุ่ม "เปิดแบบฟอร์ม"
     line: true,         // ปุ่ม "ส่งทาง LINE" (เปิดหน้าแชร์ของ LINE ให้เลือกแชตเอง) — ใช้เมื่อไม่ได้ใส่ lineAdmin
@@ -81,6 +81,15 @@
     } catch (e) {}
     return out.join(" · ") || "-";
   }
+  // v13: ฉากหนังช่วงที่สองของหน้าแรก (lvc-journey.js)
+  function journeyState() {
+    var sec = document.querySelector(".lvc-jr"), J = window.__LVC_JOURNEY;
+    if (!sec) return "-";
+    if (sec.classList.contains("is-static")) return "เรียงนิ่ง (Reduced Motion)";
+    if (sec.classList.contains("no-gl")) return "ภาพนิ่ง (ไม่มี WebGL)";
+    if (!J) return "-";
+    return (J.built ? "3D" : J.failed ? "3D ใช้ไม่ได้" : "ยังไม่สร้าง") + " · ระดับ " + J.quality + " · ตำแหน่ง " + Math.round((J.p || 0) * 100) + "%";
+  }
   function deviceGuess() {
     var ua = navigator.userAgent;
     var m = ua.match(/iPhone|iPad|Android [\d.]+|Windows NT [\d.]+|Mac OS X [\d_]+|CrOS|Linux/);
@@ -106,6 +115,7 @@
       ["ฉากเข้าเว็บ", introState()],
       ["พื้นหลังภาพวิทยาลัย", backdropState()],
       ["โมเดล 3D (v12)", objectsState()],
+      ["ฉากหนังหน้าแรก (v13)", journeyState()],
       ["เครือข่าย", conn || "-"],
       ["เวลา", new Date().toLocaleString("th-TH")]
     ];

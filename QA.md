@@ -1,3 +1,17 @@
+# QA — version 2026-11-06.13.0
+
+Chromium / Playwright over local HTTP, software WebGL (SwiftShader), viewport emulation. No physical device, no WebKit. SwiftShader is slow enough that the watchdog drops the journey to quality 0 (idle motion off); scroll-driven rendering still works. Frame rates on phones are not measured here.
+
+- Journey sampled at 0 / 0.08 / 0.2 / 0.27 / 0.42 / 0.48 / 0.58 / 0.64 / 0.69 / 0.8 / 0.95 on 1440×900 and 0 / 0.2 / 0.45 / 0.6 / 0.68 / 0.8 / 0.97 on 390×844: each beat renders, copy readable, callouts placed beside their objects, numbers clear of the sculpture, finale text fits the phone width. Issues found and fixed on the way: duplicate identifier (page error), stretched edge pixels beyond the photo, giant word clipped by the left building and by the header, objects too close on phones, numbers overlapping the exploded L, finale text overflowing on phones, final CTA under the counter on phones.
+- A 330-frame preview video was rendered frame by frame from the real page (1280×720) to check continuity across the cuts.
+- Header "หลักสูตร" link from the top lands on #programs past the pinned section (top 105 px). Pin length 7.2 viewports. At 45 %: chapter 3 active, callouts on, back-to-top hidden.
+- Keyboard: focusing the final CTA from chapter 1 scrolls to the finale and shows it.
+- Reduced Motion: section static and not pinned, all six chapters visible.
+- No WebGL (`--disable-webgl --disable-3d-apis`): section still pinned, chapter 4 and the sculpture poster at 62 %, no errors apart from the existing `app.js` sculpture messages.
+- Home page at 1440 / 390 / 820 scrolled end to end: no horizontal overflow, no page errors. Intro still completes and unlocks the page.
+
+---
+
 # QA — version 2026-11-05.12.0
 
 Chromium / Playwright over local HTTP, software WebGL (SwiftShader), viewport emulation. No physical device, no WebKit. Under SwiftShader the frame-time watchdog sometimes switches the home display case to its still frame (> 48 ms per frame); that is the intended fallback, not a bug, and says nothing about phone frame rates.

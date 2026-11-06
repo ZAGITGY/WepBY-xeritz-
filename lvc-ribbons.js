@@ -548,7 +548,7 @@ function boot() {
   new MutationObserver(() => stages.forEach((s) => { s.applyPalette(); if (!s.running) s.render(); }))
     .observe(root, { attributes: true, attributeFilter: ["data-theme"] });
 
-  window.__LVC_RIBBONS = { stages, version: "2026-11-05.12.0", get settled() { return settled; } };
+  window.__LVC_RIBBONS = { stages, version: "2026-11-06.13.0", get settled() { return settled; } };
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
