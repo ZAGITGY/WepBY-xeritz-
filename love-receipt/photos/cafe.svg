@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
+  <title>ร้านกาแฟ: ลาเต้ลายหัวใจกับโกโก้เย็นบนโต๊ะริมหน้าต่าง</title>
+  <!-- ผนัง -->
+  <rect width="600" height="450" fill="#efe5d6"/>
+  <!-- หน้าต่าง -->
+  <rect x="58" y="34" width="300" height="236" rx="6" fill="#5c4a3d"/>
+  <rect x="72" y="48" width="272" height="208" fill="#d7e6ea"/>
+  <circle cx="290" cy="110" r="34" fill="#f6efd9"/>
+  <path d="M72 214 C120 168 160 196 196 170 C232 146 270 182 344 150 V256 H72 Z" fill="#8fae96"/>
+  <path d="M72 236 C140 210 220 238 344 206 V256 H72 Z" fill="#6f927b"/>
+  <rect x="202" y="48" width="12" height="208" fill="#5c4a3d"/>
+  <rect x="72" y="146" width="272" height="10" fill="#5c4a3d"/>
+  <!-- โคมไฟ -->
+  <path d="M520 0 V70" stroke="#3a312b" stroke-width="5"/>
+  <path d="M486 112 L506 70 H534 L554 112 Z" fill="#3a312b"/>
+  <ellipse cx="520" cy="114" rx="16" ry="8" fill="#fff6d8"/>
+  <!-- โต๊ะ -->
+  <path d="M0 300 H600 V346 H0 Z" fill="#b98a62"/>
+  <path d="M0 346 H600 V450 H0 Z" fill="#6c4a34"/>
+  <path d="M0 300 H600" stroke="#d2a77f" stroke-width="5"/>
+  <!-- ลาเต้ -->
+  <ellipse cx="200" cy="330" rx="96" ry="22" fill="#fbf8f2" stroke="#3a312b" stroke-width="5"/>
+  <path d="M136 258 H264 L254 322 Q200 340 146 322 Z" fill="#fbf8f2" stroke="#3a312b" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M262 272 C302 270 302 312 256 312" fill="none" stroke="#3a312b" stroke-width="9" stroke-linecap="round"/>
+  <ellipse cx="200" cy="258" rx="64" ry="14" fill="#8a5a3b" stroke="#3a312b" stroke-width="5"/>
+  <path d="M200 268 C186 258 182 250 190 247 C195 245 199 248 200 251 C201 248 205 245 210 247 C218 250 214 258 200 268 Z" fill="#f1dfc4"/>
+  <!-- ไอน้ำ -->
+  <path d="M178 228 C164 210 192 200 178 178" fill="none" stroke="#a3988d" stroke-width="7" stroke-linecap="round"/>
+  <path d="M214 224 C200 204 228 194 214 170" fill="none" stroke="#a3988d" stroke-width="7" stroke-linecap="round"/>
+  <!-- โกโก้เย็น -->
+  <path d="M430 154 L452 92" stroke="#c4554d" stroke-width="10" stroke-linecap="round"/>
+  <path d="M362 166 H470 L458 318 Q416 330 374 318 Z" fill="#e8eef0" stroke="#3a312b" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M368 200 H464 L456 312 Q416 322 376 312 Z" fill="#5a3b2b"/>
+  <rect x="384" y="206" width="30" height="28" rx="5" fill="#d9e5e8" transform="rotate(-10 399 220)"/>
+  <rect x="420" y="214" width="28" height="26" rx="5" fill="#cfdde0" transform="rotate(12 434 227)"/>
+  <path d="M362 166 H470" stroke="#3a312b" stroke-width="5"/>
+</svg>
