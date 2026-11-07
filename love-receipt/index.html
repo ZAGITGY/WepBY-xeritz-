@@ -46,6 +46,10 @@ const CONFIG = {
   //   photo = รูปในโฟลเดอร์ photos/ เช่น "photos/beach.jpg" (ไม่ใส่ก็ได้)
   //           รองรับ .jpg .png .webp .svg เว็บจะแปลงเป็นขาวดำเม็ดสกรีนเหมือนเครื่องพิมพ์ใบเสร็จเอง
   //   alt   = อธิบายว่าในรูปมีอะไร สำหรับคนที่ใช้โปรแกรมอ่านหน้าจอ (มีรูปต้องใส่ทุกครั้ง)
+  //   polaroids = รูปจริงสีแบบโพลารอยด์ แปะทับบนใบเสร็จข้างรายการ ใส่ได้ 0–2 รูป (ไม่ใส่ = ไม่มีโพลารอยด์)
+  //           เช่น polaroids: [{ src: "photos/trip-1.jpg", alt: "เราสองคนบนจุดชมวิว", pos: "50% 40%" }]
+  //           pos = จุดที่อยากให้อยู่กลางกรอบ (แนวนอน แนวตั้ง) ถ้าคนในรูปไม่อยู่กลาง เช่น "50% 30%" = ขยับขึ้นไปทางหัว
+  //   price ขึ้นสองบรรทัดได้ ใส่ \n คั่น เช่น "ไม่มีรูป\nแต่จำได้ทุกอย่าง"
   items: [
     {
       date: "14/02/24",
@@ -115,18 +119,21 @@ const CONFIG = {
   },
 
   // ── 8) เพลง (ไม่บังคับ) ─────────────────────────────────
-  // วางไฟล์เพลงไว้ข้างๆ index.html แล้วใส่ชื่อไฟล์ เช่น "song.mp3"
-  // เว้นว่าง "" = ไม่มีปุ่มเพลง · เพลงไม่เล่นเอง คนเปิดลิงก์ต้องกดปุ่มเอง
+  // ไฟล์ mp3 ในโฟลเดอร์ music/ เช่น "music/our-song.mp3"
+  // เพลงเริ่มเล่นตอนกด "พิมพ์ใบเสร็จ" ค่อยๆ ดังขึ้นภายใน 2 วินาที เสียงเบาๆ และมีปุ่มปิด/เปิดเพลงที่มุมจอ
+  // เว้นว่าง "" = ไม่มีเพลง และไม่มีปุ่มเพลง
   music: "",
   musicTitle: "",          // ชื่อเพลง (โชว์ตอนเอานิ้วชี้ปุ่ม) ไม่ใส่ก็ได้
+  // ลิงก์เพลงของเราบน Spotify หรือ YouTube (ไม่ใส่ก็ได้) → มีปุ่มเล็กๆ "เปิดเพลงของเรา" ในหน้าข้อความลับ
+  musicLink: "",
 
   // ── 9) สีธีม ────────────────────────────────────────────
+  // สีหลัก ใช้กับเส้นสแกน หัวใจ และปุ่ม เขียนแบบ #RRGGBB เช่น "#b04a7a" ชมพูกุหลาบ "#b23a48" แดง "#6a4c93" ม่วง
+  // (เว็บจะเลือกสีตัวหนังสือบนปุ่มให้อ่านชัดเอง)
+  accentColor: "#b04a7a",
   theme: {
     // พื้นหลัง: "pastel" = ชมพูม่วงพาสเทล · "linen" = ผ้าลินินสีครีม · "blush" = ผ้าสีชมพูหม่น · "wood" = โต๊ะไม้
     background: "pastel",
-    // สีหลัก ใช้กับปุ่มและหัวใจ เขียนแบบ #RRGGBB เช่น "#b04a7a" ชมพูกุหลาบ "#b23a48" แดง "#6a4c93" ม่วง
-    // (เว็บจะเลือกสีตัวหนังสือบนปุ่มให้อ่านชัดเอง)
-    accent: "#b04a7a",
     // สีพื้นหน้าข้อความลับ แนะนำสีเข้ม เช่น "#2e2140" ม่วงเข้ม "#2c2326" น้ำตาลเข้ม
     secretBackground: "#2e2140",
   },
@@ -328,10 +335,37 @@ button { font: inherit; color: inherit; }
 .r-date { font-size: 12.5px; color: var(--ink-soft); }
 .r-title { font: 600 15px/1.55 var(--sans); overflow-wrap: anywhere; }
 .r-note { padding-left: 9.2ch; font: 400 13.5px/1.6 var(--sans); color: var(--ink-soft); text-wrap: pretty; }
-.r-price { display: flex; align-items: baseline; padding-left: 9.2ch; gap: 6px; }
+.r-price { display: flex; align-items: flex-end; padding-left: 9.2ch; gap: 6px; }
 .r-price .qty { font-size: 12.5px; color: var(--ink-soft); flex: none; }
 .r-price .dots { flex: 1; min-width: 12px; border-bottom: 2px dotted rgba(46,42,39,.45); transform: translateY(-5px); }
-.r-price .price { font: 600 14.5px/1.6 var(--sans); text-align: right; }
+.r-price .price { font: 600 14.5px/1.6 var(--sans); text-align: right; white-space: pre-line; }
+
+/* ── โพลารอยด์ (รูปจริงแปะทับใบเสร็จ) ── */
+.r-pola { position: relative; height: 0; padding-bottom: calc(47% + 62px); margin: 8px 0 4px; }
+.r-pola.one { padding-bottom: calc(54% + 52px); }
+.u[data-kind="pola"] { clip-path: none; }
+.pola {
+  position: absolute; top: 12px; left: 3%; width: 47%; margin: 0;
+  padding: 7px 7px 26px; background: #fffefb;
+  box-shadow: 0 1px 1px rgba(0,0,0,.12), 0 9px 18px -7px rgba(40,28,16,.4);
+  transform: rotate(var(--r, -5deg)); transform-origin: 50% 20%;
+}
+.pola img { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: #ece6dc; }
+.pola.p2 { left: 49%; top: 30px; --r: 6deg; }
+.r-pola.one .pola { left: 23%; width: 54%; --r: -3deg; }
+.tape {
+  position: absolute; top: -9px; left: -16px; width: 62px; height: 20px; z-index: 1;
+  background: linear-gradient(90deg, rgba(255,255,255,.55), rgba(255,255,255,.82) 50%, rgba(255,255,255,.55));
+  box-shadow: 0 0 0 1px rgba(120,110,100,.2), 0 1px 3px rgba(0,0,0,.16);
+  clip-path: polygon(0 12%, 5% 0, 10% 12%, 15% 0, 85% 0, 90% 12%, 95% 0, 100% 12%, 100% 88%, 95% 100%, 90% 88%, 85% 100%, 15% 100%, 10% 88%, 5% 100%, 0 88%);
+  transform: rotate(-38deg);
+}
+.pola.p2 .tape { left: auto; right: -16px; transform: rotate(38deg); }
+.r-pola.one .tape { left: 50%; margin-left: -31px; transform: rotate(-4deg); }
+/* ตอนพิมพ์: แปะลงมาทีละรูป */
+.receipt:not(.done) .r-pola .pola { opacity: 0; transform: rotate(var(--r, -5deg)) translateY(-14px) scale(1.12); }
+.receipt:not(.done) .r-pola.on .pola { opacity: 1; transform: rotate(var(--r, -5deg)); transition: opacity .2s ease, transform .38s cubic-bezier(.3,1.35,.5,1); }
+.receipt:not(.done) .r-pola.on .pola.p2 { transition-delay: .2s; }
 .r-item-head.nd { grid-template-columns: 1fr; }
 .r-note.nd, .r-price.nd { padding-left: 0; }
 .r-photo { margin: 8px 0 6px; display: flex; justify-content: center; }
@@ -383,8 +417,8 @@ button { font: inherit; color: inherit; }
 .r-barcode:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .scanline {
   position: absolute; left: -2%; right: -2%; top: 4px; height: 2px;
-  background: #e3262f;
-  box-shadow: 0 0 6px 1px rgba(227,38,47,.75), 0 0 18px 3px rgba(227,38,47,.35);
+  background: var(--accent);
+  box-shadow: 0 0 6px 1px var(--accent-glow), 0 0 18px 3px var(--accent-soft);
   opacity: 0; pointer-events: none;
 }
 .r-barcode.scanning .scanline { animation: scan 1s cubic-bezier(.45,.05,.55,.95) both; }
@@ -395,7 +429,7 @@ button { font: inherit; color: inherit; }
   92%  { opacity: 1; }
   100% { opacity: 0; transform: translateY(0); }
 }
-.r-barcode.beep { background: rgba(227,38,47,.08); }
+.r-barcode.beep { background: var(--accent-faint); }
 .r-hint { text-align: center; font: 400 12.5px/1.6 var(--sans); color: var(--ink-soft); margin-top: 2px; }
 .receipt.done .r-hint { animation: hint 2.4s ease-in-out 1s 3; }
 @keyframes hint { 50% { color: var(--ink); } }
@@ -452,7 +486,16 @@ button { font: inherit; color: inherit; }
 .snd svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .snd:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .snd[hidden] { display: none; }
-.music {
+.snd.music svg { fill: none; }
+.music-link {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin: 26px 10px 0 0; padding: 10px 18px;
+  border-radius: 999px; background: rgba(255,255,255,.12); color: inherit; text-decoration: none;
+  font: 500 14.5px/1.3 var(--sans);
+}
+.music-link svg { width: 18px; height: 18px; fill: currentColor; }
+.music-link:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.music-link[hidden] { display: none; }
+.music-old {
   display: inline-flex; align-items: center; gap: 8px;
   min-height: 44px; min-width: 44px; padding: 8px 16px 8px 12px;
   border: 1px solid rgba(46,42,39,.18); border-radius: 999px; cursor: pointer;
@@ -535,12 +578,11 @@ button { font: inherit; color: inherit; }
   <button class="snd" id="soundBtn" type="button" aria-pressed="true" aria-label="เสียงเอฟเฟค" hidden>
     <svg viewBox="0 0 24 24" aria-hidden="true"><path id="soundIcon" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z M15.5 9a4.5 4.5 0 0 1 0 6 M18 6.5a8 8 0 0 1 0 11"/></svg>
   </button>
-  <button class="music" id="musicBtn" type="button" aria-pressed="false" hidden>
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path id="musicIcon" d="M9 18.5A3.5 3.5 0 1 1 7 15.3V4.5l12-2.5v13.5a3.5 3.5 0 1 1-2-3.2V6.4l-8 1.7z"/></svg>
-    <span id="musicLabel">เปิดเพลง</span>
+  <button class="snd music" id="musicBtn" type="button" aria-pressed="true" aria-label="เพลง" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path id="musicIcon" d="M9 18V5.5l11-2.5v12.5 M9 18a3 3 0 1 1-3-3 3 3 0 0 1 3 3z M20 15.5a3 3 0 1 1-3-3 3 3 0 0 1 3 3z"/></svg>
   </button>
 </div>
-<audio id="music" preload="none" loop></audio>
+<audio id="music" preload="none" loop playsinline></audio>
 
 <main class="stage" id="stage">
   <div class="spacer" id="spacer">
@@ -602,6 +644,7 @@ button { font: inherit; color: inherit; }
     <h2 class="secret-title ln" style="--i:1" id="secretTitle"></h2>
     <div class="secret-body" id="secretBody"></div>
     <p class="secret-sign ln" id="secretSign"></p>
+    <a class="music-link ln" id="musicLink" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18.5A3.5 3.5 0 1 1 7 15.3V4.5l12-2.5v13.5a3.5 3.5 0 1 1-2-3.2V6.4l-8 1.7z"/></svg>เปิดเพลงของเรา</a>
     <button class="secret-back ln" id="secretBack" type="button">กลับไปที่ใบเสร็จ</button>
   </div>
   <button class="secret-x" id="secretX" type="button" aria-label="ปิดข้อความลับ">×</button>
@@ -634,6 +677,8 @@ button { font: inherit; color: inherit; }
   }
 
   /* ───────── สีธีม ───────── */
+  let accentRGB = [176, 74, 122];
+  const tint = (c, k) => `rgb(${c.map((v) => Math.round(v + (255 - v) * k)).join(',')})`;
   function rgb(hex) {
     let s = text(hex).trim().replace('#', '');
     if (s.length === 3) s = s.split('').map((c) => c + c).join('');
@@ -652,9 +697,13 @@ button { font: inherit; color: inherit; }
   function applyTheme() {
     const t = C.theme || {};
     root.dataset.table = ['pastel', 'linen', 'blush', 'wood'].includes(t.background) ? t.background : 'linen';
-    const acc = rgb(t.accent) || [178, 58, 72];
+    const acc = rgb(C.accentColor) || rgb(t.accent) || [176, 74, 122];
     const white = [255, 255, 255], dark = [29, 26, 24];
     root.style.setProperty('--accent', `rgb(${acc.join(',')})`);
+    root.style.setProperty('--accent-glow', `rgba(${acc.join(',')},.75)`);
+    root.style.setProperty('--accent-soft', `rgba(${acc.join(',')},.35)`);
+    root.style.setProperty('--accent-faint', `rgba(${acc.join(',')},.08)`);
+    accentRGB = acc;
     root.style.setProperty('--on-accent', contrast(acc, white) >= contrast(acc, dark) ? '#ffffff' : '#1d1a18');
     const sb = rgb(t.secretBackground) || [44, 35, 38];
     const cream = [246, 239, 227], ink = [46, 42, 39];
@@ -847,9 +896,27 @@ button { font: inherit; color: inherit; }
       }
       if (it.note) add(h('div', 'r-note' + nd, it.note));
       const price = h('div', 'r-price' + nd);
-      price.append(h('span', 'qty', 'x1'), h('span', 'dots'), h('span', 'price', text(it.price)));
+      const priceText = Array.isArray(it.price) ? it.price.map(text).join('\n') : text(it.price);
+      price.append(h('span', 'qty', 'x1'), h('span', 'dots'), h('span', 'price', priceText));
       price.querySelector('.dots').setAttribute('aria-hidden', 'true');
       add(price, 'text', i < items.length - 1 ? 110 : 260);
+      // รูปจริงแบบโพลารอยด์ (0–2 รูป) วางในช่องของตัวเอง ไม่ทับตัวหนังสือ
+      const pols = (Array.isArray(it.polaroids) ? it.polaroids : []).filter((x) => x && text(x.src || x).trim()).slice(0, 2);
+      if (pols.length) {
+        const box = h('div', 'r-pola' + (pols.length === 1 ? ' one' : ''));
+        pols.forEach((x, k) => {
+          const fig = h('figure', 'pola p' + (k + 1));
+          const img = new Image();
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.alt = text(x.alt || it.title || 'รูปความทรงจำ');
+          img.src = text(x.src || x);
+          if (x.pos) img.style.objectPosition = text(x.pos);
+          fig.append(h('span', 'tape'), img);
+          box.append(fig);
+        });
+        add(box, 'pola', 120);
+      }
     });
 
     add(rule(true), 'rule');
@@ -938,7 +1005,7 @@ button { font: inherit; color: inherit; }
     const box = $('#hearts');
     box.textContent = '';
     if (reduce) return;
-    const colors = ['#f6a8c9', '#d6c2ff', '#ffc4d8', '#bea6ff', '#ff9fbf'];
+    const colors = [tint(accentRGB, 0.15), tint(accentRGB, 0.45), '#d6c2ff', tint(accentRGB, 0.65), '#bea6ff'];
     for (let i = 0; i < 18; i++) {
       const f = document.createElement('span');
       f.className = 'fh';
@@ -1094,6 +1161,7 @@ button { font: inherit; color: inherit; }
     const sign = $('#secretSign');
     sign.textContent = text(s.signature);
     sign.style.setProperty('--i', lines.length + 2.4);
+    $('#musicLink').style.setProperty('--i', lines.length + 3.4);
     $('#secretBack').style.setProperty('--i', lines.length + 3.4);
   }
 
@@ -1152,11 +1220,12 @@ button { font: inherit; color: inherit; }
     const kind = u.dataset.kind;
     let d;
     if (kind === 'photo') d = (u.offsetHeight / (FEED * speed * PHOTO_MUL)) * 1000;
-    else if (kind === 'rule') d = 120 / speed;
+    else if (kind === 'rule' || kind === 'pola') d = 120 / speed;
     else d = Math.min(260, Math.max(110, 70 + u.textContent.length * 6)) / speed;
     u.style.setProperty('--d', Math.round(d) + 'ms');
     u.classList.add('on');
-    if (kind === 'photo') Sound.raster(d);
+    if (kind === 'pola') { Sound.play('thump', 0.05, 0.35, 1.6); Sound.play('thump', 0.25, 0.3, 1.7); }
+    else if (kind === 'photo') Sound.raster(d);
     else if (kind === 'rule') Sound.play('tick', 0, 0.45);
     else Sound.play('line', 0, 0.75, 0.95 + Math.random() * 0.1);
   }
@@ -1289,25 +1358,85 @@ button { font: inherit; color: inherit; }
   $('#secretX').addEventListener('click', closeSecret);
   addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSecret(); });
 
-  /* ───────── เพลง (กดเล่นเองเท่านั้น) ───────── */
-  function setupMusic() {
-    if (!C.music) return;
-    const btn = $('#musicBtn'), audio = $('#music'), label = $('#musicLabel'), icon = $('#musicIcon');
-    const note = icon.getAttribute('d');
-    const pause = 'M7 4h3.5v16H7zM13.5 4H17v16h-3.5z';
-    audio.src = C.music;
-    if (C.musicTitle) btn.title = C.musicTitle;
-    btn.hidden = false;
-    const sync = () => {
-      const on = !audio.paused;
+  /* ───────── เพลง: เริ่มตอนกด "พิมพ์ใบเสร็จ" ค่อยๆ ดังขึ้นใน 2 วินาที (ไม่เล่นเองก่อนคนกด) ───────── */
+  const Music = (() => {
+    const url = text(C.music).trim();
+    const audio = $('#music'), btn = $('#musicBtn'), icon = $('#musicIcon');
+    const VOL = 0.32, FADE = 2;
+    const noteD = icon.getAttribute('d');
+    const offD = noteD + ' M3 3l18 18';
+    let ctx = null, gain = null, on = true, started = false;
+    try { if (localStorage.getItem('love-receipt-music') === '0') on = false; } catch (e) { /* ใช้ค่าเริ่มต้น */ }
+    function sync() {
       btn.setAttribute('aria-pressed', String(on));
-      label.textContent = on ? 'หยุดเพลง' : 'เปิดเพลง';
-      icon.setAttribute('d', on ? pause : note);
-    };
-    btn.addEventListener('click', () => { if (audio.paused) audio.play().catch(sync); else audio.pause(); });
-    audio.addEventListener('play', sync);
-    audio.addEventListener('pause', sync);
-  }
+      icon.setAttribute('d', on ? noteD : offD);
+      btn.title = (on ? 'ปิดเพลง' : 'เปิดเพลง') + (C.musicTitle ? ' · ' + text(C.musicTitle) : '');
+    }
+    function fadeTo(v, sec) {
+      if (gain) {
+        const now = ctx.currentTime;
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.linearRampToValueAtTime(v, now + sec);
+      } else {
+        const from = audio.volume, t0 = performance.now();
+        const step = () => {
+          const k = Math.min(1, (performance.now() - t0) / (sec * 1000));
+          audio.volume = Math.max(0, Math.min(1, from + (v - from) * k));
+          if (k < 1) requestAnimationFrame(step);
+        };
+        step();
+      }
+    }
+    function graph() {
+      if (ctx || gain === false) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) { gain = false; return; }
+      try {
+        ctx = new AC();
+        const node = ctx.createMediaElementSource(audio);
+        gain = ctx.createGain();
+        gain.gain.value = 0;
+        node.connect(gain);
+        gain.connect(ctx.destination);
+      } catch (e) { ctx = null; gain = false; }
+    }
+    function start() {
+      if (!url || !on) return;
+      graph();
+      if (ctx && ctx.state === 'suspended') ctx.resume();
+      if (!gain) audio.volume = 0;
+      const p = audio.play();
+      started = true;
+      if (p && p.then) p.then(() => fadeTo(VOL, FADE), () => { started = false; });
+      else fadeTo(VOL, FADE);
+    }
+    function toggle() {
+      on = !on;
+      try { localStorage.setItem('love-receipt-music', on ? '1' : '0'); } catch (e) { /* ไม่เป็นไร */ }
+      if (on) start();
+      else if (started) {
+        fadeTo(0, 0.4);
+        setTimeout(() => { if (!on) audio.pause(); }, 450);
+      }
+      sync();
+    }
+    function setup() {
+      const link = text(C.musicLink).trim();
+      if (/^https?:\/\//i.test(link)) {
+        const a = $('#musicLink');
+        a.href = link;
+        a.hidden = false;
+      }
+      if (!url) return;
+      audio.src = url;
+      audio.preload = 'auto';
+      btn.hidden = false;
+      sync();
+      btn.addEventListener('click', toggle);
+    }
+    return { setup, start, isOn: () => on && !!url, playing: () => !audio.paused };
+  })();
 
   /* ───────── เริ่ม ───────── */
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -1319,11 +1448,12 @@ button { font: inherit; color: inherit; }
   buildStamp();
   buildSecret();
   tickCounter();
-  setupMusic();
+  Music.setup();
   setupSound();
   printBtn.addEventListener('click', () => {
     Sound.unlock();
     Sound.play('click', 0, 0.8);
+    Music.start();
     startPrint();
   });
   let rz = 0;
@@ -1341,7 +1471,7 @@ button { font: inherit; color: inherit; }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawDoodles);
   window.scrollTo(0, 0);
   document.body.classList.remove('boot');
-  window.__loveReceipt = { startPrint, state: S, sound: Sound };
+  window.__loveReceipt = { startPrint, state: S, sound: Sound, music: Music };
 })();
 </script>
 </body>
