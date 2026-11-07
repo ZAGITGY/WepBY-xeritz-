@@ -4,6 +4,7 @@
   "description": "คลิปโปรโมตใบเสร็จรัก (hyperframes)",
   "scripts": {
     "capture": "node capture-site.cjs",
+    "sfx": "python3 make-sfx.py",
     "check": "npx --yes hyperframes@0.9.20 check",
     "render": "npx --yes hyperframes@0.9.20 render -q delivery -f 30 --video-frame-format png -o ../promo.mp4"
   }

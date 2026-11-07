@@ -3,7 +3,7 @@
 (() => {
   const realSetTimeout = window.setTimeout.bind(window);
   const RealDate = Date;
-  const base = RealDate.now();
+  const base = Math.floor(RealDate.now() / 1000) * 1000; // ปัดเป็นวินาทีเต็ม → ตัวนับเปลี่ยนวินาทีตรงจังหวะเดิมทุกครั้งที่อัด
   let vt = 0;
   let nextId = 1;
   const timers = new Map();

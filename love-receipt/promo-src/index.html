@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1080, height=1920">
-<!-- คลิปโปรโมต "ใบเสร็จรัก" 1080x1920 · 20 วินาที · ไม่มีเสียง
+<!-- คลิปโปรโมต "ใบเสร็จรัก" 1080x1920 · 20 วินาที · มีเพลง + เสียงเอฟเฟค
      render:  npx hyperframes render -o ../promo.mp4   (ต้องมี site.mp4 ก่อน ดู capture-site.cjs) -->
 <link rel="stylesheet" href="fonts/fonts.css">
 <script src="vendor/gsap.min.js"></script>
@@ -119,6 +119,10 @@
       </div>
     </div>
   </section>
+
+  <!-- เสียง: เพลงที่ลูกค้าแนบมา (19.2 วิ ค่อยๆ เบาลงตอนท้าย) + เสียงเอฟเฟคที่สังเคราะห์จาก make-sfx.py -->
+  <audio id="music" src="assets/music.mp3" data-start="0" data-duration="19.2" data-volume="0.5" data-fade-in="0.05" data-fade-out="1.2" data-track-index="6"></audio>
+  <audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="20" data-volume="1" data-track-index="7"></audio>
 </div>
 
 <script>

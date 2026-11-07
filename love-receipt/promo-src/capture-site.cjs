@@ -1,6 +1,7 @@
 // อัดหน้าเว็บใบเสร็จรักทีละเฟรม (จอมือถือ 390x844 ความละเอียด 3 เท่า) → site.mp4 สำหรับใส่ในคลิปโปรโมต
 // วิธีใช้:  1) เปิดเว็บที่โฟลเดอร์ love-receipt ด้วย  python3 -m http.server 8765  (ความเร็วพิมพ์ในคลิป = ?speed=1.8)
 //           2) node capture-site.cjs        (ต้องมี Playwright และ ffmpeg)
+// ได้ site.mp4 + site-events.json (จังหวะเครื่องพิมพ์ สแกน ฯลฯ ทุกเฟรม ใช้วางเสียงเอฟเฟคใน make-sfx.py)
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
@@ -10,6 +11,7 @@ const URL = process.env.SITE_URL || 'http://127.0.0.1:8765/index.html?speed=1.8'
 const FPS = 30;
 const DUR = 15.6; // วินาทีของคลิปหน้าเว็บ (คลิปเต็มใช้ช่วง 2–17.6 วิ)
 const OUT = path.join(__dirname, 'site.mp4');
+const EVENTS = path.join(__dirname, 'site-events.json');
 const FRAMES = path.join(process.env.FRAMES_DIR || path.join(__dirname, '.frames'));
 
 // ไทม์ไลน์ (วินาทีของคลิปหน้าเว็บ · บวก 2 = เวลาในคลิปเต็ม)
@@ -43,6 +45,23 @@ const T = {
   const once = (k) => (did.has(k) ? false : (did.add(k), true));
 
   const total = Math.round(DUR * FPS);
+  const frames = [];
+  const sample = () => page.evaluate(() => {
+    const S = window.__loveReceipt.state;
+    const pr = document.getElementById('printer');
+    const bc = document.querySelector('.r-barcode');
+    return {
+      paperH: Math.round(S.paperH * 10) / 10,
+      mul: S.mul,
+      printing: pr.classList.contains('printing'),
+      cut: pr.classList.contains('cut'),
+      torn: document.documentElement.classList.contains('is-torn'),
+      scanning: bc.classList.contains('scanning'),
+      beep: bc.classList.contains('beep'),
+      secret: document.getElementById('secret').classList.contains('show'),
+      sec: document.querySelectorAll('.r-counter .num')[3].textContent,
+    };
+  });
   for (let f = 0; f < total; f++) {
     const t = f / FPS;
     if (t >= T.tapPrint && once('tapPrint')) {
@@ -70,12 +89,14 @@ const T = {
       log.barcodeAt = [Math.round(x), Math.round(y)];
       await page.evaluate(([x, y]) => { window.__vt.tap(x, y); setTimeout(() => document.querySelector('.r-barcode').click(), 100); }, [x, y]);
     }
+    frames.push({ t: +t.toFixed(4), ...(await sample()) });
     await page.screenshot({ path: path.join(FRAMES, String(f).padStart(5, '0') + '.png') });
     await page.evaluate((ms) => window.__vt.advance(ms), 1000 / FPS);
     if (f % 60 === 0) process.stdout.write(`frame ${f}/${total}\n`);
   }
   await browser.close();
   console.log('events', JSON.stringify(log));
+  fs.writeFileSync(EVENTS, JSON.stringify({ fps: FPS, tapPrint: T.tapPrint + 0.14, tapBarcode: T.tapBarcode + 0.1, ...log, frames }));
 
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(FRAMES, '%05d.png'),
     '-c:v', 'libx264', '-preset', 'slow', '-crf', '12', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', OUT], { stdio: 'inherit' });

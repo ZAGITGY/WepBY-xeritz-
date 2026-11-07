@@ -7,7 +7,7 @@
 |---|---|
 | `index.html` | ตัวเว็บทั้งหมด ข้อมูลลูกค้าอยู่ใน `CONFIG` บนสุดของไฟล์ |
 | `photos/` | รูปของแต่ละรายการ (ตัวอย่างเป็นภาพวาด SVG) |
-| `promo.mp4` | คลิปโปรโมต TikTok 1080x1920 · 20 วิ · ไม่มีเสียง |
+| `promo.mp4` | คลิปโปรโมต TikTok 1080x1920 · 20 วิ · มีเพลง + เสียงเอฟเฟค |
 | `promo-src/` | ไฟล์ต้นฉบับของคลิป **ไม่ต้องส่งให้ลูกค้า** |
 
 ลูกค้าแต่ละคนใช้แค่ **`index.html` + โฟลเดอร์ `photos/`**
@@ -100,13 +100,15 @@
 
 ## ทำคลิปโปรโมตใหม่ (สำหรับร้าน ไม่เกี่ยวกับลูกค้า)
 
-อยู่ใน `promo-src/` ใช้คอมที่มี Node 22, ffmpeg, Playwright
+อยู่ใน `promo-src/` ใช้คอมที่มี Node 22, ffmpeg, Playwright, Python 3 + numpy
 
 ```bash
 cd love-receipt && python3 -m http.server 8765   # เปิดค้างไว้อีกหน้าต่าง
 cd love-receipt/promo-src
-node capture-site.cjs            # อัดหน้าเว็บทีละเฟรม → site.mp4
+node capture-site.cjs            # อัดหน้าเว็บทีละเฟรม → site.mp4 + site-events.json
+python3 make-sfx.py              # สร้างเสียงเอฟเฟคตามจังหวะในคลิป → assets/sfx.wav
 npx hyperframes@0.9.20 render -q delivery -f 30 --video-frame-format png -o ../promo.mp4
 ```
 
-ข้อความในคลิปแก้ได้ที่ `promo-src/index.html`
+ข้อความในคลิปแก้ได้ที่ `promo-src/index.html` · เพลงอยู่ที่ `promo-src/assets/music.mp3` (ความดังปรับที่ `data-volume` ของ `<audio id="music">`)
+เสียงเอฟเฟคทั้งหมดสังเคราะห์เองใน `make-sfx.py` ไม่ได้ใช้ไฟล์เสียงของใคร
