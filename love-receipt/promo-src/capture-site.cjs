@@ -60,6 +60,10 @@ const T = {
       beep: bc.classList.contains('beep'),
       secret: document.getElementById('secret').classList.contains('show'),
       sec: document.querySelectorAll('.r-counter .num')[3].textContent,
+      onText: document.querySelectorAll('.u.on[data-kind="text"]').length,
+      onRule: document.querySelectorAll('.u.on[data-kind="rule"]').length,
+      onPhoto: document.querySelectorAll('.u.on[data-kind="photo"]').length,
+      stamp: !!document.querySelector('.stamp.on'),
     };
   });
   for (let f = 0; f < total; f++) {

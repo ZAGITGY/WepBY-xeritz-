@@ -39,7 +39,7 @@ const CONFIG = {
   tagline: "สาขาหัวใจ · เปิด 24 ชม. ไม่มีวันหยุด",
 
   // ── 4) รายการความทรงจำ (แนะนำ 5–8 รายการ เรียงจากเก่าไปใหม่) ──
-  //   date  = วันที่ จะพิมพ์ตามที่เขียนเป๊ะๆ เช่น "14/02/24"
+  //   date  = วันที่ จะพิมพ์ตามที่เขียนเป๊ะๆ เช่น "14/02/24" (จำไม่ได้ ใส่ "" หรือลบทิ้ง ชื่อเรื่องจะชิดซ้ายเอง)
   //   title = ชื่อความทรงจำ สั้นๆ (ไม่เกินราว 24 ตัวอักษร สวยสุด)
   //   note  = บรรทัดเล็กใต้ชื่อ เล่าเพิ่มนิดหน่อย (ไม่ใส่ก็ได้ ลบบรรทัดทิ้งได้เลย)
   //   price = "ราคา" เป็นคำหวานแทนตัวเลข เช่น "ไม่มีค่าเท่า" "ประเมินค่าไม่ได้"
@@ -122,16 +122,30 @@ const CONFIG = {
 
   // ── 9) สีธีม ────────────────────────────────────────────
   theme: {
-    // พื้นหลัง: "linen" = ผ้าลินินสีครีม · "blush" = ผ้าสีชมพูหม่น · "wood" = โต๊ะไม้
-    background: "linen",
-    // สีหลัก ใช้กับปุ่มและหัวใจ เขียนแบบ #RRGGBB เช่น "#b23a48" แดงกุหลาบ "#3d5a80" น้ำเงิน "#6a4c93" ม่วง
+    // พื้นหลัง: "pastel" = ชมพูม่วงพาสเทล · "linen" = ผ้าลินินสีครีม · "blush" = ผ้าสีชมพูหม่น · "wood" = โต๊ะไม้
+    background: "pastel",
+    // สีหลัก ใช้กับปุ่มและหัวใจ เขียนแบบ #RRGGBB เช่น "#b04a7a" ชมพูกุหลาบ "#b23a48" แดง "#6a4c93" ม่วง
     // (เว็บจะเลือกสีตัวหนังสือบนปุ่มให้อ่านชัดเอง)
-    accent: "#b23a48",
-    // สีพื้นหน้าข้อความลับ แนะนำสีเข้ม เช่น "#2c2326" "#1f2a3a"
-    secretBackground: "#2c2326",
+    accent: "#b04a7a",
+    // สีพื้นหน้าข้อความลับ แนะนำสีเข้ม เช่น "#2e2140" ม่วงเข้ม "#2c2326" น้ำตาลเข้ม
+    secretBackground: "#2e2140",
   },
 
-  // ── 10) ความเร็วพิมพ์ ───────────────────────────────────
+  // ── 10) ลายวาดจางๆ บนพื้นหลัง (ไม่อยากได้ ใส่ []) ──────────
+  // เลือกได้: "heart" หัวใจ · "sparkle" ประกาย · "coffee" กาแฟ · "ticket" ตั๋ว · "wave" ทะเล
+  //          "cap" หมวก · "cat" แมว · "rain" เมฆฝน · "boat" เรือไฟ · "durian" ทุเรียน
+  //          "mangosteen" มังคุด · "shrimp" กุ้ง · "orange" ส้ม · "noodle" ก๋วยเตี๋ยว
+  doodles: ["coffee", "ticket", "wave", "heart", "sparkle", "cat"],
+
+  // ── 11) ตราประทับสีแดงบนใบเสร็จ (ไม่อยากได้ ใส่ "") ─────────
+  stamp: "ชำระแล้ว",
+
+  // ── 12) เสียงเอฟเฟค ─────────────────────────────────────
+  // true = มีเสียงตอนกดพิมพ์ เครื่องพิมพ์ทำงาน ตัดกระดาษ ประทับตรา สแกนบาร์โค้ด
+  //        (ดังหลังคนเปิดลิงก์กดปุ่มเท่านั้น และมีปุ่มปิดเสียงมุมขวาบน) · false = เงียบ
+  sound: true,
+
+  // ── 13) ความเร็วพิมพ์ ───────────────────────────────────
   // 1 = ปกติ (ราว 10 วินาที) · 1.5 = เร็วขึ้น · 0.8 = ช้าลง
   printSpeed: 1,
 };
@@ -154,6 +168,9 @@ const CONFIG = {
   --table-ink-soft: #5b5048;
   --secret-bg: #2c2326;
   --secret-ink: #f6efe3;
+  --stamp: #c42d52;
+  --doodle-1: rgba(90,66,44,.13);
+  --doodle-2: rgba(178,58,72,.12);
   --paper-w: min(372px, calc(100vw - 48px));
   --printer-w: calc(var(--paper-w) + 36px);
   --tuck: calc(var(--printer-w) * 0.04);
@@ -163,7 +180,8 @@ const CONFIG = {
   color-scheme: light only;
 }
 :root[data-table="blush"] { --table: #ead6d0; --table-ink-soft: #5d4b47; }
-:root[data-table="wood"]  { --table: #6e4a32; --table-ink: #fbf3e6; --table-ink-soft: #ead9c4; }
+:root[data-table="wood"]  { --table: #6e4a32; --table-ink: #fbf3e6; --table-ink-soft: #ead9c4; --doodle-1: rgba(255,238,214,.13); --doodle-2: rgba(255,214,226,.12); }
+:root[data-table="pastel"] { --table: #f1e4f0; --table-ink: #3b2a40; --table-ink-soft: #5f4b66; --doodle-1: rgba(186,72,130,.19); --doodle-2: rgba(108,86,184,.19); }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
@@ -202,6 +220,19 @@ button { font: inherit; color: inherit; }
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006 .22' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .18 0 0 0 0 .1 0 0 0 0 .05 0 0 0 .55 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),
     repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 2px, rgba(255,255,255,.04) 2px 3px, rgba(0,0,0,0) 3px 190px);
 }
+
+:root[data-table="pastel"] .table {
+  background-image:
+    radial-gradient(85% 55% at 8% 0%, rgba(255,204,226,.95), rgba(255,204,226,0) 72%),
+    radial-gradient(85% 55% at 100% 100%, rgba(208,198,255,.92), rgba(208,198,255,0) 72%),
+    radial-gradient(70% 45% at 100% 8%, rgba(226,212,255,.7), rgba(226,212,255,0) 70%),
+    radial-gradient(110% 70% at 50% 30%, rgba(255,255,255,.45), rgba(255,255,255,0) 62%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .25 0 0 0 0 .45 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(120,80,140,.045) 0 1px, rgba(0,0,0,0) 1px 4px),
+    repeating-linear-gradient(90deg, rgba(120,80,140,.04) 0 1px, rgba(0,0,0,0) 1px 5px);
+}
+.doodles { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.doodles svg { display: block; }
 
 /* ── เวที ── */
 .stage {
@@ -301,6 +332,8 @@ button { font: inherit; color: inherit; }
 .r-price .qty { font-size: 12.5px; color: var(--ink-soft); flex: none; }
 .r-price .dots { flex: 1; min-width: 12px; border-bottom: 2px dotted rgba(46,42,39,.45); transform: translateY(-5px); }
 .r-price .price { font: 600 14.5px/1.6 var(--sans); text-align: right; }
+.r-item-head.nd { grid-template-columns: 1fr; }
+.r-note.nd, .r-price.nd { padding-left: 0; }
 .r-photo { margin: 8px 0 6px; display: flex; justify-content: center; }
 .r-photo img { display: block; max-width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
 .r-photo img.raw { width: 100%; image-rendering: auto; filter: grayscale(1) contrast(1.35) brightness(1.04); mix-blend-mode: multiply; }
@@ -321,6 +354,23 @@ button { font: inherit; color: inherit; }
 .r-center { text-align: center; }
 .r-strong { font: 600 15px/1.6 var(--sans); }
 .r-soft { color: var(--ink-soft); font: 400 13px/1.6 var(--sans); }
+
+/* ── ตราประทับ ── */
+.stamp {
+  position: absolute; left: 57%; top: 0; z-index: 2;
+  padding: 7px 18px 8px; border: 3px solid var(--stamp); border-radius: 12px;
+  box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 4px var(--stamp);
+  color: var(--stamp); text-align: center; white-space: nowrap;
+  mix-blend-mode: multiply; pointer-events: none;
+  opacity: 0; transform: translate(-50%, -50%) rotate(-12deg) scale(2.1);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 2.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E") 0 0 / 120px 120px;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 2.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E") 0 0 / 120px 120px;
+}
+.stamp.on { opacity: .9; transform: translate(-50%, -50%) rotate(-12deg) scale(1); transition: transform .26s cubic-bezier(.3,1.45,.5,1), opacity .08s; }
+.st-main { display: block; font: 600 23px/1.25 var(--sans); letter-spacing: .02em; }
+.st-sub { display: block; font: 600 10.5px/1.3 var(--mono); letter-spacing: .24em; }
+.st-sub svg { width: 10px; height: 10px; fill: currentColor; vertical-align: -1px; }
+.is-instant .stamp.on { transition: none; }
 
 /* ── บาร์โค้ด ── */
 .r-barcode {
@@ -388,10 +438,21 @@ button { font: inherit; color: inherit; }
 .btn-note { margin: 0; font: 400 13px/1.5 var(--sans); color: var(--table-ink-soft); }
 .is-printing .intro-actions { opacity: 0; max-height: 0; padding-top: 0; pointer-events: none; }
 
-/* ── ปุ่มเพลง ── */
-.music {
-  position: fixed; z-index: 20;
+/* ── ปุ่มมุมขวาบน (เสียง / เพลง) ── */
+.top-btns {
+  position: fixed; z-index: 20; display: flex; gap: 8px;
   top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right));
+}
+.snd {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 1px solid rgba(46,42,39,.18); background: rgba(251,248,241,.94); color: var(--ink);
+  box-shadow: 0 4px 14px -6px rgba(40,28,16,.35);
+}
+.snd svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.snd:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.snd[hidden] { display: none; }
+.music {
   display: inline-flex; align-items: center; gap: 8px;
   min-height: 44px; min-width: 44px; padding: 8px 16px 8px 12px;
   border: 1px solid rgba(46,42,39,.18); border-radius: 999px; cursor: pointer;
@@ -417,7 +478,20 @@ button { font: inherit; color: inherit; }
 }
 .secret[hidden] { display: none; }
 .secret.show { opacity: 1; }
-.secret-panel { width: 100%; max-width: 520px; margin: auto; padding: 40px 4px 12px; outline: none; }
+.secret-panel { position: relative; z-index: 1; width: 100%; max-width: 520px; margin: auto; padding: 40px 4px 12px; outline: none; }
+.hearts { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
+.fh {
+  position: absolute; bottom: -48px; left: var(--x); width: var(--s); height: var(--s);
+  opacity: 0; animation: fh var(--d) cubic-bezier(.3,.1,.6,1) var(--delay) both;
+}
+.fh svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+@keyframes fh {
+  0%   { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+  12%  { opacity: var(--o); }
+  50%  { transform: translate(var(--sway), -55vh) rotate(var(--r)); }
+  85%  { opacity: var(--o); }
+  100% { opacity: 0; transform: translate(0, -112vh) rotate(0deg); }
+}
 .secret-heart { display: block; width: 34px; height: 34px; margin: 0 0 18px; fill: var(--accent); filter: brightness(1.35) saturate(1.1); }
 .secret-kicker { margin: 0 0 14px; font: 500 13px/1.5 var(--sans); opacity: .86; }
 .secret-kicker .lat { font-family: var(--mono); letter-spacing: .18em; }
@@ -455,11 +529,17 @@ button { font: inherit; color: inherit; }
 </head>
 <body class="boot">
 <div class="table" aria-hidden="true"></div>
+<div class="doodles" id="doodles" aria-hidden="true"></div>
 
-<button class="music" id="musicBtn" type="button" aria-pressed="false" hidden>
-  <svg viewBox="0 0 24 24" aria-hidden="true"><path id="musicIcon" d="M9 18.5A3.5 3.5 0 1 1 7 15.3V4.5l12-2.5v13.5a3.5 3.5 0 1 1-2-3.2V6.4l-8 1.7z"/></svg>
-  <span id="musicLabel">เปิดเพลง</span>
-</button>
+<div class="top-btns">
+  <button class="snd" id="soundBtn" type="button" aria-pressed="true" aria-label="เสียงเอฟเฟค" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path id="soundIcon" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z M15.5 9a4.5 4.5 0 0 1 0 6 M18 6.5a8 8 0 0 1 0 11"/></svg>
+  </button>
+  <button class="music" id="musicBtn" type="button" aria-pressed="false" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path id="musicIcon" d="M9 18.5A3.5 3.5 0 1 1 7 15.3V4.5l12-2.5v13.5a3.5 3.5 0 1 1-2-3.2V6.4l-8 1.7z"/></svg>
+    <span id="musicLabel">เปิดเพลง</span>
+  </button>
+</div>
 <audio id="music" preload="none" loop></audio>
 
 <main class="stage" id="stage">
@@ -515,6 +595,7 @@ button { font: inherit; color: inherit; }
 </main>
 
 <div class="secret" id="secret" role="dialog" aria-modal="true" aria-labelledby="secretTitle" hidden>
+  <div class="hearts" id="hearts" aria-hidden="true"></div>
   <div class="secret-panel" id="secretPanel" tabindex="-1">
     <svg class="secret-heart ln" style="--i:0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.2-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg>
     <p class="secret-kicker ln" style="--i:0"><span class="lat">✓ SCAN OK</span> · ข้อความลับ</p>
@@ -541,6 +622,7 @@ button { font: inherit; color: inherit; }
   const FEED = 340; // px/วินาที ตอนกระดาษไหลออกจากเครื่อง
   const PHOTO_MUL = 0.7; // ตอนพิมพ์รูป กระดาษไหลช้าลงนิดนึงเหมือนเครื่องจริง
 
+  const HEART = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.2-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z';
   const pad2 = (n) => String(n).padStart(2, '0');
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const text = (v) => (v == null ? '' : String(v));
@@ -569,7 +651,7 @@ button { font: inherit; color: inherit; }
   }
   function applyTheme() {
     const t = C.theme || {};
-    root.dataset.table = ['linen', 'blush', 'wood'].includes(t.background) ? t.background : 'linen';
+    root.dataset.table = ['pastel', 'linen', 'blush', 'wood'].includes(t.background) ? t.background : 'linen';
     const acc = rgb(t.accent) || [178, 58, 72];
     const white = [255, 255, 255], dark = [29, 26, 24];
     root.style.setProperty('--accent', `rgb(${acc.join(',')})`);
@@ -749,8 +831,10 @@ button { font: inherit; color: inherit; }
 
     const items = Array.isArray(C.items) ? C.items : [];
     items.forEach((it, i) => {
-      const head = h('div', 'r-item-head');
-      head.append(h('span', 'r-date', text(it.date)), h('span', 'r-title', text(it.title)));
+      const nd = text(it.date).trim() ? '' : ' nd'; // ไม่มีวันที่ → ชิดซ้าย
+      const head = h('div', 'r-item-head' + nd);
+      if (!nd) head.append(h('span', 'r-date', text(it.date)));
+      head.append(h('span', 'r-title', text(it.title)));
       add(head);
       if (it.photo) {
         const box = h('div', 'r-photo');
@@ -761,8 +845,8 @@ button { font: inherit; color: inherit; }
         add(box, 'photo');
         box._ready = dither(img, it.photo, box);
       }
-      if (it.note) add(h('div', 'r-note', it.note));
-      const price = h('div', 'r-price');
+      if (it.note) add(h('div', 'r-note' + nd, it.note));
+      const price = h('div', 'r-price' + nd);
       price.append(h('span', 'qty', 'x1'), h('span', 'dots'), h('span', 'price', text(it.price)));
       price.querySelector('.dots').setAttribute('aria-hidden', 'true');
       add(price, 'text', i < items.length - 1 ? 110 : 260);
@@ -781,6 +865,220 @@ button { font: inherit; color: inherit; }
     if (C.footerNote) add(h('div', 'r-center r-soft', C.footerNote));
     add(barcodeEl(), 'photo');
     add(h('div', 'r-hint', 'แตะบาร์โค้ดเพื่อสแกน'));
+  }
+
+  /* ───────── ตราประทับ ───────── */
+  let stampEl = null;
+  function buildStamp() {
+    if (!text(C.stamp).trim()) return;
+    stampEl = h('div', 'stamp');
+    stampEl.setAttribute('aria-hidden', 'true');
+    stampEl.innerHTML = `<span class="st-main"></span><span class="st-sub">PAID WITH <svg viewBox="0 0 24 24"><path d="${HEART}"/></svg></span>`;
+    stampEl.querySelector('.st-main').textContent = text(C.stamp);
+    $('#paper').append(stampEl);
+    placeStamp();
+  }
+  function placeStamp() {
+    if (!stampEl) return;
+    const a = receipt.querySelector('.r-total');
+    if (!a) return;
+    const rows = [a, a.nextElementSibling, a.nextElementSibling && a.nextElementSibling.nextElementSibling].filter(Boolean);
+    const last = rows[rows.length - 1];
+    stampEl.style.top = Math.round((a.offsetTop + last.offsetTop + last.offsetHeight) / 2 + 8) + 'px';
+  }
+
+  /* ───────── ลายวาดบนพื้นหลัง ───────── */
+  const ICONS = {
+    heart: `<path d="M24 40s-14-8.6-17.6-17C4 16.6 7.6 9 14.6 9c4 0 6.8 2.2 9.4 5.4C26.6 11.2 29.4 9 33.4 9 40.4 9 44 16.6 41.6 23 38 31.4 24 40 24 40z"/>`,
+    sparkle: `<path d="M24 7l3 14 14 3-14 3-3 14-3-14-14-3 14-3z"/><path d="M39 7v6M36 10h6"/>`,
+    coffee: `<path d="M10 18h24v9c0 7-5 12-12 12s-12-5-12-12z"/><path d="M34 21c5 0 6 8 0 8M17 13c-2-2 2-4 0-6M25 13c-2-2 2-4 0-6M8 42h28"/>`,
+    ticket: `<path d="M7 15h34v6a3 3 0 0 0 0 6v6H7v-6a3 3 0 0 0 0-6z"/><path d="M31 15v18" stroke-dasharray="2 3"/><path d="M15 24h10"/>`,
+    wave: `<path d="M14 28a10 10 0 0 1 20 0M24 12V8M13 17l-3-3M35 17l3-3M6 34c4-3 8 3 12 0s8 3 12 0 8 3 12 0M10 40c3-2 6 2 9 0s6 2 9 0 6 2 9 0"/>`,
+    cap: `<path d="M8 30c0-10 7-17 16-17s16 7 16 17z"/><path d="M24 30h17c3 0 3 5 0 5H22M24 13c-3 5-4 11-4 17M24 13v-3"/>`,
+    cat: `<path d="M12 37c-2-4-2-10 0-14l-2-12 9 7c3-1 7-1 10 0l9-7-2 12c2 4 2 10 0 14-3 4-8 5-12 5s-9-1-12-5z"/><path d="M19 27v2M29 27v2M23 32h2l-1 1.5zM7 31l7 1M7 35l7-1M41 31l-7 1M41 35l-7-1"/>`,
+    rain: `<path d="M14 29a7 7 0 0 1 1-14 10 10 0 0 1 19 3 6 6 0 0 1-1 11z"/><path d="M17 34l-2 5M25 34l-2 5M33 34l-2 5"/>`,
+    boat: `<path d="M6 30h36l-5 7H11zM14 30v-7M24 30V19M34 30v-7"/><path d="M14 20c-2-2 0-5 0-5s2 3 0 5zM24 16c-2-2 0-5 0-5s2 3 0 5zM34 20c-2-2 0-5 0-5s2 3 0 5zM6 43c3-2 6 2 9 0s6 2 9 0 6 2 9 0 6 2 9 0"/>`,
+    durian: `<path d="M24 11c9 0 15 7 15 16s-6 13-15 13S9 36 9 27s6-16 15-16z"/><path d="M24 11V6M15 13l-2-3M33 13l2-3M10 20l-3-1M38 20l3-1M9 29H5M39 29h4M17 22l2 3M24 20v4M31 22l-2 3M18 32l3-2M30 32l-3-2"/>`,
+    mangosteen: `<path d="M24 17c8 0 14 5 14 12s-6 12-14 12-14-5-14-12 6-12 14-12z"/><path d="M24 17c-3-4-8-5-11-3 3 1 7 2 11 3zM24 17c3-4 8-5 11-3-3 1-7 2-11 3zM24 17v-8"/>`,
+    shrimp: `<path d="M35 12c-11-2-23 4-23 16 0 6 4 10 9 10"/><path d="M31 13l-3 6M26 15l-1 7M20 19l2 6M16 25l4 3M21 38l-5 4M21 38l1 5M35 12c4-2 7-1 9 1M35 12c3-3 5-6 9-6M32 16v1"/>`,
+    orange: `<path d="M24 15a12 12 0 1 1 0 24 12 12 0 0 1 0-24z"/><path d="M24 15c2-5 7-7 11-6-2 4-6 6-11 6zM24 15v-3"/>`,
+    noodle: `<path d="M8 25h32c0 8-7 14-16 14S8 33 8 25zM18 39h12"/><path d="M13 25c2-4 4-4 6 0s4 4 6 0 4-4 6 0M28 8l11 14M34 6l7 16"/>`,
+  };
+  function drawDoodles() {
+    const layer = $('#doodles');
+    const names = (Array.isArray(C.doodles) ? C.doodles : []).filter((n) => ICONS[n]);
+    if (!names.length) { layer.innerHTML = ''; return; }
+    const W = window.innerWidth, H = window.innerHeight;
+    const cell = W < 600 ? 104 : 140;
+    let seed = 30112025;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const defs = names.map((n) => `<symbol id="dd-${n}" viewBox="0 0 48 48">${ICONS[n]}</symbol>`).join('');
+    // ไม่วาดทับข้อความหน้าแรก ปุ่มพิมพ์ และปุ่มมุมขวาบน
+    const avoid = [];
+    if (!root.classList.contains('is-printing') || root.classList.contains('is-instant')) [intro, actions].forEach((el) => { const r = el.getBoundingClientRect(); if (r.width) avoid.push([r.left - 18, r.top - 18, r.right + 18, r.bottom + 18]); });
+    avoid.push([W - 120, 0, W, 76]);
+    const free = (x, y, r) => avoid.every(([a, b, c, d]) => x + r < a || x - r > c || y + r < b || y - r > d);
+    let uses = '', k = 0, row = 0;
+    for (let y = cell * 0.4; y < H + cell; y += cell * 0.86, row++) {
+      for (let x = (row % 2 ? cell * 0.5 : 0) + cell * 0.2; x < W + cell; x += cell) {
+        if (rnd() < 0.16) continue;
+        const n = names[k++ % names.length];
+        const sz = cell * (0.34 + rnd() * 0.12);
+        const px = x + (rnd() - 0.5) * cell * 0.45, py = y + (rnd() - 0.5) * cell * 0.4;
+        const rot = (rnd() - 0.5) * 44;
+        if (!free(px, py, sz / 2)) continue;
+        uses += `<use href="#dd-${n}" width="${sz.toFixed(1)}" height="${sz.toFixed(1)}" style="color:var(--doodle-${k % 2 ? 1 : 2})" transform="translate(${px.toFixed(1)} ${py.toFixed(1)}) rotate(${rot.toFixed(1)}) translate(${(-sz / 2).toFixed(1)} ${(-sz / 2).toFixed(1)})"/>`;
+      }
+    }
+    layer.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" focusable="false"><defs>${defs}</defs><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">${uses}</g></svg>`;
+  }
+
+  /* ───────── หัวใจลอยตอนข้อความลับเปิด ───────── */
+  function burstHearts() {
+    const box = $('#hearts');
+    box.textContent = '';
+    if (reduce) return;
+    const colors = ['#f6a8c9', '#d6c2ff', '#ffc4d8', '#bea6ff', '#ff9fbf'];
+    for (let i = 0; i < 18; i++) {
+      const f = document.createElement('span');
+      f.className = 'fh';
+      f.innerHTML = `<svg viewBox="0 0 24 24"><path d="${HEART}"/></svg>`;
+      const st = f.style;
+      st.setProperty('--x', (Math.random() * 96).toFixed(1) + '%');
+      st.setProperty('--s', Math.round(14 + Math.random() * 22) + 'px');
+      st.setProperty('--d', (4.6 + Math.random() * 3).toFixed(2) + 's');
+      st.setProperty('--delay', (Math.random() * 2.4).toFixed(2) + 's');
+      st.setProperty('--sway', Math.round((Math.random() - 0.5) * 90) + 'px');
+      st.setProperty('--r', Math.round((Math.random() - 0.5) * 50) + 'deg');
+      st.setProperty('--o', (0.25 + Math.random() * 0.15).toFixed(2)); // จางพอให้ตัวหนังสือที่ทับยังอ่านชัด
+      st.color = colors[i % colors.length];
+      box.append(f);
+    }
+  }
+
+  /* ───────── เสียงเอฟเฟค (สังเคราะห์ในเบราว์เซอร์ ดังหลังคนกดปุ่มเท่านั้น) ───────── */
+  const Sound = (() => {
+    const enabled = C.sound !== false;
+    const TAU = Math.PI * 2, VOL = 0.55;
+    let on = enabled, ctx = null, out = null, hum = null, humGain = null;
+    const bufs = {};
+    try { if (localStorage.getItem('love-receipt-sound') === '0') on = false; } catch (e) { /* ใช้ค่าเริ่มต้น */ }
+    let seed = 14022024;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647) * 2 - 1;
+    function make(dur, fn) {
+      const sr = ctx.sampleRate, n = Math.max(1, Math.floor(dur * sr));
+      const b = ctx.createBuffer(1, n, sr), d = b.getChannelData(0);
+      let peak = 0;
+      for (let i = 0; i < n; i++) { d[i] = fn(i / sr); peak = Math.max(peak, Math.abs(d[i])); }
+      if (peak > 0) for (let i = 0; i < n; i++) d[i] /= peak;
+      return b;
+    }
+    // เข็มพิมพ์ 1 ครั้ง: ติ๊กสั้นๆ ใสๆ
+    const tick = (t, f) => (t < 0 ? 0 : (rnd() * 0.55 + Math.sin(TAU * f * t) * 0.7) * Math.exp(-t / 0.0024));
+    const env = (t, a, r, d) => Math.min(1, t / a, Math.max(0, (d - t) / r));
+    function build() {
+      bufs.tick = make(0.02, (t) => tick(t, 2300));
+      bufs.line = make(0.075, (t) => tick(t, 2100) + tick(t - 0.016, 2350) * 0.9 + tick(t - 0.032, 2200) * 0.85 + tick(t - 0.048, 2450) * 0.7);
+      bufs.click = make(0.05, (t) => Math.sin(TAU * (900 * t + 7.2 * (1 - Math.exp(-t / 0.012)))) * Math.exp(-t / 0.01) + rnd() * 0.35 * Math.exp(-t / 0.0015));
+      bufs.thump = make(0.24, (t) => Math.sin(TAU * (70 * t + 1.5 * (1 - Math.exp(-t / 0.03)))) * Math.exp(-t / 0.06) + rnd() * 0.45 * Math.exp(-t / 0.007));
+      bufs.cut = make(0.16, (t) => {
+        const u = t - 0.065;
+        return tick(t, 3600) + Math.sin(TAU * 95 * t) * Math.exp(-t / 0.025) * 0.8 +
+          tick(u, 3200) + (u > 0 ? Math.sin(TAU * 80 * u) * Math.exp(-u / 0.025) * 0.7 : 0);
+      });
+      const grains = Array.from({ length: 110 }, () => [Math.pow(Math.abs(rnd()), 0.8) * 0.32, 0.3 + Math.abs(rnd()) * 0.7]);
+      let prev = 0;
+      bufs.tear = make(0.36, (t) => {
+        let e = 0;
+        for (const [at, a] of grains) { const x = t - at; if (x >= 0 && x < 0.012) e += a * Math.exp(-x / 0.0025); }
+        const n = rnd(), hp = n - prev; prev = n;
+        return hp * e;
+      });
+      bufs.laser = make(0.95, (t) => {
+        const ph = 1700 * t + (600 * 0.95 / Math.PI) * (1 - Math.cos(Math.PI * t / 0.95));
+        const w = Math.sin(Math.PI * t / 0.95);
+        return Math.sin(TAU * ph) * (0.6 + 0.4 * Math.sin(TAU * 28 * t)) * Math.pow(w, 0.6) * 0.5 + Math.sin(TAU * 110 * t) * 0.25 * w;
+      });
+      bufs.beep = make(0.13, (t) => (Math.sin(TAU * 2730 * t) + 0.18 * Math.sin(TAU * 8190 * t)) * env(t, 0.004, 0.012, 0.13));
+      bufs.chime = make(2.0, (t) => {
+        let s = 0;
+        [1046.5, 1318.5, 1568, 2093].forEach((f, k) => {
+          const x = t - k * 0.075;
+          if (x < 0) return;
+          s += (1 - 0.12 * k) * (Math.sin(TAU * f * x) * Math.exp(-x / 0.6) + 0.3 * Math.sin(TAU * f * 2.76 * x) * Math.exp(-x / 0.3) + 0.1 * Math.sin(TAU * f * 5.4 * x) * Math.exp(-x / 0.15));
+        });
+        return s * Math.min(1, t / 0.002);
+      });
+      // กระดาษไหล: หึ่งเบาๆ ต่ำๆ วนได้ไม่สะดุด
+      bufs.hum = make(1, (t) => (Math.sin(TAU * 130 * t) * 0.5 + Math.sin(TAU * 260 * t) * 0.25 + Math.sin(TAU * 390 * t) * 0.1) * (0.75 + 0.25 * Math.sin(TAU * 23 * t)));
+    }
+    function unlock() {
+      if (!enabled) return;
+      if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      try {
+        ctx = new AC();
+        out = ctx.createGain();
+        out.gain.value = on ? VOL : 0;
+        out.connect(ctx.destination);
+        build();
+        humGain = ctx.createGain();
+        humGain.gain.value = 0;
+        humGain.connect(out);
+        hum = ctx.createBufferSource();
+        hum.buffer = bufs.hum;
+        hum.loop = true;
+        hum.connect(humGain);
+        hum.start();
+        if (ctx.state === 'suspended') ctx.resume();
+      } catch (e) { ctx = null; }
+    }
+    function play(name, delay = 0, gain = 1, rate = 1) {
+      if (!ctx || !on || !bufs[name]) return;
+      const src = ctx.createBufferSource();
+      src.buffer = bufs[name];
+      src.playbackRate.value = rate;
+      const g = ctx.createGain();
+      g.gain.value = gain;
+      src.connect(g);
+      g.connect(out);
+      src.start(ctx.currentTime + Math.max(0, delay));
+    }
+    function feed(moving, mul) {
+      if (!ctx) return;
+      humGain.gain.setTargetAtTime(moving && on ? 0.14 : 0, ctx.currentTime, 0.03);
+      hum.playbackRate.setTargetAtTime(mul || 1, ctx.currentTime, 0.05);
+    }
+    function raster(ms) {
+      for (let t = 0; t < ms; t += 55) play('tick', t / 1000, 0.5, 0.9 + Math.random() * 0.2);
+    }
+    function setOn(v) {
+      on = v;
+      try { localStorage.setItem('love-receipt-sound', v ? '1' : '0'); } catch (e) { /* ไม่เป็นไร */ }
+      if (ctx) out.gain.setTargetAtTime(v ? VOL : 0, ctx.currentTime, 0.02);
+    }
+    return { enabled, unlock, play, feed, raster, setOn, isOn: () => on, status: () => (ctx ? ctx.state + ' · ' + Object.keys(bufs).length + ' sounds' : 'off') };
+  })();
+  function setupSound() {
+    if (!Sound.enabled) return;
+    const btn = $('#soundBtn'), icon = $('#soundIcon');
+    const onD = icon.getAttribute('d');
+    const offD = 'M4 9.5h3.5L12 5.5v13l-4.5-4H4z M16 9.5l5 5 M21 9.5l-5 5';
+    const sync = () => {
+      const v = Sound.isOn();
+      btn.setAttribute('aria-pressed', String(v));
+      icon.setAttribute('d', v ? onD : offD);
+      btn.title = v ? 'ปิดเสียงเอฟเฟค' : 'เปิดเสียงเอฟเฟค';
+    };
+    btn.hidden = false;
+    sync();
+    btn.addEventListener('click', () => {
+      Sound.unlock();
+      Sound.setOn(!Sound.isOn());
+      sync();
+      Sound.play('click', 0, 0.6);
+    });
   }
 
   function buildSecret() {
@@ -827,7 +1125,9 @@ button { font: inherit; color: inherit; }
       S.P = S.glide.from + (S.glide.to - S.glide.from) * ease(k);
       if (k >= 1) S.glide = null;
     }
+    const before = S.paperH;
     if (S.paperH < S.target) S.paperH = Math.min(S.target, S.paperH + FEED * speed * S.mul * dt);
+    Sound.feed(S.paperH > before + 0.01, S.mul);
     render();
     if (!S.glide && !root.classList.contains('is-torn')) {
       const top = printer.getBoundingClientRect().top;
@@ -856,6 +1156,9 @@ button { font: inherit; color: inherit; }
     else d = Math.min(260, Math.max(110, 70 + u.textContent.length * 6)) / speed;
     u.style.setProperty('--d', Math.round(d) + 'ms');
     u.classList.add('on');
+    if (kind === 'photo') Sound.raster(d);
+    else if (kind === 'rule') Sound.play('tick', 0, 0.45);
+    else Sound.play('line', 0, 0.75, 0.95 + Math.random() * 0.1);
   }
 
   async function startPrint() {
@@ -898,9 +1201,12 @@ button { font: inherit; color: inherit; }
   async function finish() {
     printer.classList.remove('printing');
     printer.classList.add('cut');
+    Sound.feed(false);
+    Sound.play('cut', 0, 0.9);
     await wait(340);
     S.follow = false;
     root.classList.add('is-torn');
+    Sound.play('tear', 0, 0.8);
     await wait(720);
     S.running = false;
     printer.classList.remove('cut');
@@ -909,6 +1215,10 @@ button { font: inherit; color: inherit; }
     wrap.style.height = '';
     live.textContent = 'พิมพ์ใบเสร็จเสร็จแล้ว แตะบาร์โค้ดท้ายใบเสร็จเพื่อเปิดข้อความลับ';
     root.dataset.state = 'done';
+    if (stampEl) {
+      placeStamp();
+      setTimeout(() => { stampEl.classList.add('on'); Sound.play('thump', 0.05, 0.9); }, 260);
+    }
   }
 
   function showInstant() {
@@ -918,6 +1228,7 @@ button { font: inherit; color: inherit; }
     receipt.classList.add('done');
     S.printing = true;
     root.dataset.state = 'done';
+    if (stampEl) { placeStamp(); stampEl.classList.add('on'); }
   }
 
   // คนเลื่อนจอเอง → หยุดเลื่อนตาม (กลับมาเลื่อนตามเองเมื่อเลื่อนลงมาถึงเครื่องพิมพ์ ดูใน frame())
@@ -937,13 +1248,19 @@ button { font: inherit; color: inherit; }
     if (scanning || !secret.hidden) return;
     scanning = true;
     const bc = e.currentTarget;
+    Sound.unlock();
+    Sound.play('click', 0, 0.7);
     if (!reduce) {
       bc.classList.add('scanning');
+      Sound.play('laser', 0.03, 0.4);
       await wait(1000);
       bc.classList.remove('scanning');
       bc.classList.add('beep');
+      Sound.play('beep', 0, 0.55);
       await wait(160);
       bc.classList.remove('beep');
+    } else {
+      Sound.play('beep', 0, 0.55);
     }
     openSecret(bc);
     scanning = false;
@@ -955,11 +1272,14 @@ button { font: inherit; color: inherit; }
     root.classList.add('secret-open');
     secret.scrollTop = 0;
     $('#secretPanel').focus({ preventScroll: true });
+    burstHearts();
+    Sound.play('chime', 0.1, 0.7);
     requestAnimationFrame(() => requestAnimationFrame(() => secret.classList.add('show')));
   }
   function closeSecret() {
     if (secret.hidden) return;
     secret.classList.remove('show');
+    Sound.play('click', 0, 0.5);
     stage.inert = false;
     root.classList.remove('secret-open');
     setTimeout(() => { if (!secret.classList.contains('show')) secret.hidden = true; }, reduce ? 0 : 400);
@@ -996,10 +1316,19 @@ button { font: inherit; color: inherit; }
   document.title = `มีใบเสร็จส่งถึง ${text(C.recipient)} 🧾`;
   $('#introName').textContent = text(C.recipient);
   buildReceipt();
+  buildStamp();
   buildSecret();
   tickCounter();
   setupMusic();
-  printBtn.addEventListener('click', startPrint);
+  setupSound();
+  printBtn.addEventListener('click', () => {
+    Sound.unlock();
+    Sound.play('click', 0, 0.8);
+    startPrint();
+  });
+  let rz = 0;
+  addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { drawDoodles(); placeStamp(); }, 150); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeStamp);
 
   if (reduce) {
     showInstant();
@@ -1008,9 +1337,11 @@ button { font: inherit; color: inherit; }
     addEventListener('resize', layoutIntro);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutIntro);
   }
+  drawDoodles();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawDoodles);
   window.scrollTo(0, 0);
   document.body.classList.remove('boot');
-  window.__loveReceipt = { startPrint, state: S };
+  window.__loveReceipt = { startPrint, state: S, sound: Sound };
 })();
 </script>
 </body>

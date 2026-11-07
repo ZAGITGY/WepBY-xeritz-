@@ -3,7 +3,7 @@
 ใช้จังหวะจริงจากหน้าเว็บที่อัดไว้ (site-events.json จาก capture-site.cjs) จึงตรงกับภาพทุกเฟรม
     python3 make-sfx.py          (ต้องมี numpy)
 
-เสียงที่ใส่: เครื่องพิมพ์หึ่งตอนกระดาษไหล · แตะปุ่ม · ตัดกระดาษ · ฉีก · ลม (มือถือเข้า/ซูม)
+เสียงที่ใส่: เข็มพิมพ์ "ตริ๊ด" ทุกบรรทัด + หึ่งเบาๆ ตอนกระดาษไหล · ตราประทับ · แตะปุ่ม · ตัดกระดาษ · ฉีก · ลม (มือถือเข้า/ซูม)
 ติ๊กตามวินาทีของตัวนับ · เลเซอร์สแกน + บี๊ป · ระฆังตอนข้อความลับขึ้น · เสียงพิมพ์การ์ดเปิด/ปิด · กริ๊งปิดท้าย
 """
 import json
@@ -68,18 +68,6 @@ def fades(x, a=0.004, r=0.01):
 
 
 # ── เสียงแต่ละแบบ ─────────────────────────────────────────
-def motor(gate, fmul, f0=760.0):
-    """เครื่องพิมพ์ความร้อน: เสียงหึ่งของสเต็ปมอเตอร์ + ซ่าของหัวพิมพ์ เป็นจังหวะบรรทัด"""
-    t = np.arange(len(gate)) / SR
-    f = f0 * fmul * (1 + 0.008 * np.sin(2 * np.pi * 6 * t))
-    ph = 2 * np.pi * np.cumsum(f) / SR
-    tone = sum(np.sin(k * ph) / k ** 1.3 for k in range(1, 7))
-    step = 0.55 + 0.45 * np.abs(np.sin(np.pi * 46 * fmul * t)) ** 6
-    hiss = band(rng.standard_normal(len(t)), 2500, 7500)
-    sig = norm(tone) * 0.8 + norm(hiss) * 0.35
-    return sig * step * gate
-
-
 def click(f1=1900, f2=850, d=0.035):
     t = ts(d)
     f = f1 * (f2 / f1) ** (t / d)
@@ -181,30 +169,68 @@ def first(key, after=0.0):
     return None
 
 
-# เครื่องพิมพ์: เปิดเมื่อกระดาษกำลังไหล (ความสูงกระดาษเพิ่ม) ระดับเสียงตามความเร็ว
+# ── เสียงพิมพ์แบบใหม่: เข็มพิมพ์ "ติ๊กๆ" ทีละบรรทัด (เหมือนในเว็บ) แทนเสียงหึ่งเดิม ──
+def needle(f=2300.0):
+    """เข็มพิมพ์ 1 จังหวะ: ติ๊กสั้นๆ ใสๆ"""
+    t = ts(0.02)
+    s = (rng.uniform(-1, 1, len(t)) * 0.55 + np.sin(2 * np.pi * f * t) * 0.7) * np.exp(-t / 0.0024)
+    return norm(s)
+
+
+def line(base=2100.0):
+    """พิมพ์ 1 บรรทัด: "ตริ๊ด" = ติ๊ก 4 ครั้งติดกัน"""
+    s = np.zeros(int(0.075 * SR))
+    for k, (dt, df, g) in enumerate(((0.0, 0, 1.0), (0.016, 250, 0.9), (0.032, 100, 0.85), (0.048, 350, 0.7))):
+        n = needle(base + df) * g
+        i = int(dt * SR)
+        s[i:i + len(n)] += n[: len(s) - i]
+    return norm(s)
+
+
+def hum(n):
+    """กระดาษไหล: หึ่งต่ำๆ เบาๆ"""
+    t = np.arange(n) / SR
+    return (np.sin(2 * np.pi * 130 * t) * 0.5 + np.sin(2 * np.pi * 260 * t) * 0.25 + np.sin(2 * np.pi * 390 * t) * 0.1) * (0.75 + 0.25 * np.sin(2 * np.pi * 23 * t))
+
+
+def stamp_thump():
+    t = ts(0.24)
+    s = np.sin(2 * np.pi * (70 * t + 1.5 * (1 - np.exp(-t / 0.03)))) * np.exp(-t / 0.06) + rng.uniform(-1, 1, len(t)) * 0.45 * np.exp(-t / 0.007)
+    return fades(norm(s), 0.0005, 0.02)
+
+
+# กระดาษไหล (หึ่งเบาๆ) เฉพาะตอนที่กระดาษขยับจริง
 gate = np.zeros(len(out))
-fmul = np.ones(len(out))
 for a, b in zip(frames, frames[1:]):
-    moving = b["paperH"] - a["paperH"] > 0.05 and a["printing"]
-    i0, i1 = int((SITE + a["t"]) * SR), int((SITE + b["t"]) * SR)
-    gate[i0:i1] = 1.0 if moving else 0.0
-    fmul[i0:i1] = b["mul"]
-k = np.ones(int(0.012 * SR)) / int(0.012 * SR)
+    if b["paperH"] - a["paperH"] > 0.05 and a["printing"]:
+        gate[int((SITE + a["t"]) * SR):int((SITE + b["t"]) * SR)] = 1.0
+k = np.ones(int(0.03 * SR)) / int(0.03 * SR)
 gate = np.convolve(gate, k, mode="same")
-fmul = np.convolve(fmul, k, mode="same")
-fmul[fmul < 0.5] = 1.0
+add(hum(len(out)) * gate, 0, -27)
 
-# การ์ดเปิด/ปิด: บรรทัดที่พิมพ์ทีละบรรทัด
-for a, b in [(0.12, 0.35), (0.40, 0.56), (0.58, 0.85), (0.88, 1.02), (1.05, 1.28),
-             (17.18, 17.40), (17.45, 17.57), (17.60, 17.84), (17.87, 18.13), (18.16, 18.30), (18.33, 18.58)]:
-    i0, i1 = int(a * SR), int(b * SR)
-    seg = np.zeros(len(out))
-    seg[i0:i1] = 1
-    seg = np.convolve(seg, k, mode="same")
-    gate = np.maximum(gate, seg)
-    fmul[i0:i1] = 1.25
+# ทุกบรรทัดที่พิมพ์ออกมาในเว็บ → "ตริ๊ด" · เส้นประ → ติ๊กเดียว · รูป/บาร์โค้ด → ติ๊กถี่ๆ ตลอดตอนพิมพ์รูป
+photos_total = max(fr["onPhoto"] for fr in frames)
+for a, b in zip(frames, frames[1:]):
+    t = SITE + b["t"]
+    for j in range(b["onText"] - a["onText"]):
+        add(line(rng.uniform(2000, 2250)), t + j * 0.03, -12)
+    for j in range(b["onRule"] - a["onRule"]):
+        add(needle(2500), t + j * 0.03, -16)
+    for j in range(b["onPhoto"] - a["onPhoto"]):
+        dur = 0.25 if b["onPhoto"] == photos_total else 0.5
+        for x in np.arange(0, dur, 0.055):
+            add(needle(rng.uniform(2100, 2500)), t + x, -16)
 
-add(motor(gate, fmul), 0, -13)
+# การ์ดเปิด/ปิด: ตัวหนังสือขึ้นทีละขั้น (steps 10) → ติ๊กทุกขั้น เหมือนพิมพ์ดีด
+for at, d, rule in [(0.12, 0.25, False), (0.28, 0.28, False), (0.52, 0.34, False), (0.86, 0.18, True), (0.98, 0.30, False),
+                    (17.18, 0.22, False), (17.32, 0.25, False), (17.52, 0.32, False), (17.85, 0.30, False), (18.15, 0.18, True), (18.30, 0.30, False)]:
+    for x in range(10):
+        add(needle(rng.uniform(2000, 2600)), at + x * d / 10, -19 if rule else -14)
+
+# ตราประทับ "ชำระแล้ว"
+tst = first("stamp")
+if tst:
+    add(stamp_thump(), tst, -8)
 
 # แตะปุ่ม / แตะบาร์โค้ด
 add(click(), SITE + ev["tapPrint"], -11)
