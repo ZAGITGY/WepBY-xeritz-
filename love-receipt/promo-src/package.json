@@ -1,0 +1,10 @@
+{
+  "name": "love-receipt-promo",
+  "private": true,
+  "description": "คลิปโปรโมตใบเสร็จรัก (hyperframes)",
+  "scripts": {
+    "capture": "node capture-site.cjs",
+    "check": "npx --yes hyperframes@0.9.20 check",
+    "render": "npx --yes hyperframes@0.9.20 render -q delivery -f 30 --video-frame-format png -o ../promo.mp4"
+  }
+}

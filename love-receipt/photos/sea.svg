@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
+  <title>ทะเลยามเช้า พระอาทิตย์โผล่ครึ่งดวง รอยเท้าสองคู่บนหาด</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7efe1"/>
+      <stop offset="1" stop-color="#f2d2ac"/>
+    </linearGradient>
+    <clipPath id="above"><rect width="600" height="236"/></clipPath>
+  </defs>
+  <rect width="600" height="450" fill="url(#sky)"/>
+  <!-- พระอาทิตย์ -->
+  <g clip-path="url(#above)">
+    <circle cx="300" cy="236" r="78" fill="#efa95e"/>
+    <circle cx="300" cy="236" r="54" fill="#f5c27f"/>
+  </g>
+  <g stroke="#e3a663" stroke-width="7" stroke-linecap="round">
+    <path d="M300 128 V104"/><path d="M226 158 L210 140"/><path d="M374 158 L390 140"/>
+    <path d="M190 214 H164"/><path d="M410 214 H436"/>
+  </g>
+  <!-- นก -->
+  <path d="M120 92 q14 -14 24 0 q10 -14 24 0" fill="none" stroke="#3a312b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M168 66 q10 -10 17 0 q7 -10 17 0" fill="none" stroke="#3a312b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- ทะเล -->
+  <rect y="236" width="600" height="110" fill="#6f9cae"/>
+  <path d="M0 236 H600" stroke="#3a312b" stroke-width="4"/>
+  <path d="M240 252 H360 M256 268 H344 M274 284 H326" stroke="#f6c98f" stroke-width="6" stroke-linecap="round"/>
+  <path d="M40 300 q20 -10 40 0 t40 0 M440 288 q20 -10 40 0 t40 0 M150 324 q20 -10 40 0 t40 0" fill="none" stroke="#d3e6ec" stroke-width="5" stroke-linecap="round"/>
+  <!-- คลื่นกับหาด -->
+  <path d="M0 340 C80 324 140 352 220 338 C300 324 380 356 460 340 C520 330 560 342 600 336 V450 H0 Z" fill="#fbf8f2"/>
+  <path d="M0 352 C90 338 150 364 230 352 C310 340 390 368 470 354 C530 344 570 356 600 350 V450 H0 Z" fill="#ead3ac"/>
+  <!-- รอยเท้าสองคู่ -->
+  <g fill="#8a6a48">
+    <ellipse cx="170" cy="436" rx="9" ry="14" transform="rotate(-18 170 436)"/>
+    <ellipse cx="200" cy="412" rx="9" ry="14" transform="rotate(-18 200 412)"/>
+    <ellipse cx="214" cy="388" rx="8" ry="12" transform="rotate(-18 214 388)"/>
+    <ellipse cx="242" cy="370" rx="7" ry="11" transform="rotate(-18 242 370)"/>
+    <ellipse cx="226" cy="440" rx="8" ry="12" transform="rotate(-24 226 440)"/>
+    <ellipse cx="252" cy="420" rx="8" ry="12" transform="rotate(-24 252 420)"/>
+    <ellipse cx="262" cy="398" rx="7" ry="11" transform="rotate(-24 262 398)"/>
+    <ellipse cx="286" cy="382" rx="6" ry="10" transform="rotate(-24 286 382)"/>
+  </g>
+  <!-- ร่มชายหาด -->
+  <path d="M470 446 L500 300" stroke="#3a312b" stroke-width="6" stroke-linecap="round"/>
+  <path d="M420 300 Q500 228 584 316 Z" fill="#c4554d" stroke="#3a312b" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M500 268 L470 306 M500 268 L530 312" stroke="#fbf8f2" stroke-width="10"/>
+  <path d="M420 300 Q500 228 584 316 Z" fill="none" stroke="#3a312b" stroke-width="5" stroke-linejoin="round"/>
+</svg>

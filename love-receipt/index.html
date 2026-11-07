@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#e7ddcf">
+<title>ใบเสร็จรัก 🧾</title>
+<meta name="description" content="มีใบเสร็จส่งถึงคุณ กดพิมพ์แล้วอ่านให้ถึงบรรทัดสุดท้ายนะ">
+<meta property="og:title" content="มีใบเสร็จส่งถึงคุณ 🧾">
+<meta property="og:description" content="กดพิมพ์ใบเสร็จ แล้วอ่านให้ถึงบรรทัดสุดท้ายนะ">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%BE%3C/text%3E%3C/svg%3E">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ใบเสร็จรัก (Love Receipt)
+     ลูกค้าใหม่ แก้แค่ CONFIG ข้างล่างนี้ที่เดียว แล้วเปลี่ยนรูปในโฟลเดอร์ photos/
+     ส่วนอื่นของไฟล์ไม่ต้องแตะ
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+const CONFIG = {
+  // ── 1) ชื่อ ─────────────────────────────────────────────
+  // ชื่อคนที่ 1 กับคนที่ 2 → หัวใบเสร็จจะเป็น "ร้าน เบส & เมย์"
+  nameA: "เบส",
+  nameB: "เมย์",
+  // คนให้ (คนที่สั่งทำเว็บ) → ขึ้นเป็น "แคชเชียร์"
+  sender: "เบส",
+  // คนรับ (คนที่จะเปิดลิงก์) → หน้าแรกขึ้นว่า "มีใบเสร็จส่งถึง เมย์"
+  recipient: "เมย์",
+
+  // ── 2) วันเริ่มคบ ───────────────────────────────────────
+  // เขียนแบบ ปี ค.ศ.-เดือน-วัน เช่น 14 ก.พ. 2024 → "2024-02-14"
+  // ใช้ทำ "เลขที่ใบเสร็จ" (#14022024) และตัวนับ "คบกันมาแล้ว"
+  startDate: "2024-02-14",
+  // เวลาที่เริ่มคบ แบบ 24 ชม. เช่น "19:30" ถ้าไม่รู้ใส่ "00:00"
+  startTime: "00:00",
+
+  // ── 3) บรรทัดเล็กใต้ชื่อร้าน (ไม่อยากได้ ใส่ "") ──────────
+  tagline: "สาขาหัวใจ · เปิด 24 ชม. ไม่มีวันหยุด",
+
+  // ── 4) รายการความทรงจำ (แนะนำ 5–8 รายการ เรียงจากเก่าไปใหม่) ──
+  //   date  = วันที่ จะพิมพ์ตามที่เขียนเป๊ะๆ เช่น "14/02/24"
+  //   title = ชื่อความทรงจำ สั้นๆ (ไม่เกินราว 24 ตัวอักษร สวยสุด)
+  //   note  = บรรทัดเล็กใต้ชื่อ เล่าเพิ่มนิดหน่อย (ไม่ใส่ก็ได้ ลบบรรทัดทิ้งได้เลย)
+  //   price = "ราคา" เป็นคำหวานแทนตัวเลข เช่น "ไม่มีค่าเท่า" "ประเมินค่าไม่ได้"
+  //   photo = รูปในโฟลเดอร์ photos/ เช่น "photos/beach.jpg" (ไม่ใส่ก็ได้)
+  //           รองรับ .jpg .png .webp .svg เว็บจะแปลงเป็นขาวดำเม็ดสกรีนเหมือนเครื่องพิมพ์ใบเสร็จเอง
+  //   alt   = อธิบายว่าในรูปมีอะไร สำหรับคนที่ใช้โปรแกรมอ่านหน้าจอ (มีรูปต้องใส่ทุกครั้ง)
+  items: [
+    {
+      date: "14/02/24",
+      title: "กาแฟแก้วแรกของเรา",
+      note: "คุยกันจนพนักงานเริ่มเก็บเก้าอี้",
+      price: "ประเมินค่าไม่ได้",
+      photo: "photos/cafe.svg",
+      alt: "ภาพวาดลาเต้ลายหัวใจกับโกโก้เย็น วางคู่กันบนโต๊ะริมหน้าต่าง",
+    },
+    {
+      date: "30/03/24",
+      title: "หนังเรื่องแรกที่ดูด้วยกัน",
+      note: "ดูจบแล้วเถียงเรื่องตอนจบกันจนถึงบ้าน",
+      price: "คุ้มทุกนาที",
+      photo: "photos/ticket.svg",
+      alt: "ภาพวาดตั๋วหนังสองที่นั่งกับถังป๊อปคอร์น",
+    },
+    {
+      date: "21/07/24",
+      title: "ฝนตกหน้าเซเว่น",
+      note: "ร่มคันเดียว เปียกกันคนละครึ่ง",
+      price: "ไม่มีค่าเท่า",
+    },
+    {
+      date: "12/10/24",
+      title: "ทะเลครั้งแรกด้วยกัน",
+      note: "ตั้งใจไปดูพระอาทิตย์ขึ้น แต่หลับในรถทั้งคู่",
+      price: "แลกอะไรก็ไม่ยอม",
+      photo: "photos/sea.svg",
+      alt: "ภาพวาดทะเลยามเช้า พระอาทิตย์โผล่ครึ่งดวง มีรอยเท้าสองคู่บนหาด",
+    },
+    {
+      date: "03/06/25",
+      title: "วันที่เธอไม่สบาย",
+      note: "ข้าวต้มเค็มไปนิด แต่เธอกินหมดชาม",
+      price: "จ่ายด้วยรอยยิ้ม",
+    },
+    {
+      date: "14/02/26",
+      title: "ครบสองปี",
+      note: "ยังอยากนั่งร้านเดิม สั่งเมนูเดิม กับคนเดิม",
+      price: "ต่ออายุอัตโนมัติ",
+    },
+  ],
+
+  // ── 5) สรุปยอด ──────────────────────────────────────────
+  total: "∞",              // ยอดรวม
+  paidWith: "ทั้งใจ",       // ชำระด้วย
+  change: "ไม่ต้องทอน",      // เงินทอน
+
+  // ── 6) ท้ายใบเสร็จ ──────────────────────────────────────
+  noReturn: "สินค้าซื้อแล้วไม่รับคืน",
+  footerNote: "ไม่รับเปลี่ยน และไม่มีวันหมดอายุ",   // ไม่อยากได้ ใส่ ""
+
+  // ── 7) ข้อความลับ (ขึ้นเต็มจอหลังแตะบาร์โค้ด) ───────────────
+  secret: {
+    title: "ถึง เมย์",
+    // แต่ละบรรทัดจะค่อยๆ ขึ้นทีละบรรทัด (แนะนำ 3–7 บรรทัด)
+    lines: [
+      "ใบเสร็จใบนี้ยาวไม่พอจะจดทุกเรื่องที่อยากขอบคุณ",
+      "ขอบคุณที่ยังหัวเราะกับมุกเดิมๆ ของเรา",
+      "ขอบคุณที่จับมือแน่นขึ้นทุกครั้งที่เราเหนื่อย",
+      "ทุกรายการข้างบน เราไม่ขอคืนสักอย่าง",
+      "และอยากสั่งเพิ่มไปอีกนานๆ เลยนะ",
+    ],
+    signature: "รักนะ — เบส",
+  },
+
+  // ── 8) เพลง (ไม่บังคับ) ─────────────────────────────────
+  // วางไฟล์เพลงไว้ข้างๆ index.html แล้วใส่ชื่อไฟล์ เช่น "song.mp3"
+  // เว้นว่าง "" = ไม่มีปุ่มเพลง · เพลงไม่เล่นเอง คนเปิดลิงก์ต้องกดปุ่มเอง
+  music: "",
+  musicTitle: "",          // ชื่อเพลง (โชว์ตอนเอานิ้วชี้ปุ่ม) ไม่ใส่ก็ได้
+
+  // ── 9) สีธีม ────────────────────────────────────────────
+  theme: {
+    // พื้นหลัง: "linen" = ผ้าลินินสีครีม · "blush" = ผ้าสีชมพูหม่น · "wood" = โต๊ะไม้
+    background: "linen",
+    // สีหลัก ใช้กับปุ่มและหัวใจ เขียนแบบ #RRGGBB เช่น "#b23a48" แดงกุหลาบ "#3d5a80" น้ำเงิน "#6a4c93" ม่วง
+    // (เว็บจะเลือกสีตัวหนังสือบนปุ่มให้อ่านชัดเอง)
+    accent: "#b23a48",
+    // สีพื้นหน้าข้อความลับ แนะนำสีเข้ม เช่น "#2c2326" "#1f2a3a"
+    secretBackground: "#2c2326",
+  },
+
+  // ── 10) ความเร็วพิมพ์ ───────────────────────────────────
+  // 1 = ปกติ (ราว 10 วินาที) · 1.5 = เร็วขึ้น · 0.8 = ช้าลง
+  printSpeed: 1,
+};
+</script>
+<!-- ═══════════════ จบส่วนที่ต้องแก้ ═══════════════ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+
+<style>
+:root {
+  --accent: #b23a48;
+  --on-accent: #ffffff;
+  --paper: #fbf8f1;
+  --ink: #2e2a27;
+  --ink-soft: #5f5750;
+  --table: #e7ddcf;
+  --table-ink: #2e2a27;
+  --table-ink-soft: #5b5048;
+  --secret-bg: #2c2326;
+  --secret-ink: #f6efe3;
+  --paper-w: min(372px, calc(100vw - 48px));
+  --printer-w: calc(var(--paper-w) + 36px);
+  --tuck: calc(var(--printer-w) * 0.04);
+  --zig: 7px;
+  --mono: "IBM Plex Mono", "IBM Plex Sans Thai", ui-monospace, Menlo, Consolas, monospace;
+  --sans: "IBM Plex Sans Thai", "IBM Plex Mono", system-ui, sans-serif;
+  color-scheme: light only;
+}
+:root[data-table="blush"] { --table: #ead6d0; --table-ink-soft: #5d4b47; }
+:root[data-table="wood"]  { --table: #6e4a32; --table-ink: #fbf3e6; --table-ink-soft: #ead9c4; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--table);
+  color: var(--ink);
+  font-family: var(--mono);
+  overflow-x: hidden;
+  overflow-anchor: none;
+  -webkit-tap-highlight-color: transparent;
+}
+html.secret-open, html.secret-open body { overflow: hidden; }
+button { font: inherit; color: inherit; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── พื้นโต๊ะ / ผ้า ── */
+.table {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-color: var(--table);
+  background-image:
+    radial-gradient(110% 70% at 50% 28%, rgba(255,255,255,.34), rgba(255,255,255,0) 62%),
+    radial-gradient(140% 100% at 50% 50%, rgba(0,0,0,0) 55%, rgba(60,40,20,.12)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .22 0 0 0 0 .15 0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(90,66,44,.05) 0 1px, rgba(0,0,0,0) 1px 4px),
+    repeating-linear-gradient(90deg, rgba(90,66,44,.045) 0 1px, rgba(0,0,0,0) 1px 5px);
+}
+:root[data-table="wood"] .table {
+  background-image:
+    radial-gradient(110% 70% at 50% 28%, rgba(255,226,180,.16), rgba(0,0,0,0) 62%),
+    radial-gradient(140% 100% at 50% 50%, rgba(0,0,0,0) 50%, rgba(0,0,0,.28)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006 .22' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .18 0 0 0 0 .1 0 0 0 0 .05 0 0 0 .55 -.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 2px, rgba(255,255,255,.04) 2px 3px, rgba(0,0,0,0) 3px 190px);
+}
+
+/* ── เวที ── */
+.stage {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 0 max(56px, env(safe-area-inset-bottom));
+  min-height: 100vh;
+}
+.boot .stage { visibility: hidden; }
+.spacer {
+  position: relative; width: var(--printer-w); max-width: 100vw;
+  height: 40vh; flex: none;
+}
+
+/* ── ข้อความหน้าแรก ── */
+.intro {
+  position: absolute; left: 50%; bottom: 16px;
+  width: min(calc(100vw - 32px), 440px); margin-left: calc(min(calc(100vw - 32px), 440px) / -2);
+  text-align: center; color: var(--table-ink);
+  transition: opacity .35s ease, transform .5s ease;
+}
+:root[data-table="wood"] .intro { text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+.kicker {
+  margin: 0 0 10px; font: 500 12px/1.4 var(--mono);
+  letter-spacing: .22em; text-transform: uppercase; color: var(--table-ink-soft);
+}
+.intro h1 {
+  margin: 0; font: 600 clamp(22px, 6.2vw, 30px)/1.45 var(--sans); letter-spacing: -.005em;
+}
+.intro h1 .to { display: block; font-size: 1.32em; line-height: 1.35; }
+.intro h1 .heart { display: inline-block; width: .62em; height: .62em; margin-left: .18em; vertical-align: .05em; fill: var(--accent); }
+.is-printing .intro { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+
+/* ── กระดาษ ── */
+.paper-wrap {
+  position: relative; z-index: 1; flex: none;
+  width: var(--paper-w); height: 0;
+  margin-bottom: calc(var(--tuck) * -1);
+  clip-path: polygon(-30px -30px, calc(100% + 30px) -30px, calc(100% + 30px) 100%, -30px 100%);
+  transition: margin-bottom .65s cubic-bezier(.2,.8,.2,1);
+}
+.paper-shadow {
+  position: absolute; left: 0; right: 0; top: 0; bottom: var(--zig);
+  box-shadow: 0 1px 1px rgba(40,28,16,.10), 0 3px 10px rgba(40,28,16,.10);
+  pointer-events: none;
+}
+.paper {
+  position: relative;
+  padding: 26px 20px calc(30px + var(--zig));
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.028), rgba(0,0,0,0) 7%, rgba(0,0,0,0) 93%, rgba(0,0,0,.028)),
+    linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 160px),
+    var(--paper);
+  -webkit-mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--zig) + 1px) no-repeat,
+    conic-gradient(from -45deg at 50% 100%, #000 90deg, rgba(0,0,0,0) 0) bottom / calc(var(--zig) * 2) var(--zig) repeat-x;
+          mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--zig) + 1px) no-repeat,
+    conic-gradient(from -45deg at 50% 100%, #000 90deg, rgba(0,0,0,0) 0) bottom / calc(var(--zig) * 2) var(--zig) repeat-x;
+  font-size: 14.5px; line-height: 1.6; color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.receipt:focus { outline: none; }
+
+/* แต่ละบรรทัด "ยังไม่พิมพ์" = ถูกบังไว้ แล้วค่อยเปิดจากซ้ายไปขวาตอนพิมพ์ */
+.u { clip-path: inset(0 100% 0 0); }
+.u.on { clip-path: inset(0 0 0 0); transition: clip-path var(--d, 160ms) steps(9, end); }
+.u[data-kind="rule"].on { transition-timing-function: linear; }
+.u[data-kind="photo"] { clip-path: inset(0 0 100% 0); }
+.u[data-kind="photo"].on { clip-path: inset(0 0 0 0); transition-timing-function: linear; }
+.receipt.done .u { clip-path: none; transition: none; }
+
+.r-logo { display: flex; justify-content: center; margin-bottom: 4px; }
+.r-logo svg { width: 34px; height: 34px; }
+.r-shop { text-align: center; font: 600 21px/1.45 var(--sans); letter-spacing: .01em; overflow-wrap: anywhere; }
+.r-tag { text-align: center; font-size: 12.5px; color: var(--ink-soft); }
+.r-rule {
+  height: 20px;
+  background: linear-gradient(90deg, var(--ink) 55%, rgba(0,0,0,0) 0) 0 50% / 8px 1.5px repeat-x;
+  opacity: .8;
+}
+.r-rule.double {
+  background:
+    linear-gradient(90deg, var(--ink) 55%, rgba(0,0,0,0) 0) 0 calc(50% - 2px) / 8px 1.5px repeat-x,
+    linear-gradient(90deg, var(--ink) 55%, rgba(0,0,0,0) 0) 0 calc(50% + 2px) / 8px 1.5px repeat-x;
+}
+.r-kv { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.r-kv .k { color: var(--ink-soft); flex: none; }
+.r-kv .v { text-align: right; font-weight: 500; overflow-wrap: anywhere; }
+.r-th { font-weight: 600; font-size: 13px; letter-spacing: .04em; }
+.r-th .k { color: var(--ink); }
+
+.r-item-head { display: grid; grid-template-columns: 9.2ch 1fr; margin-top: 12px; align-items: baseline; }
+.r-date { font-size: 12.5px; color: var(--ink-soft); }
+.r-title { font: 600 15px/1.55 var(--sans); overflow-wrap: anywhere; }
+.r-note { padding-left: 9.2ch; font: 400 13.5px/1.6 var(--sans); color: var(--ink-soft); text-wrap: pretty; }
+.r-price { display: flex; align-items: baseline; padding-left: 9.2ch; gap: 6px; }
+.r-price .qty { font-size: 12.5px; color: var(--ink-soft); flex: none; }
+.r-price .dots { flex: 1; min-width: 12px; border-bottom: 2px dotted rgba(46,42,39,.45); transform: translateY(-5px); }
+.r-price .price { font: 600 14.5px/1.6 var(--sans); text-align: right; }
+.r-photo { margin: 8px 0 6px; display: flex; justify-content: center; }
+.r-photo img { display: block; max-width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+.r-photo img.raw { width: 100%; image-rendering: auto; filter: grayscale(1) contrast(1.35) brightness(1.04); mix-blend-mode: multiply; }
+.r-photo.missing { border: 1.5px dashed var(--ink-soft); padding: 14px; font-size: 12.5px; color: var(--ink-soft); text-align: center; }
+
+.r-count { font-size: 12.5px; color: var(--ink-soft); }
+.r-counter-label { text-align: center; margin-top: 6px; font: 500 14px/1.6 var(--sans); }
+.r-counter {
+  display: grid; grid-template-columns: 1.35fr auto 1fr auto 1fr auto 1fr;
+  align-items: start; text-align: center; margin: 2px 0 4px;
+}
+.r-counter .num { display: block; font: 600 25px/1.25 var(--mono); letter-spacing: -.01em; }
+.r-counter .lab { display: block; font: 400 11.5px/1.5 var(--sans); color: var(--ink-soft); }
+.r-counter .sep { font: 600 22px/1.3 var(--mono); color: var(--ink-soft); }
+.r-total { align-items: center; }
+.r-total .k { color: var(--ink); font: 600 17px/1.5 var(--sans); }
+.r-total .v { font: 600 34px/1.15 var(--mono); }
+.r-center { text-align: center; }
+.r-strong { font: 600 15px/1.6 var(--sans); }
+.r-soft { color: var(--ink-soft); font: 400 13px/1.6 var(--sans); }
+
+/* ── บาร์โค้ด ── */
+.r-barcode {
+  position: relative; display: block; width: 100%; min-height: 44px;
+  margin: 14px 0 0; padding: 6px 0 2px; border: 0; background: none; cursor: pointer;
+  border-radius: 4px; overflow: hidden;
+}
+.r-barcode svg { display: block; width: 100%; height: 66px; fill: var(--ink); }
+.r-barcode .bc-num { display: block; font: 500 13px/1.6 var(--mono); letter-spacing: .32em; color: var(--ink); }
+.r-barcode:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.scanline {
+  position: absolute; left: -2%; right: -2%; top: 4px; height: 2px;
+  background: #e3262f;
+  box-shadow: 0 0 6px 1px rgba(227,38,47,.75), 0 0 18px 3px rgba(227,38,47,.35);
+  opacity: 0; pointer-events: none;
+}
+.r-barcode.scanning .scanline { animation: scan 1s cubic-bezier(.45,.05,.55,.95) both; }
+@keyframes scan {
+  0%   { opacity: 0; transform: translateY(0); }
+  8%   { opacity: 1; }
+  50%  { transform: translateY(66px); }
+  92%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(0); }
+}
+.r-barcode.beep { background: rgba(227,38,47,.08); }
+.r-hint { text-align: center; font: 400 12.5px/1.6 var(--sans); color: var(--ink-soft); margin-top: 2px; }
+.receipt.done .r-hint { animation: hint 2.4s ease-in-out 1s 3; }
+@keyframes hint { 50% { color: var(--ink); } }
+
+/* ── เครื่องพิมพ์ ── */
+.printer {
+  position: relative; z-index: 2; flex: none;
+  width: var(--printer-w);
+  transition: margin-top .65s cubic-bezier(.2,.8,.2,1);
+}
+.printer svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 14px rgba(50,32,16,.22)) drop-shadow(0 2px 3px rgba(50,32,16,.18)); }
+.printer .led { fill: var(--accent); opacity: .35; }
+.printer.printing .led { opacity: 1; animation: blink .5s steps(2, jump-none) infinite; }
+.printer.printing .body { animation: buzz .14s linear infinite; }
+.printer.cut .body { animation: cut .32s ease-out; }
+@keyframes blink { 50% { opacity: .35; } }
+@keyframes buzz { 25% { transform: translate(.35px, 0); } 75% { transform: translate(-.35px, 0); } }
+@keyframes cut { 30% { transform: translateY(2px); } 60% { transform: translateY(-1px); } }
+.is-torn .paper-wrap { margin-bottom: 0; }
+.is-torn .printer { margin-top: 26px; }
+
+/* ── ปุ่มพิมพ์ ── */
+.intro-actions {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding-top: 26px; max-height: 220px; overflow: hidden;
+  transition: opacity .3s ease, max-height .5s ease, padding .5s ease;
+}
+.print-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 54px; min-width: 210px; padding: 12px 30px;
+  border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--accent); color: var(--on-accent);
+  font: 600 18px/1.3 var(--sans); letter-spacing: .01em;
+  box-shadow: 0 2px 0 rgba(0,0,0,.18), 0 10px 22px -8px rgba(60,20,20,.5);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.print-btn svg { width: 22px; height: 22px; flex: none; }
+.print-btn:active { transform: translateY(2px); box-shadow: 0 0 0 rgba(0,0,0,.18), 0 6px 14px -8px rgba(60,20,20,.5); }
+.print-btn:focus-visible { outline: 3px solid var(--table-ink); outline-offset: 3px; }
+.btn-note { margin: 0; font: 400 13px/1.5 var(--sans); color: var(--table-ink-soft); }
+.is-printing .intro-actions { opacity: 0; max-height: 0; padding-top: 0; pointer-events: none; }
+
+/* ── ปุ่มเพลง ── */
+.music {
+  position: fixed; z-index: 20;
+  top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right));
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; min-width: 44px; padding: 8px 16px 8px 12px;
+  border: 1px solid rgba(46,42,39,.18); border-radius: 999px; cursor: pointer;
+  background: rgba(251,248,241,.94); color: var(--ink);
+  font: 500 14px/1.2 var(--sans);
+  box-shadow: 0 4px 14px -6px rgba(40,28,16,.35);
+}
+.music svg { width: 20px; height: 20px; fill: currentColor; }
+.music:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.music[hidden] { display: none; }
+
+/* ── ข้อความลับ ── */
+.secret {
+  position: fixed; inset: 0; z-index: 30;
+  display: flex; align-items: flex-start; justify-content: center;
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: max(28px, env(safe-area-inset-top)) 22px max(28px, env(safe-area-inset-bottom));
+  background-color: var(--secret-bg);
+  background-image: radial-gradient(rgba(255,255,255,.055) 1px, rgba(0,0,0,0) 1.3px);
+  background-size: 7px 7px;
+  color: var(--secret-ink);
+  opacity: 0; transition: opacity .6s ease;
+}
+.secret[hidden] { display: none; }
+.secret.show { opacity: 1; }
+.secret-panel { width: 100%; max-width: 520px; margin: auto; padding: 40px 4px 12px; outline: none; }
+.secret-heart { display: block; width: 34px; height: 34px; margin: 0 0 18px; fill: var(--accent); filter: brightness(1.35) saturate(1.1); }
+.secret-kicker { margin: 0 0 14px; font: 500 13px/1.5 var(--sans); opacity: .86; }
+.secret-kicker .lat { font-family: var(--mono); letter-spacing: .18em; }
+.secret-title { margin: 0 0 18px; font: 600 clamp(28px, 8vw, 40px)/1.35 var(--sans); }
+.secret-body p { margin: 0 0 10px; font: 400 clamp(18px, 4.8vw, 22px)/1.75 var(--sans); text-wrap: pretty; }
+.secret-sign { margin: 22px 0 0; text-align: right; font: 500 clamp(18px, 4.8vw, 21px)/1.6 var(--sans); }
+.secret .ln { opacity: 0; transform: translateY(12px); transition: opacity .8s ease, transform .8s ease; transition-delay: calc(var(--i, 0) * var(--stagger, 420ms) + 300ms); }
+.secret.show .ln { opacity: 1; transform: none; }
+.secret-back {
+  margin-top: 34px; min-height: 48px; padding: 10px 24px; cursor: pointer;
+  border: 1.5px solid currentColor; border-radius: 999px; background: none; color: inherit;
+  font: 500 15.5px/1.3 var(--sans);
+}
+.secret-x {
+  position: fixed; top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right));
+  width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+  background: rgba(255,255,255,.08); color: inherit; font: 400 28px/1 var(--sans);
+}
+.secret-back:focus-visible, .secret-x:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+
+/* ── โหมดลดการเคลื่อนไหว / แสดงทันที ── */
+.is-instant .spacer { height: auto !important; padding: max(36px, env(safe-area-inset-top)) 0 22px; }
+.is-instant .intro { position: static; opacity: 1; transform: none; }
+.is-instant .paper-wrap { height: auto !important; }
+.is-instant .intro-actions { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+}
+
+@media (min-width: 700px) {
+  .paper { font-size: 15px; }
+  .intro h1 { font-size: 30px; }
+}
+</style>
+</head>
+<body class="boot">
+<div class="table" aria-hidden="true"></div>
+
+<button class="music" id="musicBtn" type="button" aria-pressed="false" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path id="musicIcon" d="M9 18.5A3.5 3.5 0 1 1 7 15.3V4.5l12-2.5v13.5a3.5 3.5 0 1 1-2-3.2V6.4l-8 1.7z"/></svg>
+  <span id="musicLabel">เปิดเพลง</span>
+</button>
+<audio id="music" preload="none" loop></audio>
+
+<main class="stage" id="stage">
+  <div class="spacer" id="spacer">
+    <div class="intro" id="intro">
+      <p class="kicker">Love Receipt</p>
+      <h1>มีใบเสร็จส่งถึง <span class="to"><span id="introName"></span><svg class="heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.2-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg></span></h1>
+    </div>
+  </div>
+
+  <div class="paper-wrap" id="paperWrap" aria-hidden="true" inert>
+    <div class="paper-shadow" aria-hidden="true"></div>
+    <div class="paper" id="paper">
+      <div class="receipt" id="receipt" tabindex="-1" aria-label="ใบเสร็จ"></div>
+    </div>
+  </div>
+
+  <div class="printer" id="printer" aria-hidden="true">
+    <svg viewBox="0 0 400 196" focusable="false">
+      <defs>
+        <linearGradient id="pTop" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fdfbf7"/><stop offset="1" stop-color="#efe8de"/>
+        </linearGradient>
+        <linearGradient id="pFront" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ddd3c5"/><stop offset="1" stop-color="#cbbfae"/>
+        </linearGradient>
+      </defs>
+      <g class="body">
+        <rect x="46" y="176" width="44" height="14" rx="6" fill="#3a3430"/>
+        <rect x="310" y="176" width="44" height="14" rx="6" fill="#3a3430"/>
+        <rect x="4" y="34" width="392" height="150" rx="30" fill="url(#pFront)"/>
+        <rect x="4" y="14" width="392" height="150" rx="30" fill="url(#pTop)" stroke="#d6ccbe" stroke-width="1.5"/>
+        <path d="M34 72 H366" stroke="#dcd2c4" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="14" y="6" width="372" height="20" rx="10" fill="#2b2724"/>
+        <rect x="18" y="21" width="364" height="5" rx="2.5" fill="#5a524b"/>
+        <path d="M22 8.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5" fill="none" stroke="#9c958e" stroke-width="2" stroke-linejoin="round"/>
+        <rect x="58" y="98" width="44" height="22" rx="11" fill="#e9e1d6" stroke="#cdc2b3" stroke-width="1.5"/>
+        <text x="200" y="116" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="15" font-weight="600" letter-spacing="5" fill="#8d8379">LOVE·POS</text>
+        <circle class="led" cx="333" cy="109" r="6.5"/>
+        <circle cx="333" cy="109" r="10" fill="none" stroke="#d6ccbe" stroke-width="1.5"/>
+        <path d="M158 148 H242 M166 156 H234" stroke="#d2c7b8" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="intro-actions" id="introActions">
+    <button class="print-btn" id="printBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><path d="M9.5 8h5M9.5 12h5M9.5 16h3"/></svg>
+      พิมพ์ใบเสร็จ
+    </button>
+    <p class="btn-note">ใบเสร็จยาวหน่อย เลื่อนอ่านตามได้เลย</p>
+  </div>
+</main>
+
+<div class="secret" id="secret" role="dialog" aria-modal="true" aria-labelledby="secretTitle" hidden>
+  <div class="secret-panel" id="secretPanel" tabindex="-1">
+    <svg class="secret-heart ln" style="--i:0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.2-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg>
+    <p class="secret-kicker ln" style="--i:0"><span class="lat">✓ SCAN OK</span> · ข้อความลับ</p>
+    <h2 class="secret-title ln" style="--i:1" id="secretTitle"></h2>
+    <div class="secret-body" id="secretBody"></div>
+    <p class="secret-sign ln" id="secretSign"></p>
+    <button class="secret-back ln" id="secretBack" type="button">กลับไปที่ใบเสร็จ</button>
+  </div>
+  <button class="secret-x" id="secretX" type="button" aria-label="ปิดข้อความลับ">×</button>
+</div>
+
+<p class="sr-only" id="live" aria-live="polite"></p>
+<noscript><p style="padding:24px;text-align:center;font-family:sans-serif">เว็บนี้ต้องเปิด JavaScript ก่อนนะ</p></noscript>
+
+<script>
+(() => {
+  'use strict';
+  const C = CONFIG;
+  const $ = (s) => document.querySelector(s);
+  const root = document.documentElement;
+  const params = new URLSearchParams(location.search);
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const speed = Math.min(5, Math.max(0.2, (Number(C.printSpeed) || 1) * (Number(params.get('speed')) || 1)));
+  const FEED = 340; // px/วินาที ตอนกระดาษไหลออกจากเครื่อง
+  const PHOTO_MUL = 0.7; // ตอนพิมพ์รูป กระดาษไหลช้าลงนิดนึงเหมือนเครื่องจริง
+
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const text = (v) => (v == null ? '' : String(v));
+  function h(tag, cls, content) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (content != null) e.textContent = content;
+    return e;
+  }
+
+  /* ───────── สีธีม ───────── */
+  function rgb(hex) {
+    let s = text(hex).trim().replace('#', '');
+    if (s.length === 3) s = s.split('').map((c) => c + c).join('');
+    if (!/^[0-9a-f]{6}$/i.test(s)) return null;
+    const n = parseInt(s, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function lum(c) {
+    const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+  }
+  function contrast(a, b) {
+    const x = lum(a), y = lum(b);
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  }
+  function applyTheme() {
+    const t = C.theme || {};
+    root.dataset.table = ['linen', 'blush', 'wood'].includes(t.background) ? t.background : 'linen';
+    const acc = rgb(t.accent) || [178, 58, 72];
+    const white = [255, 255, 255], dark = [29, 26, 24];
+    root.style.setProperty('--accent', `rgb(${acc.join(',')})`);
+    root.style.setProperty('--on-accent', contrast(acc, white) >= contrast(acc, dark) ? '#ffffff' : '#1d1a18');
+    const sb = rgb(t.secretBackground) || [44, 35, 38];
+    const cream = [246, 239, 227], ink = [46, 42, 39];
+    root.style.setProperty('--secret-bg', `rgb(${sb.join(',')})`);
+    root.style.setProperty('--secret-ink', contrast(sb, cream) >= contrast(sb, ink) ? '#f6efe3' : '#2e2a27');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = getComputedStyle(root).getPropertyValue('--table').trim() || '#e7ddcf';
+  }
+
+  /* ───────── วันที่ ───────── */
+  function parseStart() {
+    const d = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(text(C.startDate).trim());
+    const t = /^(\d{1,2})[:.](\d{2})$/.exec(text(C.startTime || '00:00').trim()) || [0, 0, 0];
+    if (!d) {
+      console.warn('CONFIG.startDate ต้องเขียนแบบ "ปี-เดือน-วัน" เช่น "2024-02-14"');
+      return new Date();
+    }
+    return new Date(+d[1], +d[2] - 1, +d[3], +t[1], +t[2], 0);
+  }
+  const start = parseStart();
+  const receiptNo = pad2(start.getDate()) + pad2(start.getMonth() + 1) + start.getFullYear();
+
+  /* ───────── บาร์โค้ด (Code 128 สแกนได้จริง) ───────── */
+  const C128 = ('212222 222122 222221 121223 121322 131222 122213 122312 132212 221213 221312 231212 112232 122132 122231 113222 123122 123221 223211 221132 221231 213212 223112 312131 311222 321122 321221 312212 322112 322211 212123 212321 232121 111323 131123 131321 112313 132113 132311 211313 231113 231311 112133 112331 132131 113123 113321 133121 313121 211331 231131 213113 213311 213131 311123 311321 331121 312113 312311 332111 314111 221411 431111 111224 111422 121124 121421 141122 141221 112214 112412 122114 122411 142112 142211 241211 221114 413111 241112 134111 111242 121142 121241 114212 124112 124211 411212 421112 421211 212141 214121 412121 111143 111341 131141 114113 114311 411113 411311 113141 114131 311141 411131 211412 211214 211232 2331112').split(' ');
+  function code128(str) {
+    let codes;
+    if (/^(\d\d)+$/.test(str)) {
+      codes = [105];
+      for (let i = 0; i < str.length; i += 2) codes.push(+str.slice(i, i + 2));
+    } else {
+      codes = [104];
+      for (const ch of str) { const c = ch.charCodeAt(0) - 32; codes.push(c >= 0 && c < 95 ? c : 0); }
+    }
+    let sum = codes[0];
+    for (let i = 1; i < codes.length; i++) sum += codes[i] * i;
+    codes.push(sum % 103, 106);
+    return codes.map((c) => C128[c]).join('');
+  }
+  function barcodeEl() {
+    const btn = h('button', 'r-barcode');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'บาร์โค้ด แตะเพื่อสแกนและเปิดข้อความลับ');
+    const quiet = 10;
+    let x = quiet, bar = true, rects = '';
+    for (const w of code128(receiptNo)) {
+      if (bar) rects += `<rect x="${x}" y="0" width="${w}" height="60"/>`;
+      x += +w; bar = !bar;
+    }
+    btn.innerHTML =
+      `<svg viewBox="0 0 ${x + quiet} 60" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${rects}</svg>` +
+      `<span class="bc-num" aria-hidden="true">${receiptNo}</span><span class="scanline" aria-hidden="true"></span>`;
+    btn.addEventListener('click', scan);
+    return btn;
+  }
+
+  /* ───────── รูป → ขาวดำเม็ดสกรีน (Atkinson dithering) ───────── */
+  function dither(img, src, box) {
+    return new Promise((resolve) => {
+      const probe = new Image();
+      probe.onload = () => {
+        try {
+          const nw = probe.naturalWidth || 600, nh = probe.naturalHeight || 450;
+          const ratio = Math.min(16 / 9, Math.max(3 / 4, nw / nh));
+          const dpr = Math.min(3, Math.max(1, window.devicePixelRatio || 1));
+          const cssW = box.clientWidth || 300;
+          const dot = Math.max(2, Math.round(1.45 * dpr)); // 1 เม็ด = กี่พิกเซลจอ
+          const W = Math.floor((cssW * dpr) / dot), H = Math.round(W / ratio);
+          const cv = document.createElement('canvas');
+          cv.width = W; cv.height = H;
+          const ctx = cv.getContext('2d', { willReadFrequently: true });
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(0, 0, W, H);
+          let sw = nw, sh = nw / ratio;
+          if (sh > nh) { sh = nh; sw = nh * ratio; }
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(probe, (nw - sw) / 2, (nh - sh) / 2, sw, sh, 0, 0, W, H);
+          const id = ctx.getImageData(0, 0, W, H); // ถ้าเปิดจากไฟล์ในเครื่อง บางเบราว์เซอร์จะไม่ยอม → ใช้แบบสำรอง
+          const d = id.data, L = new Float32Array(W * H);
+          for (let i = 0, p = 0; i < L.length; i++, p += 4) {
+            const l = (0.2126 * d[p] + 0.7152 * d[p + 1] + 0.0722 * d[p + 2]) / 255;
+            L[i] = (Math.pow(l, 1.25) - 0.5) * 1.25 + 0.55;
+          }
+          for (let y = 0; y < H; y++) {
+            for (let x = 0; x < W; x++) {
+              const i = y * W + x, o = L[i], n = o < 0.5 ? 0 : 1, e = (o - n) / 8;
+              L[i] = n;
+              if (x + 1 < W) L[i + 1] += e;
+              if (x + 2 < W) L[i + 2] += e;
+              if (y + 1 < H) { if (x > 0) L[i + W - 1] += e; L[i + W] += e; if (x + 1 < W) L[i + W + 1] += e; }
+              if (y + 2 < H) L[i + 2 * W] += e;
+            }
+          }
+          for (let i = 0, p = 0; i < L.length; i++, p += 4) {
+            if (L[i] < 0.5) { d[p] = 46; d[p + 1] = 42; d[p + 2] = 39; d[p + 3] = 255; } else d[p + 3] = 0;
+          }
+          ctx.putImageData(id, 0, 0);
+          img.width = W; img.height = H;
+          img.style.width = (W * dot) / dpr + 'px';
+          img.src = cv.toDataURL('image/png');
+        } catch (err) {
+          img.classList.add('raw');
+          img.src = src;
+        }
+        const done = () => resolve();
+        if (img.decode) img.decode().then(done, done); else img.onload = done;
+      };
+      probe.onerror = () => {
+        box.classList.add('missing');
+        box.textContent = 'ไม่พบรูป: ' + src;
+        resolve();
+      };
+      probe.src = src;
+    });
+  }
+
+  /* ───────── ตัวนับ ───────── */
+  const counterNums = {};
+  function counterEl() {
+    const wrap = h('div', 'r-counter');
+    wrap.setAttribute('role', 'timer');
+    [['d', 'วัน'], ['h', 'ชั่วโมง'], ['m', 'นาที'], ['s', 'วินาที']].forEach(([k, label], i) => {
+      if (i) wrap.append(h('span', 'sep', ':'));
+      const cell = h('div', 'cell');
+      const num = h('b', 'num', '0');
+      counterNums[k] = num;
+      cell.append(num, h('span', 'lab', label));
+      wrap.append(cell);
+    });
+    return wrap;
+  }
+  function tickCounter() {
+    const s = Math.floor(Math.max(0, Date.now() - start.getTime()) / 1000);
+    counterNums.d.textContent = Math.floor(s / 86400).toLocaleString('en-US');
+    counterNums.h.textContent = pad2(Math.floor((s % 86400) / 3600));
+    counterNums.m.textContent = pad2(Math.floor((s % 3600) / 60));
+    counterNums.s.textContent = pad2(s % 60);
+    setTimeout(tickCounter, 1000 - (Date.now() % 1000) + 5);
+  }
+
+  /* ───────── สร้างใบเสร็จ ───────── */
+  const units = [];
+  const receipt = $('#receipt');
+  function add(el, kind = 'text', pause = 0) {
+    el.classList.add('u');
+    el.dataset.kind = kind;
+    el._pause = pause;
+    units.push(el);
+    receipt.append(el);
+    return el;
+  }
+  function kv(k, v, cls) {
+    const row = h('div', 'r-kv' + (cls ? ' ' + cls : ''));
+    row.append(h('span', 'k', k), h('span', 'v', text(v)));
+    return row;
+  }
+  const rule = (double) => h('div', 'r-rule' + (double ? ' double' : ''));
+
+  function buildReceipt() {
+    const logo = h('div', 'r-logo');
+    logo.innerHTML = '<svg viewBox="0 0 34 34" aria-hidden="true" focusable="false"><path d="M8 3h18v28l-3-2-3 2-3-2-3 2-3-2-3 2z" fill="none" stroke="#2e2a27" stroke-width="2" stroke-linejoin="round"/><path d="M17 21.5s-5-3-5-6.3c0-1.7 1.2-2.9 2.7-2.9 1.1 0 1.9.6 2.3 1.4.4-.8 1.2-1.4 2.3-1.4 1.5 0 2.7 1.2 2.7 2.9 0 3.3-5 6.3-5 6.3z" fill="var(--accent)"/></svg>';
+    add(logo);
+    add(h('div', 'r-shop', `ร้าน ${text(C.nameA)} & ${text(C.nameB)}`));
+    if (C.tagline) add(h('div', 'r-tag', C.tagline));
+    add(rule(), 'rule');
+    const now = new Date();
+    add(kv('เลขที่ใบเสร็จ', '#' + receiptNo));
+    add(kv('วันที่พิมพ์', `${pad2(now.getDate())}/${pad2(now.getMonth() + 1)}/${now.getFullYear()} ${pad2(now.getHours())}:${pad2(now.getMinutes())}`));
+    add(kv('แคชเชียร์', C.sender));
+    add(kv('ลูกค้า', C.recipient), 'text', 220);
+    add(rule(), 'rule');
+    add(kv('รายการ', 'ราคา', 'r-th'));
+    add(rule(), 'rule');
+
+    const items = Array.isArray(C.items) ? C.items : [];
+    items.forEach((it, i) => {
+      const head = h('div', 'r-item-head');
+      head.append(h('span', 'r-date', text(it.date)), h('span', 'r-title', text(it.title)));
+      add(head);
+      if (it.photo) {
+        const box = h('div', 'r-photo');
+        const img = new Image();
+        img.alt = text(it.alt || it.title || 'รูปความทรงจำ');
+        img.decoding = 'async';
+        box.append(img);
+        add(box, 'photo');
+        box._ready = dither(img, it.photo, box);
+      }
+      if (it.note) add(h('div', 'r-note', it.note));
+      const price = h('div', 'r-price');
+      price.append(h('span', 'qty', 'x1'), h('span', 'dots'), h('span', 'price', text(it.price)));
+      price.querySelector('.dots').setAttribute('aria-hidden', 'true');
+      add(price, 'text', i < items.length - 1 ? 110 : 260);
+    });
+
+    add(rule(true), 'rule');
+    add(h('div', 'r-count', `รวม ${items.length} รายการ`));
+    add(h('div', 'r-counter-label', 'คบกันมาแล้ว'));
+    add(counterEl(), 'text', 200);
+    add(rule(), 'rule');
+    add(kv('ยอดรวม', C.total || '∞', 'r-total'));
+    add(kv('ชำระด้วย', C.paidWith));
+    add(kv('เงินทอน', C.change), 'text', 200);
+    add(rule(true), 'rule');
+    add(h('div', 'r-center r-strong', C.noReturn));
+    if (C.footerNote) add(h('div', 'r-center r-soft', C.footerNote));
+    add(barcodeEl(), 'photo');
+    add(h('div', 'r-hint', 'แตะบาร์โค้ดเพื่อสแกน'));
+  }
+
+  function buildSecret() {
+    const s = C.secret || {};
+    $('#secretTitle').textContent = text(s.title);
+    const body = $('#secretBody');
+    const lines = Array.isArray(s.lines) ? s.lines : [text(s.lines)];
+    lines.forEach((l, i) => {
+      const p = h('p', 'ln', text(l));
+      p.style.setProperty('--i', i + 2);
+      body.append(p);
+    });
+    const sign = $('#secretSign');
+    sign.textContent = text(s.signature);
+    sign.style.setProperty('--i', lines.length + 2.4);
+    $('#secretBack').style.setProperty('--i', lines.length + 3.4);
+  }
+
+  /* ───────── เลย์เอาต์ + การพิมพ์ ───────── */
+  const stage = $('#stage'), spacer = $('#spacer'), intro = $('#intro'), wrap = $('#paperWrap');
+  const paper = $('#paper'), printer = $('#printer'), actions = $('#introActions'), printBtn = $('#printBtn');
+  const live = $('#live');
+  const S = { paperH: 0, target: 0, P: 0, P1: 0, Tmin: 22, tuck: 0, mul: 1, follow: true, glide: null, waiters: [], running: false, printing: false, last: 0, userAt: 0 };
+
+  function render() {
+    wrap.style.height = S.paperH.toFixed(2) + 'px';
+    spacer.style.height = Math.max(S.Tmin, S.P - S.paperH + S.tuck).toFixed(2) + 'px';
+  }
+  function layoutIntro() {
+    if (S.printing) return;
+    S.tuck = -parseFloat(getComputedStyle(wrap).marginBottom) || 0;
+    S.paperH = S.target = S.tuck + 5; // กระดาษโผล่จากช่องนิดนึง
+    const vh = window.innerHeight;
+    const ih = intro.offsetHeight + 16, ph = printer.offsetHeight, ah = actions.offsetHeight;
+    S.P = Math.max(ih + 5 + S.Tmin, Math.round((vh - (ih + 5 + ph + ah)) / 2 + ih + 5));
+    render();
+  }
+  const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  function frame(t) {
+    const dt = S.last ? Math.min(0.064, Math.max(0, (t - S.last) / 1000)) : 0;
+    S.last = t;
+    if (S.glide) {
+      const k = Math.min(1, (t - S.glide.t0) / S.glide.dur);
+      S.P = S.glide.from + (S.glide.to - S.glide.from) * ease(k);
+      if (k >= 1) S.glide = null;
+    }
+    if (S.paperH < S.target) S.paperH = Math.min(S.target, S.paperH + FEED * speed * S.mul * dt);
+    render();
+    if (!S.glide && !root.classList.contains('is-torn')) {
+      const top = printer.getBoundingClientRect().top;
+      // คนเลื่อนกลับลงมาถึงเครื่องพิมพ์แล้ว → กลับมาเลื่อนตามกระดาษให้
+      if (!S.follow && t - S.userAt > 400 && top <= S.P1 + 24) S.follow = true;
+      if (S.follow && top > S.P1 + 0.5) window.scrollBy(0, top - S.P1);
+    }
+    if (S.waiters.length) {
+      S.waiters = S.waiters.filter((w) => {
+        if (S.paperH >= w.h - 0.01) { w.res(); return false; }
+        return true;
+      });
+    }
+    if (S.running) requestAnimationFrame(frame);
+  }
+  function feedTo(px) {
+    S.target = Math.max(S.target, px);
+    if (S.paperH >= px - 0.01) return Promise.resolve();
+    return new Promise((res) => S.waiters.push({ h: px, res }));
+  }
+  function reveal(u) {
+    const kind = u.dataset.kind;
+    let d;
+    if (kind === 'photo') d = (u.offsetHeight / (FEED * speed * PHOTO_MUL)) * 1000;
+    else if (kind === 'rule') d = 120 / speed;
+    else d = Math.min(260, Math.max(110, 70 + u.textContent.length * 6)) / speed;
+    u.style.setProperty('--d', Math.round(d) + 'ms');
+    u.classList.add('on');
+  }
+
+  async function startPrint() {
+    if (S.printing) return;
+    S.printing = true;
+    printBtn.disabled = true;
+    wrap.inert = false;
+    wrap.removeAttribute('aria-hidden');
+    receipt.setAttribute('aria-busy', 'true');
+    receipt.focus({ preventScroll: true });
+    root.classList.add('is-printing');
+
+    const vh = window.innerHeight, ph = printer.offsetHeight;
+    S.P1 = Math.max(S.P, vh - ph - Math.min(30, vh * 0.035));
+    S.glide = { from: S.P, to: S.P1, t0: performance.now(), dur: 700 / Math.sqrt(speed) };
+    S.running = true;
+    S.last = 0;
+    requestAnimationFrame(frame);
+    await wait(S.glide.dur * 0.75);
+    printer.classList.add('printing');
+    await wait(220 / speed);
+
+    for (const u of units) {
+      if (u._ready) await Promise.race([u._ready, wait(3000)]);
+      const top = u.offsetTop;
+      await feedTo(top + S.tuck + 3);
+      S.mul = u.dataset.kind === 'photo' ? PHOTO_MUL : 1;
+      reveal(u);
+      if (u._pause) {
+        await feedTo(top + u.offsetHeight + S.tuck + 4);
+        S.mul = 1;
+        await wait(u._pause / speed);
+      }
+    }
+    S.mul = 1;
+    await feedTo(paper.offsetHeight);
+    await finish();
+  }
+
+  async function finish() {
+    printer.classList.remove('printing');
+    printer.classList.add('cut');
+    await wait(340);
+    S.follow = false;
+    root.classList.add('is-torn');
+    await wait(720);
+    S.running = false;
+    printer.classList.remove('cut');
+    receipt.classList.add('done');
+    receipt.setAttribute('aria-busy', 'false');
+    wrap.style.height = '';
+    live.textContent = 'พิมพ์ใบเสร็จเสร็จแล้ว แตะบาร์โค้ดท้ายใบเสร็จเพื่อเปิดข้อความลับ';
+    root.dataset.state = 'done';
+  }
+
+  function showInstant() {
+    root.classList.add('is-instant', 'is-printing', 'is-torn');
+    wrap.inert = false;
+    wrap.removeAttribute('aria-hidden');
+    receipt.classList.add('done');
+    S.printing = true;
+    root.dataset.state = 'done';
+  }
+
+  // คนเลื่อนจอเอง → หยุดเลื่อนตาม (กลับมาเลื่อนตามเองเมื่อเลื่อนลงมาถึงเครื่องพิมพ์ ดูใน frame())
+  function userScroll() {
+    if (S.running && !root.classList.contains('is-torn')) { S.follow = false; S.userAt = performance.now(); }
+  }
+  addEventListener('wheel', userScroll, { passive: true });
+  addEventListener('touchmove', userScroll, { passive: true });
+  addEventListener('keydown', (e) => {
+    if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) userScroll();
+  });
+
+  /* ───────── สแกนบาร์โค้ด + ข้อความลับ ───────── */
+  const secret = $('#secret');
+  let scanning = false, lastFocus = null;
+  async function scan(e) {
+    if (scanning || !secret.hidden) return;
+    scanning = true;
+    const bc = e.currentTarget;
+    if (!reduce) {
+      bc.classList.add('scanning');
+      await wait(1000);
+      bc.classList.remove('scanning');
+      bc.classList.add('beep');
+      await wait(160);
+      bc.classList.remove('beep');
+    }
+    openSecret(bc);
+    scanning = false;
+  }
+  function openSecret(from) {
+    lastFocus = from;
+    secret.hidden = false;
+    stage.inert = true;
+    root.classList.add('secret-open');
+    secret.scrollTop = 0;
+    $('#secretPanel').focus({ preventScroll: true });
+    requestAnimationFrame(() => requestAnimationFrame(() => secret.classList.add('show')));
+  }
+  function closeSecret() {
+    if (secret.hidden) return;
+    secret.classList.remove('show');
+    stage.inert = false;
+    root.classList.remove('secret-open');
+    setTimeout(() => { if (!secret.classList.contains('show')) secret.hidden = true; }, reduce ? 0 : 400);
+    if (lastFocus) lastFocus.focus({ preventScroll: true });
+  }
+  $('#secretBack').addEventListener('click', closeSecret);
+  $('#secretX').addEventListener('click', closeSecret);
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSecret(); });
+
+  /* ───────── เพลง (กดเล่นเองเท่านั้น) ───────── */
+  function setupMusic() {
+    if (!C.music) return;
+    const btn = $('#musicBtn'), audio = $('#music'), label = $('#musicLabel'), icon = $('#musicIcon');
+    const note = icon.getAttribute('d');
+    const pause = 'M7 4h3.5v16H7zM13.5 4H17v16h-3.5z';
+    audio.src = C.music;
+    if (C.musicTitle) btn.title = C.musicTitle;
+    btn.hidden = false;
+    const sync = () => {
+      const on = !audio.paused;
+      btn.setAttribute('aria-pressed', String(on));
+      label.textContent = on ? 'หยุดเพลง' : 'เปิดเพลง';
+      icon.setAttribute('d', on ? pause : note);
+    };
+    btn.addEventListener('click', () => { if (audio.paused) audio.play().catch(sync); else audio.pause(); });
+    audio.addEventListener('play', sync);
+    audio.addEventListener('pause', sync);
+  }
+
+  /* ───────── เริ่ม ───────── */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  applyTheme();
+  root.style.setProperty('--stagger', Math.round(420 / speed) + 'ms');
+  document.title = `มีใบเสร็จส่งถึง ${text(C.recipient)} 🧾`;
+  $('#introName').textContent = text(C.recipient);
+  buildReceipt();
+  buildSecret();
+  tickCounter();
+  setupMusic();
+  printBtn.addEventListener('click', startPrint);
+
+  if (reduce) {
+    showInstant();
+  } else {
+    layoutIntro();
+    addEventListener('resize', layoutIntro);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutIntro);
+  }
+  window.scrollTo(0, 0);
+  document.body.classList.remove('boot');
+  window.__loveReceipt = { startPrint, state: S };
+})();
+</script>
+</body>
+</html>

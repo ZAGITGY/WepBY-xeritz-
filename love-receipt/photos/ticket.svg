@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
+  <title>ตั๋วหนังสองที่นั่งกับถังป๊อปคอร์น</title>
+  <!-- พื้นหลัง: แสงไฟโรงหนัง -->
+  <rect width="600" height="450" fill="#f2eadf"/>
+  <path d="M300 -20 L80 450 H520 Z" fill="#f8f2e8"/>
+  <circle cx="60" cy="60" r="10" fill="#d8c7ad"/>
+  <circle cx="540" cy="70" r="8" fill="#d8c7ad"/>
+  <circle cx="500" cy="30" r="5" fill="#d8c7ad"/>
+  <circle cx="110" cy="24" r="5" fill="#d8c7ad"/>
+  <!-- ตั๋ว -->
+  <g transform="rotate(-8 270 210)">
+    <path d="M60 120 H480 V170 A22 22 0 0 0 480 214 V290 H60 V214 A22 22 0 0 0 60 170 Z" fill="#f4d29a" stroke="#3a312b" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M370 132 V280" stroke="#3a312b" stroke-width="4" stroke-dasharray="10 9"/>
+    <rect x="80" y="140" width="272" height="132" rx="6" fill="none" stroke="#a9823f" stroke-width="3"/>
+    <text x="216" y="196" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#3a312b" letter-spacing="2">ADMIT TWO</text>
+    <text x="216" y="232" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#6b4f2a" letter-spacing="2">ROW F · SEAT 7–8</text>
+    <path d="M150 252 h132" stroke="#a9823f" stroke-width="3"/>
+    <text x="425" y="186" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#3a312b">No.</text>
+    <text x="425" y="218" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" fill="#3a312b">0330</text>
+    <path d="M425 254 C413 244 408 236 415 232 C420 229 424 233 425 236 C426 233 430 229 435 232 C442 236 437 244 425 254 Z" fill="#c4554d"/>
+  </g>
+  <!-- ถังป๊อปคอร์น -->
+  <g>
+    <circle cx="420" cy="290" r="22" fill="#fffaf0" stroke="#3a312b" stroke-width="4"/>
+    <circle cx="452" cy="276" r="24" fill="#fffaf0" stroke="#3a312b" stroke-width="4"/>
+    <circle cx="486" cy="282" r="22" fill="#fffaf0" stroke="#3a312b" stroke-width="4"/>
+    <circle cx="512" cy="298" r="18" fill="#fffaf0" stroke="#3a312b" stroke-width="4"/>
+    <circle cx="436" cy="306" r="18" fill="#fff3d6" stroke="#3a312b" stroke-width="4"/>
+    <circle cx="470" cy="300" r="20" fill="#fff3d6" stroke="#3a312b" stroke-width="4"/>
+    <path d="M398 312 H530 L512 440 H416 Z" fill="#fbf8f2" stroke="#3a312b" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M420 312 L432 440 H452 L446 312 Z" fill="#c4554d"/>
+    <path d="M472 312 L470 440 H490 L498 312 Z" fill="#c4554d"/>
+    <path d="M398 312 H530 L512 440 H416 Z" fill="none" stroke="#3a312b" stroke-width="5" stroke-linejoin="round"/>
+  </g>
+</svg>

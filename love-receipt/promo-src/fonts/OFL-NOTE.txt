@@ -1,0 +1,4 @@
+IBM Plex Mono / IBM Plex Sans Thai
+Copyright © 2017 IBM Corp. with Reserved Font Name "Plex"
+ใช้ภายใต้ SIL Open Font License 1.1 — https://openfontlicense.org
+ไฟล์ .woff2 ในโฟลเดอร์นี้ดาวน์โหลดจาก Google Fonts (ชุดตัวอักษรละตินและไทย) ใช้ตอน render คลิปโปรโมตเท่านั้น
