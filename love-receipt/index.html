@@ -161,7 +161,7 @@ const CONFIG = {
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 
 <style>
 :root {
@@ -557,7 +557,7 @@ button { font: inherit; color: inherit; }
 
 /* ── โหมดลดการเคลื่อนไหว / แสดงทันที ── */
 .is-instant .spacer { height: auto !important; padding: max(36px, env(safe-area-inset-top)) 0 22px; }
-.is-instant .intro { position: static; opacity: 1; transform: none; }
+.is-instant .intro { position: static; opacity: 1; transform: none; margin: 0 auto; }
 .is-instant .paper-wrap { height: auto !important; }
 .is-instant .intro-actions { display: none; }
 @media (prefers-reduced-motion: reduce) {
@@ -567,6 +567,110 @@ button { font: inherit; color: inherit; }
 @media (min-width: 700px) {
   .paper { font-size: 15px; }
   .intro h1 { font-size: 30px; }
+}
+
+/* ═════════ หน้าตาแบบน่ารัก: ฟอนต์ Mali ทุกที่ ตัวเลขใช้ฟอนต์เครื่องพิมพ์ ═════════ */
+:root {
+  --sans: "Mali", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --mono: var(--num);
+}
+body { font-family: var(--sans); }
+.paper { font-family: var(--sans); font-size: 15px; line-height: 1.65; }
+.num, .r-date, .r-no, .r-price .qty, .r-counter .num, .r-total .v, .bc-num { font-family: var(--num); }
+
+/* หน้าแรก */
+.kicker {
+  display: inline-flex; align-items: center; gap: 7px; margin: 0 0 14px; padding: 6px 13px 6px 11px;
+  font: 600 11.5px/1.2 var(--num); letter-spacing: .2em; color: var(--accent);
+  background: rgba(255,251,247,.92); border: 1.5px dashed var(--accent-soft); border-radius: 999px;
+  transform: rotate(-3deg); box-shadow: 0 4px 10px -6px rgba(90,40,90,.45);
+}
+.kicker svg { width: 12px; height: 12px; fill: var(--accent); }
+.intro h1 { position: relative; font: 600 clamp(19px, 5.4vw, 23px)/1.5 var(--sans); }
+.intro h1 .pre { display: block; }
+.intro h1 .to { position: relative; display: inline-block; margin-top: 2px; font-size: 2.05em; font-weight: 700; line-height: 1.22; }
+.intro h1 .uline { position: absolute; left: -8%; width: 116%; bottom: -8px; height: 14px; color: var(--accent); opacity: .85; }
+.intro h1 .heart { width: .5em; height: .5em; margin-left: .14em; vertical-align: .18em; }
+.intro .spark { position: absolute; width: 18px; height: 18px; fill: var(--accent); opacity: .75; }
+.intro .spark.s1 { left: 13%; top: 46%; transform: rotate(-12deg); }
+.intro .spark.s2 { right: 12%; top: 30%; width: 13px; height: 13px; transform: rotate(14deg); }
+.print-btn { font: 700 18px/1.3 var(--sans); padding: 14px 34px; box-shadow: 0 4px 0 rgba(0,0,0,.14), 0 14px 26px -10px rgba(120,40,90,.55); animation: nudge 2.8s ease-in-out 1.2s infinite; }
+.print-btn:active, .print-btn:focus-visible { animation: none; }
+@keyframes nudge { 0%, 72%, 100% { transform: translateY(0) rotate(0); } 80% { transform: translateY(-5px) rotate(-1.5deg); } 88% { transform: translateY(0) rotate(1deg); } }
+.btn-note { font: 500 13.5px/1.5 var(--sans); }
+.printer .eyes { transform-box: fill-box; transform-origin: center; animation: blinkeye 4.4s ease-in-out infinite; }
+@keyframes blinkeye { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.12); } }
+
+/* ใบเสร็จ */
+.r-shop { font: 700 24px/1.4 var(--sans); }
+.r-tag { font: 500 13px/1.6 var(--sans); }
+.r-kv .k { font-weight: 500; }
+.r-kv .v { font-weight: 600; }
+.r-th { font: 700 13.5px/1.6 var(--sans); letter-spacing: 0; }
+.r-item-head { margin-top: 16px; }
+.r-item-head.nd { grid-template-columns: 34px 1fr; align-items: center; }
+.r-note.nd, .r-price.nd { padding-left: 34px; }
+.r-no {
+  display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 21px;
+  border-radius: 7px; background: var(--accent-tint); color: var(--accent-deep); font: 600 11px/1 var(--num);
+}
+.r-title { font: 700 16px/1.5 var(--sans); }
+.r-note { font: 400 14px/1.65 var(--sans); }
+.r-price .dots { border-bottom-color: var(--accent-soft); }
+.r-price .price { font: 700 15px/1.55 var(--sans); color: var(--accent); }
+.r-rule.heart { position: relative; }
+.r-rule.heart::before { content: ""; position: absolute; left: 50%; top: 50%; width: 30px; height: 16px; margin: -8px 0 0 -15px; background: var(--paper); }
+.r-rule.heart::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12%2021s-7.5-4.6-9.6-9.2C.9%208.4%202.9%204.5%206.6%204.5c2.2%200%203.6%201.2%204.4%202.5.8-1.3%202.2-2.5%204.4-2.5%203.7%200%205.7%203.9%204.2%207.3C19.5%2016.4%2012%2021%2012%2021z'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12%2021s-7.5-4.6-9.6-9.2C.9%208.4%202.9%204.5%206.6%204.5c2.2%200%203.6%201.2%204.4%202.5.8-1.3%202.2-2.5%204.4-2.5%203.7%200%205.7%203.9%204.2%207.3C19.5%2016.4%2012%2021%2012%2021z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.r-counter-label { font: 700 15px/1.6 var(--sans); }
+.r-counter { gap: 0 2px; }
+.r-counter .cell { background: var(--accent-tint); border-radius: 10px; padding: 4px 0 3px; }
+.r-counter .lab { font: 500 11.5px/1.5 var(--sans); }
+.r-counter .sep { align-self: center; font-size: 18px; color: var(--accent); }
+.r-total .k { font: 700 18px/1.5 var(--sans); }
+.r-total .v { color: var(--accent); }
+.r-strong { font: 700 16px/1.6 var(--sans); }
+.r-soft { font: 400 13.5px/1.6 var(--sans); }
+.r-hint { font: 500 13px/1.6 var(--sans); }
+
+/* ปุ่มมุมจอ: หลบตอนเลื่อนลงอ่าน (จอแคบ) โผล่กลับมาเมื่อเลื่อนขึ้น */
+.top-btns { transition: transform .35s ease, opacity .3s ease; }
+.top-btns.tuck { transform: translateY(-130%); opacity: 0; pointer-events: none; }
+.snd { background: rgba(255,255,255,.92); color: var(--accent); border: 1.5px solid rgba(255,255,255,.95); box-shadow: 0 8px 18px -9px rgba(110,50,120,.6); }
+
+/* หน้าข้อความลับ: จดหมายบนพื้นม่วง */
+.secret-panel { max-width: 470px; padding: 52px 2px 16px; }
+.secret-kicker { text-align: center; margin: 0 0 22px; }
+.letter-wrap { padding: 0 4px; }
+.letter {
+  position: relative; margin: 0; padding: 34px 24px 30px; border-radius: 16px;
+  background: #fffaf3; color: #3a2a3f; transform: rotate(-1deg);
+  box-shadow: 0 22px 44px -18px rgba(0,0,0,.65), inset 0 0 0 1px rgba(255,255,255,.6);
+}
+.letter-tape {
+  position: absolute; top: -13px; left: 50%; width: 104px; height: 26px; margin-left: -52px; transform: rotate(-3deg);
+  background: linear-gradient(90deg, rgba(255,196,218,.75), rgba(255,214,230,.9) 50%, rgba(255,196,218,.75));
+  clip-path: polygon(0 12%, 4% 0, 8% 12%, 12% 0, 88% 0, 92% 12%, 96% 0, 100% 12%, 100% 88%, 96% 100%, 92% 88%, 88% 100%, 12% 100%, 8% 88%, 4% 100%, 0 88%);
+}
+.secret-title { margin: 0 0 6px; color: var(--accent); font: 700 clamp(28px, 8vw, 36px)/1.35 var(--sans); }
+.secret-body {
+  font: 500 clamp(16.5px, 4.5vw, 19px)/1.95 var(--sans);
+  background-image: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0) calc(1.95em - 1px), var(--accent-soft) calc(1.95em - 1px), var(--accent-soft) 1.95em);
+}
+.secret-body p { margin: 0; font: inherit; color: #3a2a3f; text-wrap: pretty; }
+.secret-sign { margin: 16px 0 0; color: var(--accent); font: 700 clamp(18px, 4.8vw, 21px)/1.6 var(--sans); }
+.seal { position: absolute; left: 18px; bottom: -20px; width: 50px; height: 50px; filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+.seal circle { fill: var(--accent); }
+.secret-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 40px; }
+.secret-actions .music-link, .secret-actions .secret-back { margin: 0; }
+.secret-back { font: 600 15.5px/1.3 var(--sans); }
+@media (min-width: 900px) {
+  .intro h1 { font-size: 26px; }
+  .kicker { font-size: 12.5px; }
+  .print-btn { font-size: 19px; padding: 15px 38px; }
 }
 </style>
 </head>
@@ -587,8 +691,8 @@ button { font: inherit; color: inherit; }
 <main class="stage" id="stage">
   <div class="spacer" id="spacer">
     <div class="intro" id="intro">
-      <p class="kicker">Love Receipt</p>
-      <h1>มีใบเสร็จส่งถึง <span class="to"><span id="introName"></span><svg class="heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.2-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg></span></h1>
+      <p class="kicker"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.2-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg>Love Receipt</p>
+      <h1><span class="pre">มีใบเสร็จส่งถึง</span> <span class="to"><span id="introName"></span><svg class="heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.2-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg><svg class="uline" viewBox="0 0 200 16" preserveAspectRatio="none" aria-hidden="true"><path d="M4 10C30 2 50 14 76 8s48-4 74 1 36 3 46-3" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></span><svg class="spark s1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/></svg><svg class="spark s2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/></svg></h1>
     </div>
   </div>
 
@@ -619,10 +723,12 @@ button { font: inherit; color: inherit; }
         <rect x="18" y="21" width="364" height="5" rx="2.5" fill="#5a524b"/>
         <path d="M22 8.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5 l4.5 -4.5 l4.5 4.5" fill="none" stroke="#9c958e" stroke-width="2" stroke-linejoin="round"/>
         <rect x="58" y="98" width="44" height="22" rx="11" fill="#e9e1d6" stroke="#cdc2b3" stroke-width="1.5"/>
-        <text x="200" y="116" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="15" font-weight="600" letter-spacing="5" fill="#8d8379">LOVE·POS</text>
-        <circle class="led" cx="333" cy="109" r="6.5"/>
+        <g class="eyes"><ellipse cx="180" cy="103" rx="5.5" ry="7.5" fill="#3a3430"/><ellipse cx="220" cy="103" rx="5.5" ry="7.5" fill="#3a3430"/><circle cx="182" cy="100" r="1.9" fill="#fff"/><circle cx="222" cy="100" r="1.9" fill="#fff"/></g>
+        <ellipse cx="162" cy="117" rx="10" ry="6" fill="#f6b3c8" opacity=".8"/><ellipse cx="238" cy="117" rx="10" ry="6" fill="#f6b3c8" opacity=".8"/>
+        <path d="M192 114q8 8 16 0" fill="none" stroke="#3a3430" stroke-width="3" stroke-linecap="round"/>
+        <text x="200" y="152" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" font-weight="600" letter-spacing="4" fill="#a39a90">LOVE·POS</text>
+        <path class="led" d="M333 116c-6-4-9-7-9-10.5 0-2.6 2-4.5 4.4-4.5 2 0 3.3 1.1 4.6 2.6 1.3-1.5 2.6-2.6 4.6-2.6 2.4 0 4.4 1.9 4.4 4.5 0 3.5-3 6.5-9 10.5z"/>
         <circle cx="333" cy="109" r="10" fill="none" stroke="#d6ccbe" stroke-width="1.5"/>
-        <path d="M158 148 H242 M166 156 H234" stroke="#d2c7b8" stroke-width="3" stroke-linecap="round"/>
       </g>
     </svg>
   </div>
@@ -632,20 +738,27 @@ button { font: inherit; color: inherit; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><path d="M9.5 8h5M9.5 12h5M9.5 16h3"/></svg>
       พิมพ์ใบเสร็จ
     </button>
-    <p class="btn-note">ใบเสร็จยาวหน่อย เลื่อนอ่านตามได้เลย</p>
+    <p class="btn-note">ใบเสร็จยาวหน่อยนะ ค่อยๆ เลื่อนอ่านตามได้เลย</p>
   </div>
 </main>
 
 <div class="secret" id="secret" role="dialog" aria-modal="true" aria-labelledby="secretTitle" hidden>
   <div class="hearts" id="hearts" aria-hidden="true"></div>
   <div class="secret-panel" id="secretPanel" tabindex="-1">
-    <svg class="secret-heart ln" style="--i:0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.2-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg>
     <p class="secret-kicker ln" style="--i:0"><span class="lat">✓ SCAN OK</span> · ข้อความลับ</p>
-    <h2 class="secret-title ln" style="--i:1" id="secretTitle"></h2>
-    <div class="secret-body" id="secretBody"></div>
-    <p class="secret-sign ln" id="secretSign"></p>
-    <a class="music-link ln" id="musicLink" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18.5A3.5 3.5 0 1 1 7 15.3V4.5l12-2.5v13.5a3.5 3.5 0 1 1-2-3.2V6.4l-8 1.7z"/></svg>เปิดเพลงของเรา</a>
-    <button class="secret-back ln" id="secretBack" type="button">กลับไปที่ใบเสร็จ</button>
+    <div class="letter-wrap ln" style="--i:1">
+      <article class="letter">
+        <span class="letter-tape" aria-hidden="true"></span>
+        <h2 class="secret-title" id="secretTitle"></h2>
+        <div class="secret-body" id="secretBody"></div>
+        <p class="secret-sign ln" id="secretSign"></p>
+        <svg class="seal" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/><path transform="translate(12 12)" fill="#fff" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.2-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg>
+      </article>
+    </div>
+    <div class="secret-actions ln" id="secretActions">
+    <a class="music-link" id="musicLink" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18.5A3.5 3.5 0 1 1 7 15.3V4.5l12-2.5v13.5a3.5 3.5 0 1 1-2-3.2V6.4l-8 1.7z"/></svg>เปิดเพลงของเรา</a>
+    <button class="secret-back" id="secretBack" type="button">กลับไปที่ใบเสร็จ</button>
+    </div>
   </div>
   <button class="secret-x" id="secretX" type="button" aria-label="ปิดข้อความลับ">×</button>
 </div>
@@ -703,6 +816,8 @@ button { font: inherit; color: inherit; }
     root.style.setProperty('--accent-glow', `rgba(${acc.join(',')},.75)`);
     root.style.setProperty('--accent-soft', `rgba(${acc.join(',')},.35)`);
     root.style.setProperty('--accent-faint', `rgba(${acc.join(',')},.08)`);
+    root.style.setProperty('--accent-tint', `rgba(${acc.join(',')},.1)`);
+    root.style.setProperty('--accent-deep', `rgb(${acc.map((v) => Math.round(v * 0.72)).join(',')})`);
     accentRGB = acc;
     root.style.setProperty('--on-accent', contrast(acc, white) >= contrast(acc, dark) ? '#ffffff' : '#1d1a18');
     const sb = rgb(t.secretBackground) || [44, 35, 38];
@@ -855,12 +970,12 @@ button { font: inherit; color: inherit; }
     receipt.append(el);
     return el;
   }
-  function kv(k, v, cls) {
+  function kv(k, v, cls, isNum) {
     const row = h('div', 'r-kv' + (cls ? ' ' + cls : ''));
-    row.append(h('span', 'k', k), h('span', 'v', text(v)));
+    row.append(h('span', 'k', k), h('span', 'v' + (isNum ? ' num' : ''), text(v)));
     return row;
   }
-  const rule = (double) => h('div', 'r-rule' + (double ? ' double' : ''));
+  const rule = (double, heart) => h('div', 'r-rule' + (double ? ' double' : '') + (heart ? ' heart' : ''));
 
   function buildReceipt() {
     const logo = h('div', 'r-logo');
@@ -868,10 +983,10 @@ button { font: inherit; color: inherit; }
     add(logo);
     add(h('div', 'r-shop', `ร้าน ${text(C.nameA)} & ${text(C.nameB)}`));
     if (C.tagline) add(h('div', 'r-tag', C.tagline));
-    add(rule(), 'rule');
+    add(rule(false, true), 'rule');
     const now = new Date();
-    add(kv('เลขที่ใบเสร็จ', '#' + receiptNo));
-    add(kv('วันที่พิมพ์', `${pad2(now.getDate())}/${pad2(now.getMonth() + 1)}/${now.getFullYear()} ${pad2(now.getHours())}:${pad2(now.getMinutes())}`));
+    add(kv('เลขที่ใบเสร็จ', '#' + receiptNo, '', true));
+    add(kv('วันที่พิมพ์', `${pad2(now.getDate())}/${pad2(now.getMonth() + 1)}/${now.getFullYear()} ${pad2(now.getHours())}:${pad2(now.getMinutes())}`, '', true));
     add(kv('แคชเชียร์', C.sender));
     add(kv('ลูกค้า', C.recipient), 'text', 220);
     add(rule(), 'rule');
@@ -883,6 +998,7 @@ button { font: inherit; color: inherit; }
       const nd = text(it.date).trim() ? '' : ' nd'; // ไม่มีวันที่ → ชิดซ้าย
       const head = h('div', 'r-item-head' + nd);
       if (!nd) head.append(h('span', 'r-date', text(it.date)));
+      else head.append(h('span', 'r-no', pad2(i + 1)));
       head.append(h('span', 'r-title', text(it.title)));
       add(head);
       if (it.photo) {
@@ -923,7 +1039,7 @@ button { font: inherit; color: inherit; }
     add(h('div', 'r-count', `รวม ${items.length} รายการ`));
     add(h('div', 'r-counter-label', 'คบกันมาแล้ว'));
     add(counterEl(), 'text', 200);
-    add(rule(), 'rule');
+    add(rule(false, true), 'rule');
     add(kv('ยอดรวม', C.total || '∞', 'r-total'));
     add(kv('ชำระด้วย', C.paidWith));
     add(kv('เงินทอน', C.change), 'text', 200);
@@ -1161,8 +1277,7 @@ button { font: inherit; color: inherit; }
     const sign = $('#secretSign');
     sign.textContent = text(s.signature);
     sign.style.setProperty('--i', lines.length + 2.4);
-    $('#musicLink').style.setProperty('--i', lines.length + 3.4);
-    $('#secretBack').style.setProperty('--i', lines.length + 3.4);
+    $('#secretActions').style.setProperty('--i', lines.length + 3.4);
   }
 
   /* ───────── เลย์เอาต์ + การพิมพ์ ───────── */
@@ -1456,6 +1571,16 @@ button { font: inherit; color: inherit; }
     Music.start();
     startPrint();
   });
+  const topBtns = document.querySelector('.top-btns');
+  let lastY = 0;
+  addEventListener('scroll', () => {
+    const y = window.scrollY;
+    const narrow = window.innerWidth < 640; // จอกว้างปุ่มอยู่นอกกระดาษอยู่แล้ว
+    if (!narrow || y < 60 || y < lastY - 6) topBtns.classList.remove('tuck');
+    else if (y > lastY + 6) topBtns.classList.add('tuck');
+    lastY = y;
+  }, { passive: true });
+  topBtns.addEventListener('focusin', () => topBtns.classList.remove('tuck'));
   let rz = 0;
   addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { drawDoodles(); placeStamp(); }, 150); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeStamp);
