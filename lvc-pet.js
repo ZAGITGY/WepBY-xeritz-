@@ -49,7 +49,9 @@ const damp = (cur, target, rate, dt) => cur + (target - cur) * (1 - Math.exp(-ra
 
 /* ---------- CSS ---------- */
 const CSS = `
-.lvc-pet{position:fixed;left:0;top:0;z-index:41;pointer-events:none;opacity:0;transition:opacity .5s ease;contain:layout style;will-change:transform}
+.lvc-pet{position:fixed;left:0;bottom:0;z-index:41;pointer-events:none;opacity:0;transition:opacity .5s ease;contain:layout style;will-change:transform}
+.lvc-pet.is-zoomed{opacity:0!important;visibility:hidden;transition:opacity .2s ease,visibility 0s .2s}
+.lvc-pet.is-zoomed *{visibility:hidden!important;pointer-events:none!important}
 .lvc-pet.is-ready{opacity:1}
 .lvc-pet.is-gone{opacity:0;transition-duration:.25s}
 .lvc-pet canvas{position:absolute;left:0;top:0;display:block;pointer-events:none}
@@ -192,11 +194,13 @@ class Pet {
     this.anchorX = typeof saved.ax === "number" ? saved.ax * this.vw : this.size.w / 2 + 18;
     this.anchorB = typeof saved.ab === "number" ? saved.ab : this.defaultBottom();
     this.fx = this.anchorX;
-    this.fy = this.vh - this.anchorB;
+    this.fb = this.anchorB;            // แกน y ทุกจุด = ระยะเท้าจากขอบล่างจอ
     this.clampPos();
+    this.place();
     this.play("Idle", 0);
 
     this.bind();
+    this.checkZoom();
     this.clock = new THREE.Clock();
     this.loop = this.loop.bind(this);
     this.raf = requestAnimationFrame(this.loop);
@@ -204,6 +208,13 @@ class Pet {
   }
 
   defaultBottom() { return 10; }
+
+  // .lvc-pet ติดขอบล่างด้วย CSS (bottom:0) แล้วเลื่อนขึ้นตามระยะเท้า → แถบเบราว์เซอร์ยุบ/ขยายไม่ทำให้เท้าคลาด
+  place() {
+    const x = Math.round(this.fx - this.size.w / 2);
+    const y = Math.round(this.footB - this.fb);
+    this.el.style.transform = `translate3d(${x}px,${y}px,0)`;
+  }
 
   /* ขนาดตามจอ */
   layout() {
@@ -228,13 +239,14 @@ class Pet {
     const sw = 0.62 * u, sh = 0.16 * u;
     Object.assign(this.shadow.style, { left: cw / 2 - sw / 2 + "px", top: footY - sh / 2 + "px", width: sw + "px", height: sh + "px" });
     this.footY = footY;
+    this.footB = ch - footY;           // ขอบล่างแคนวาส → เท้า
   }
 
   clampPos() {
     const { w } = this.size;
     const minX = w * 0.32 + 4, maxX = this.vw - w * 0.32 - 4;
     this.fx = clamp(this.fx, minX, maxX);
-    this.fy = clamp(this.fy, this.size.charH + 8, this.vh - 4);
+    this.fb = clamp(this.fb, 4, Math.max(4, this.vh - this.size.charH - 8));
     this.anchorX = clamp(this.anchorX, minX, maxX);
   }
 
@@ -383,8 +395,8 @@ class Pet {
     const up = (e) => {
       if (!down || e.pointerId !== down.id) return;
       const d = down; down = null;
-      if (d.dragging) this.endHold();
-      else if (e.type === "pointerup") this.react();
+      if (d.dragging) { if (this.state === "held") this.endHold(); }
+      else if (e.type === "pointerup" && !this.zoomed) this.react();
     };
     hit.addEventListener("pointerup", up);
     hit.addEventListener("pointercancel", up);
@@ -395,6 +407,7 @@ class Pet {
         e.preventDefault();
         const s = e.key === "ArrowLeft" ? -1 : 1;
         this.anchorX = clamp(this.fx + s * 90, 0, this.vw);
+        this.anchorB = this.fb;
         this.clampPos();
         this.saveAnchor();
         if (this.reduced) { this.fx = this.anchorX; return; }
@@ -409,18 +422,22 @@ class Pet {
     this.hideBtn.addEventListener("pointerdown", (e) => e.stopPropagation());
 
     let rt = 0;
-    addEventListener("resize", () => {
+    const relayout = () => {
       cancelAnimationFrame(rt);
       rt = requestAnimationFrame(() => {
+        if (this.zoomed) return;
         const ratio = this.anchorX / (this.vw || 1);
-        const fromBottom = this.vh - this.fy;
         this.layout();
         this.anchorX = ratio * this.vw;
-        this.fx = clamp(this.fx, 0, this.vw);
-        this.fy = this.vh - fromBottom;
+        // ตำแหน่งบนจออิงขอบล่างอยู่แล้ว ไม่ต้องแปลงค่าตามความสูงจอ
+        // บ้านที่ผู้ใช้ลากไว้ (anchorB) ไม่ถูกแก้ แค่บีบให้อยู่ในจอเวลาจอเตี้ยลง
+        if (this.state !== "held") this.fb = this.anchorB;
         this.clampPos();
       });
-    });
+    };
+    addEventListener("resize", () => { if (!this.checkZoom()) relayout(); });
+    const vv = window.visualViewport;
+    if (vv) vv.addEventListener("resize", () => { const was = this.zoomed; if (!this.checkZoom() && was) relayout(); });
     doc.addEventListener("visibilitychange", () => { if (!doc.hidden && this.clock) this.clock.getDelta(); });
     this.canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); this.destroy(); }, false);
   }
@@ -440,22 +457,22 @@ class Pet {
     this.play("Held", 0.15);
     this.setFace({ squeeze: 1, open: 1, blush: 0.6 });
     this.yawTarget = 0;
-    // จับที่แถว ๆ มือ/ศีรษะ
-    this.grab = { ox: this.fx - e.clientX, oy: this.fy - e.clientY };
-    this.holdX = this.fx; this.holdY = this.fy;
+    // จับที่แถว ๆ มือ/ศีรษะ (แกน y นับจากขอบล่าง)
+    this.grab = { ox: this.fx - e.clientX, ob: this.fb - (innerHeight - e.clientY) };
+    this.holdX = this.fx; this.holdB = this.fb;
     this.lastX = e.clientX;
   }
 
   moveHold(e) {
     this.holdX = e.clientX + this.grab.ox;
-    this.holdY = e.clientY + this.grab.oy;
+    this.holdB = innerHeight - e.clientY + this.grab.ob;
   }
 
   endHold() {
     this.el.classList.remove("is-held");
-    this.anchorX = this.fx;
-    this.anchorB = this.vh - this.fy;
     this.clampPos();
+    this.anchorX = this.fx;
+    this.anchorB = this.fb;
     this.saveAnchor();
     this.idle(rand(1.5, 3));
     this.setFace({ smile: 0.8, blush: 0.3 });
@@ -463,7 +480,26 @@ class Pet {
     this.faceTO = setTimeout(() => { if (this.state === "idle") this.setFace({ smile: 0.3 }); }, 1600);
   }
 
-  saveAnchor() { store.write({ ax: this.anchorX / (this.vw || 1), ab: this.vh - this.fy }); }
+  saveAnchor() {
+    if (this.zoomed) return;
+    store.write({ ax: this.anchorX / (this.vw || 1), ab: this.anchorB });
+  }
+
+  /* ซูมสองนิ้ว: จางหาย กดไม่ได้ ไม่บันทึก ไม่คำนวณตำแหน่งใหม่ ซูมกลับแล้วอยู่ที่เดิม */
+  checkZoom() {
+    const vv = window.visualViewport;
+    const z = !!(vv && vv.scale > 1.01);
+    if (z !== this.zoomed) {
+      this.zoomed = z;
+      this.el.classList.toggle("is-zoomed", z);
+      if (z && this.state === "held") {          // ซูมกลางการลาก: ยกเลิก ไม่ย้ายบ้าน
+        this.el.classList.remove("is-held");
+        this.fx = this.anchorX; this.fb = this.anchorB;
+        this.idle(2);
+      }
+    }
+    return z;
+  }
 
   hide(save) {
     if (this.hidden) return;
@@ -492,7 +528,7 @@ class Pet {
   loop() {
     this.raf = requestAnimationFrame(this.loop);
     this.acc = (this.acc || 0) + this.clock.getDelta();
-    if (this.hidden) { this.acc = 0; return; }
+    if (this.hidden || this.zoomed) { this.acc = 0; return; }
     // ยืนเฉย ๆ วาดแค่ ~30 ภาพ/วินาที ประหยัดแบต
     if (this.state === "idle" && this.blinkPhase < 0 && this.acc < 1 / 30) return;
     const dt = Math.min(0.1, this.acc);
@@ -519,7 +555,7 @@ class Pet {
     if (this.state === "held") {
       const px = this.fx;
       this.fx = damp(this.fx, this.holdX, 22, dt);
-      this.fy = damp(this.fy, this.holdY, 22, dt);
+      this.fb = damp(this.fb, this.holdB, 22, dt);
       const vx = (this.fx - px) / Math.max(dt, 1e-3);
       this.swayV += (-clamp(vx / 900, -0.6, 0.6) - this.sway) * 60 * dt;
     } else {
@@ -536,9 +572,7 @@ class Pet {
     this.updateFace(dt);
 
     // ตำแหน่งบนจอ (ใช้ปลายเท้าเป็นจุดอ้างอิง)
-    const x = Math.round(this.fx - this.size.w / 2);
-    const y = Math.round(this.fy - this.footY);
-    this.el.style.transform = `translate3d(${x}px,${y}px,0)`;
+    this.place();
     let lift = 0;
     if (this.rootBone) { this.model.updateMatrixWorld(); lift = Math.max(0, this.rootBone.getWorldPosition(this.tmpV).y - this.rootRestY); }
     const s = this.state === "held" ? 0 : clamp(1 - lift * 2.2, 0.35, 1);
