@@ -10,7 +10,7 @@
 
   /* ---------- ตั้งค่า ---------- */
   var CFG = {
-    version: "2026-10-26.10.0",
+    version: "2026-11-06.13.0",
     email: "",          // ใส่อีเมลผู้รับรายงาน เช่น "name@example.com" → มีปุ่ม "ส่งอีเมล"
     formUrl: "",        // ใส่ลิงก์ Google Form (ถ้ามี) → มีปุ่ม "เปิดแบบฟอร์ม"
     line: true,         // ปุ่ม "ส่งทาง LINE" (เปิดหน้าแชร์ของ LINE ให้เลือกแชตเอง) — ใช้เมื่อไม่ได้ใส่ lineAdmin
@@ -69,6 +69,27 @@
     if (s.failed) return "ภาพนิ่ง (WebGL ใช้ไม่ได้)";
     return (s.still ? "ภาพนิ่ง" : "เคลื่อนไหว") + " · ระดับ " + s.quality + " · เฟรมเฉลี่ย " + s.avgMs + " ms";
   }
+  // v12: โมเดล 3D ของ lvc-objects.js (ตู้โชว์ / วงหมุน / หมุด / เอกสาร)
+  function objectsState() {
+    var O = window.__LVC_OBJECTS, out = [];
+    if (!O) return document.querySelector("script[src*='lvc-objects']") ? "ไม่แสดง (ไม่มี WebGL หรือโหลดไม่ได้)" : "-";
+    try {
+      O.places.forEach(function (p) {
+        var n = String(p.el.className).split(" ")[0].replace("lvc-", "");
+        out.push(n + ":" + (p.failed ? "ใช้ไม่ได้" : !p.built ? "ยังไม่สร้าง" : p.static ? "นิ่ง" : p.running ? "เคลื่อนไหว" : "พัก") + (p.built ? " q" + p.quality : ""));
+      });
+    } catch (e) {}
+    return out.join(" · ") || "-";
+  }
+  // v13: ฉากหนังช่วงที่สองของหน้าแรก (lvc-journey.js)
+  function journeyState() {
+    var sec = document.querySelector(".lvc-jr"), J = window.__LVC_JOURNEY;
+    if (!sec) return "-";
+    if (sec.classList.contains("is-static")) return "เรียงนิ่ง (Reduced Motion)";
+    if (sec.classList.contains("no-gl")) return "ภาพนิ่ง (ไม่มี WebGL)";
+    if (!J) return "-";
+    return (J.built ? "3D" : J.failed ? "3D ใช้ไม่ได้" : "ยังไม่สร้าง") + " · ระดับ " + J.quality + " · ตำแหน่ง " + Math.round((J.p || 0) * 100) + "%";
+  }
   function deviceGuess() {
     var ua = navigator.userAgent;
     var m = ua.match(/iPhone|iPad|Android [\d.]+|Windows NT [\d.]+|Mac OS X [\d_]+|CrOS|Linux/);
@@ -93,6 +114,8 @@
       ["ประติมากรรม", webglState()],
       ["ฉากเข้าเว็บ", introState()],
       ["พื้นหลังภาพวิทยาลัย", backdropState()],
+      ["โมเดล 3D (v12)", objectsState()],
+      ["ฉากหนังหน้าแรก (v13)", journeyState()],
       ["เครือข่าย", conn || "-"],
       ["เวลา", new Date().toLocaleString("th-TH")]
     ];
