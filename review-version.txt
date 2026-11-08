@@ -1,1 +1,1 @@
-LVC v10 — 2026-10-26.10.0 (campus watercolour entry scene replaces the spinning-logo loader, living campus backdrop behind the hero, LVC dial line/dot fix, latest-news ticker and other home-page motion from lvc.ac.th data, new OG image)
+LVC v13 — 2026-11-06.13.0 (home: cinematic scroll journey replaces the LVC showcase — campus photo camera-projection fly-through at dusk, program objects with callouts, ivory LVC sculpture beat, dark room pedestal, giant layered Thai finale; v12 3D models, program colours and aurora kept)

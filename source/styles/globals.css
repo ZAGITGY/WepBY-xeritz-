@@ -1,0 +1,40 @@
+/* Tailwind v4 without Preflight: the retained LVC website owns its base styles. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@source "../components";
+@source "../src";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@theme inline {
+  --color-background: var(--paper, #faf9f6);
+  --color-foreground: var(--ink, #241f20);
+  --color-muted-foreground: var(--muted, #686d72);
+  --color-primary: var(--red, #a61d2d);
+  --color-primary-foreground: #fffaf6;
+  --color-border: var(--line, #e3dccd);
+  --color-ring: var(--red, #a61d2d);
+}
+
+.has-document-folders .public-layout { display: block; }
+.has-document-folders .public-layout > div:first-child { max-width: 720px; }
+.has-document-folders .public-layout h2 { font-size: clamp(32px,4vw,48px); }
+.has-document-folders .public-layout > div:first-child p { max-width: 600px; font-size: 15px; }
+.has-document-folders .public-links { display: none; }
+.lvc-documents { padding-top: 30px; }
+.lvc-documents p { max-width: none; }
+.document-instruction { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; color: var(--muted); font-size: 13px; margin: 0 !important; }
+.document-instruction span { display: inline-flex; align-items: center; gap: 8px; }
+.document-folders-grid { display: grid; grid-template-columns: 1fr; gap: 34px 38px; align-items: start; margin-top: 32px; }
+.document-folder-column { min-width: 0; padding: 24px 16px 10px; }
+.document-folder-object { display: flex; justify-content: center; }
+.document-folder-caption { display: flex; gap: 10px; justify-content: center; align-items: center; font-size: 13px !important; line-height: 1.8; color: var(--muted); margin-top: 20px !important; text-align: center; }
+.document-folder-caption svg { flex-shrink: 0; color: var(--gold); }
+.document-library-note { display: flex; align-items: flex-start; gap: 12px; border-top: 1px solid var(--line); margin-top: 32px; padding-top: 24px; }
+.document-library-note p { margin: 0; color: var(--muted); font-size: 13px; }
+.document-library-note svg { flex-shrink: 0; color: var(--red); margin-top: 4px; }
+.document-library-note a { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+.lvc-documents .gf-root { font-family: Kanit, sans-serif; }
+@media (min-width:700px) { .document-folders-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (min-width:1180px) { .document-folders-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media (max-width:600px) { .document-folder-column { padding-inline: 10px; } .lvc-documents { padding-top: 24px; } }
+@media print { .lvc-documents .gf-stage { display: none; } .lvc-documents .gf-root { width: 100% !important; height: auto !important; } }
