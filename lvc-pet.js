@@ -84,6 +84,15 @@ const sampleTrack = (arr, t, def) => {
   return arr[arr.length - 1].v;
 };
 
+/* ---------- ตัดข้อความไทยเป็นกลุ่มอักษร (สระ/วรรณยุกต์ไม่แตก) ---------- */
+const SEG = (() => { try { return new Intl.Segmenter("th", { granularity: "grapheme" }); } catch (e) { return null; } })();
+const graphemes = (t) => SEG ? Array.from(SEG.segment(t), (x) => x.segment) : (t.match(/\P{M}\p{M}*/gu) || []);
+
+/* ---------- ของสำคัญที่ห้ามยืนทับ (เพิ่มเองได้ด้วย data-pet-avoid · ยกเว้นด้วย data-pet-avoid="off") ---------- */
+const AVOID = '[data-pet-avoid]:not([data-pet-avoid="off"]),h1,h2,h3,h4,p,li,a,button,input,select,textarea,label,canvas,' +
+  '[role="button"],.site-header,.lvc-jr__tags a';
+const SELF = ".lvc-pet,.lvc-pet-bubble,.lvc-pet-show";
+
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const damp = (cur, target, rate, dt) => cur + (target - cur) * (1 - Math.exp(-rate * dt));
@@ -91,7 +100,7 @@ const damp = (cur, target, rate, dt) => cur + (target - cur) * (1 - Math.exp(-ra
 /* ---------- CSS ---------- */
 const CSS = `
 .lvc-pet{position:fixed;left:0;bottom:0;z-index:41;pointer-events:none;opacity:0;visibility:hidden;contain:layout style;will-change:transform}
-.lvc-pet.is-zoomed{opacity:0!important;visibility:hidden;transition:opacity .2s ease,visibility 0s .2s}
+.lvc-pet.is-zoomed{opacity:0!important;visibility:hidden!important;transition:opacity .2s ease,visibility 0s .2s}
 .lvc-pet.is-zoomed *{visibility:hidden!important;pointer-events:none!important}
 .lvc-pet.is-ready{opacity:1;visibility:visible}
 .lvc-pet.is-gone{opacity:0;transition:opacity .25s ease}
@@ -124,6 +133,20 @@ const CSS = `
 .lvc-pet-show:focus-visible{outline:3px solid var(--gold,#c9a227);outline-offset:2px}
 :root[data-theme="dark"] .lvc-pet-show{background:rgba(40,34,38,.92);color:#ff8fb7}
 .lvc-pet-show svg{width:20px;height:20px}
+.lvc-pet-bubble{position:fixed;left:0;bottom:0;z-index:41;box-sizing:border-box;max-width:min(260px,calc(100vw - 24px));
+  padding:8px 13px 9px;border-radius:14px;font:500 14px/1.45 var(--f-text,system-ui,sans-serif);color:var(--ink,#241f20);
+  background:var(--surface-raised,#fffdf8);border:1px solid var(--line,#dfd9d2);box-shadow:0 10px 26px -14px rgba(36,25,28,.5);
+  pointer-events:auto;cursor:pointer;opacity:0;visibility:hidden;transition:opacity .16s ease,visibility 0s .16s;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;white-space:pre-wrap;word-break:break-word}
+.lvc-pet-bubble.is-on{opacity:1;visibility:visible;transition:opacity .16s ease}
+.lvc-pet-bubble::before{content:"";position:absolute;left:14px;right:14px;top:-1px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--gold,#cbb27d),transparent);opacity:.75}
+.lvc-pet-bubble i{position:absolute;width:11px;height:11px;background:inherit;border:inherit;border-radius:0 0 3px 0;pointer-events:none}
+.lvc-pet-bubble[data-side="up"] i{left:var(--tail,50%);bottom:-6px;margin-left:-6px;border-top:0;border-left:0;transform:rotate(45deg)}
+.lvc-pet-bubble[data-side="r"] i{left:-6px;top:var(--tail,50%);margin-top:-6px;border-top:0;border-right:0;transform:rotate(45deg)}
+.lvc-pet-bubble[data-side="l"] i{right:-6px;top:var(--tail,50%);margin-top:-6px;border-bottom:0;border-left:0;transform:rotate(45deg)}
+.lvc-pet-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media print{.lvc-pet-bubble{display:none!important}}
 @media print{.lvc-pet,.lvc-pet-show{display:none!important}}
 `;
 
@@ -148,6 +171,100 @@ const ensureShowButton = () => {
   doc.body.appendChild(showBtn);
   return showBtn;
 };
+
+/* ---------- กล่องคำพูด (DOM เหนือหัว ตามตัวไป อยู่ในจอเสมอ) ---------- */
+const PRI = { idle: 1, event: 2, tap: 3 };
+class Bubble {
+  constructor(p) {
+    this.p = p;
+    const el = (this.el = doc.createElement("div"));
+    el.className = "lvc-pet-bubble";
+    el.dataset.side = "up";
+    el.innerHTML = "<span></span><i></i>";
+    el.setAttribute("aria-hidden", "true");           // ข้อความพูดเล่นไม่ต้องอ่าน คำตอบตอนแตะไปที่ live region
+    this.txt = el.firstChild;
+    this.sr = doc.createElement("div");
+    this.sr.className = "lvc-pet-sr";
+    this.sr.setAttribute("aria-live", "polite");
+    doc.body.append(el, this.sr);
+    this.cur = null;
+    el.addEventListener("click", (e) => { e.stopPropagation(); this.tap(); });
+    el.addEventListener("pointerdown", (e) => e.stopPropagation());
+  }
+  get busy() { return !!this.cur; }
+  // คืน true ถ้าได้พูด
+  show(text, kind = "idle", opts = {}) {
+    if (this.cur && PRI[kind] < PRI[this.cur.kind]) return false;
+    const g = graphemes(text);
+    this.cur = { text, kind, g, n: 0, t: 0, hold: opts.hold || clamp(2.5 + g.length * 0.11, 2.5, 8), typing: true, onClose: opts.onClose };
+    // วัดขนาดจากข้อความเต็มก่อน กล่องจะไม่ขยายระหว่างพิมพ์
+    const el = this.el;
+    el.style.width = el.style.height = "";
+    this.txt.textContent = text;
+    el.style.visibility = "hidden"; el.classList.add("is-on");
+    const w = el.offsetWidth, h = el.offsetHeight;
+    el.style.width = w + "px"; el.style.height = h + "px";
+    el.style.visibility = "";
+    this.w = w; this.h = h;
+    this.txt.textContent = "";
+    if (opts.live) { this.sr.textContent = ""; setTimeout(() => { this.sr.textContent = text; }, 60); }
+    this.place();
+    return true;
+  }
+  tap() {
+    const c = this.cur;
+    if (!c) return;
+    if (c.typing) { c.n = c.g.length; this.txt.textContent = c.text; c.typing = false; c.t = 0; c.hold = Math.min(c.hold, 2.2); }
+    else this.close(true);
+  }
+  close(byUser) {
+    const c = this.cur;
+    if (!c) return;
+    this.cur = null;
+    this.el.classList.remove("is-on");
+    if (c.onClose) c.onClose(byUser);
+    if (this.p.onBubbleClosed) this.p.onBubbleClosed(c, byUser);
+  }
+  update(dt) {
+    const c = this.cur;
+    if (!c) return false;
+    if (c.typing) {
+      c.t += dt;
+      const step = 0.045;
+      let changed = false;
+      while (c.t >= step && c.n < c.g.length) { c.t -= step; c.n++; changed = true; }
+      if (changed) this.txt.textContent = c.g.slice(0, c.n).join("");
+      if (c.n >= c.g.length) { c.typing = false; c.t = 0; }
+    } else {
+      c.t += dt;
+      if (c.t >= c.hold) { this.close(false); return false; }
+    }
+    this.place();
+    return c.typing;
+  }
+  // ตำแหน่ง: เหนือหัว · ชิดขอบแล้วหางยังชี้ที่หัว · ไม่มีที่ด้านบน (แถบเมนู) → ไปด้านข้าง
+  place() {
+    const p = this.p, h = p.size.charH, el = this.el;
+    const vw = p.vw, vh = innerHeight;
+    const k = 1 - 0.25 * p.dim;
+    const hx = p.fx + p.mo.dx * h;
+    const headTop = p.fb + (p.mo.db + p.base.db) * h + h * 0.98 * p.mo.sy * k;   // ระยะจากขอบล่างถึงกลางหัวด้านบน
+    const minTop = p.headerBottom + 8;
+    let side = "up", x = hx - this.w / 2, b = headTop + 12;
+    if (vh - b - this.h < minTop) {                                         // ด้านบนไม่พอ → ด้านข้าง
+      side = hx < vw / 2 ? "r" : "l";
+      x = side === "r" ? hx + 0.34 * h : hx - 0.34 * h - this.w;
+      b = headTop - 0.2 * h - this.h / 2;
+      b = clamp(b, 8, vh - minTop - this.h);
+    }
+    x = clamp(x, 8, Math.max(8, vw - this.w - 8));
+    b = Math.max(b, 8);                                                     // ตัวมุดลงใต้ขอบ: กล่องยังอยู่ในจอ
+    el.dataset.side = side;
+    if (side === "up") el.style.setProperty("--tail", clamp(hx - x, 14, this.w - 14).toFixed(1) + "px");
+    else el.style.setProperty("--tail", clamp(vh - (headTop - 0.2 * h) - (vh - b - this.h), 12, this.h - 12).toFixed(1) + "px");
+    el.style.transform = `translate3d(${Math.round(x)}px,${-Math.round(b)}px,0)`;
+  }
+}
 
 /* ---------- ตัวการ์ตูน ---------- */
 let pet = null;
@@ -248,6 +365,23 @@ class Pet {
     this.clampPos();
     this.mo = Object.assign({}, MO_DEF);   // ค่าเลื่อน/หมุน/ย่อของชั้นท่าใหญ่ (หน่วยความสูงตัว)
     this.motion = null;
+    this.base = { db: 0 };                 // ค่าค้าง (เช่นมุดลงเหลือแค่หัวในโหมดผู้ชม)
+    this.dim = 0; this.dimT = 0;           // ไม่มีที่ว่าง → ย่อ 75% และจาง
+    this.headerBottom = 0;
+    /* หลบของสำคัญ */
+    this.overT = 0; this.lastMove = 0; this.lastScroll = 0; this.lastSearch = 0; this.tickAcc = 0;
+    /* หันหัวมองตาม: หมุนกระดูกหลัง mixer.update() ทุกเฟรม (ไม่บวกสะสม) */
+    this.model.traverse((o) => {
+      if (!o.isBone) return;
+      if (/^头骨/.test(o.name)) this.headBone = o;
+      else if (/^颈椎.?002/.test(o.name)) this.neckBone = o;
+    });
+    this.lookBones = [this.neckBone, this.headBone].filter(Boolean);
+    this.lookRest = this.lookBones.map((b) => b.quaternion.clone());
+    this.look = { yaw: 0, pitch: 0, ty: 0, tp: 0, target: null };
+    this.q = { p: new THREE.Quaternion(), m: new THREE.Quaternion(), mi: new THREE.Quaternion(), d: new THREE.Quaternion(), w: new THREE.Quaternion(), e: new THREE.Euler() };
+    this.bubble = new Bubble(this);
+    this.talkT = 0;
     this.place();
     this.play("Idle", 0);
 
@@ -266,11 +400,224 @@ class Pet {
 
   defaultBottom() { return 10; }
 
+  /* ---------- พูด ---------- */
+  say(text, kind = "event", opts = {}) {
+    if (!text || this.hidden || this.exited || this.zoomed) return false;
+    return this.bubble.show(text, kind, opts);
+  }
+
+  /* ---------- หันหัวมองจุดบนจอ (x, y จากขอบบน) ---------- */
+  lookAt(x, y) { this.look.target = x == null ? null : { x, y }; }
+
+  updateLook(dt) {
+    const L = this.look, h = this.size.charH;
+    if (L.target) {
+      const hx = this.fx + this.mo.dx * h;
+      const hy = innerHeight - (this.fb + (this.mo.db + this.base.db) * h + 0.82 * h);
+      const D = Math.max(260, h * 2.6);
+      L.ty = clamp(Math.atan2(L.target.x - hx, D) - this.yaw, -0.85, 0.85);
+      L.tp = clamp(Math.atan2(L.target.y - hy, D), -0.32, 0.42);
+    } else { L.ty = 0; L.tp = 0; }
+    L.yaw = damp(L.yaw, L.ty, 6, dt);
+    L.pitch = damp(L.pitch, L.tp, 6, dt);
+  }
+
+  resetLookBones() { this.lookBones.forEach((b, i) => b.quaternion.copy(this.lookRest[i])); }
+
+  applyLook() {
+    const L = this.look;
+    if (!this.lookBones.length || (Math.abs(L.yaw) < 1e-3 && Math.abs(L.pitch) < 1e-3)) return;
+    const q = this.q;
+    this.model.getWorldQuaternion(q.m);
+    q.mi.copy(q.m).invert();
+    const share = this.lookBones.length > 1 ? [0.35, 0.65] : [1];
+    this.lookBones.forEach((bone, i) => {
+      const k = share[i];
+      q.d.setFromEuler(q.e.set(L.pitch * k, L.yaw * k, 0, "YXZ"));      // ในพื้นที่ของตัวละคร
+      q.w.copy(q.m).multiply(q.d).multiply(q.mi);                          // → พื้นที่โลก
+      bone.parent.getWorldQuaternion(q.p);
+      q.d.copy(q.p).invert().multiply(q.w).multiply(q.p);                  // → พื้นที่ของพ่อกระดูก
+      bone.quaternion.premultiply(q.d);
+    });
+  }
+
+  /* ---------- หลบของสำคัญ ---------- */
+  bodyRect(x, b, part = 1) {
+    const u = this.size.ppu, vh = innerHeight;
+    const hw = 0.3 * u, hh = 1.86 * u * part;
+    return { l: x - hw, r: x + hw, t: vh - b - hh, b: vh - b };
+  }
+
+  // ใต้ตัว (สุ่ม 3×3 จุด) มีของสำคัญไหม · ยิงทีละจุดด้วย elementsFromPoint ไม่ไล่ทั้งหน้า
+  blocked(rect) {
+    let n = 0;
+    for (const fx of [0.2, 0.5, 0.8]) for (const fy of [0.15, 0.5, 0.85]) {
+      const x = rect.l + (rect.r - rect.l) * fx, y = rect.t + (rect.b - rect.t) * fy;
+      if (x < 0 || y < 0 || x > this.vw || y > innerHeight) continue;
+      const list = doc.elementsFromPoint(x, y);
+      for (const e of list) {
+        if (e.closest(SELF)) continue;
+        if (e === root || e === doc.body) break;
+        if (e.closest(AVOID) && !e.closest('[data-pet-avoid="off"]')) n++;
+        break;
+      }
+    }
+    return n;
+  }
+
+  findFree() {
+    const b0 = this.defaultBottom(), w = this.size.w;
+    const minX = w * 0.32 + 4, maxX = this.vw - w * 0.32 - 4;
+    for (let d = 0; d < this.vw; d += 30) {
+      for (const s of d ? [1, -1] : [1]) {
+        const x = this.fx + s * d;
+        if (x < minX || x > maxX) continue;
+        if (!this.blocked(this.bodyRect(x, b0))) return { x, b: b0 };
+      }
+    }
+    return null;
+  }
+
+  displaced() { return Math.abs(this.fx - this.anchorX) > 6 || Math.abs(this.fb - this.anchorB) > 3; }
+
+  moveTo(x, b) {
+    this.lastMove = performance.now();
+    if (Math.abs(b - this.fb) < 3 && Math.abs(x - this.fx) < 200 && !this.reduced) {
+      this.targetX = x; this.dir = x > this.fx ? 1 : -1;
+      this.yawTarget = this.dir * WALK_YAW;
+      this.setState("walk", 20);
+      this.play("Walk", 0.25, WALK_TS);
+      return;
+    }
+    this.jumpTo(x, b);
+  }
+
+  // กระโดดข้ามไปที่ใหม่ (ทำที่ชั้น DOM)
+  jumpTo(x, b, dur = 0.75) {
+    const h = this.size.charH;
+    const dx0 = (this.fx - x) / h, db0 = (this.fb - b) / h;
+    this.fx = x; this.fb = b;
+    this.cancelMotion();
+    this.setState("act", dur + 1);
+    this.dir = dx0 < 0 ? 1 : -1;
+    this.yawTarget = this.dir * 0.6;
+    if (this.reduced) {
+      this.runMotion([{ t: 0, op: 0 }, { t: 0.3, op: 1, e: "lin" }], 0.3, () => this.idle(2));
+      return;
+    }
+    this.play("Held", 0.1);
+    this.setFace({ smile: 0.8, open: 0.4 });
+    const peak = Math.max(db0, 0) + 0.45;
+    this.runMotion([
+      { t: 0, dx: dx0, db: db0, sx: 1, sy: 1 },
+      { t: dur * 0.12, sx: 1.08, sy: 0.9 },
+      { t: dur * 0.3, sx: 0.96, sy: 1.05 },
+      { t: dur * 0.48, dx: dx0 * 0.45, db: (db0 + peak) / 2 + 0.12, e: "out" },
+      { t: dur * 0.82, dx: 0, db: 0, e: "in", do: () => { this.play("Idle", 0.1); } },
+      { t: dur * 0.82, sx: 1, sy: 1 },
+      { t: dur * 0.9, sx: 1.1, sy: 0.88 },
+      { t: dur, sx: 1, sy: 1 },
+    ], dur, () => this.idle(rand(2, 4)));
+  }
+
+  avoidTick(now) {
+    if (this.state !== "idle" || this.spectating) { this.overT = 0; return; }
+    const hit = this.blocked(this.bodyRect(this.fx, this.fb));
+    this.overT = hit ? this.overT + 0.25 : 0;
+    if (!hit && this.dimT) this.dimT = 0;
+    if (this.overT >= 0.4 && now - this.lastMove > 1500 && now - this.lastSearch > 1200) {
+      this.lastSearch = now;
+      const spot = this.findFree();
+      if (spot) { this.dimT = 0; this.overT = 0; this.moveTo(spot.x, spot.b); }
+      else this.dimT = 1;
+      return;
+    }
+    // บ้านว่างแล้ว และผู้ใช้หยุดเลื่อน ~1 วิ → กลับบ้าน
+    if (!hit && this.displaced() && now - this.lastScroll > 1000 && now - this.lastMove > 1800 &&
+        !this.blocked(this.bodyRect(this.anchorX, this.anchorB))) this.moveTo(this.anchorX, this.anchorB);
+  }
+
+  /* ---------- โหมดผู้ชม (ฉาก lvc-journey ตอนตรึงจอ) ---------- */
+  journey() { const J = window.__LVC_JOURNEY; return J && J.trigger && J.trigger.isActive ? J : null; }
+
+  spectateTick() {
+    const J = this.journey();
+    const free = this.state === "idle" || this.state === "walk" || this.state === "spectate" || this.state === "peek";
+    if (J && !this.spectating && free && !this.reduced) this.startSpectate();
+    else if (!J && this.spectating) this.endSpectate();
+    if (!this.spectating || !J) return;
+    // มองตามโมเดล: กลางของโมเดลที่อยู่หน้ากล้อง (ไม่มี → กลางฉาก)
+    let x = this.vw * 0.5, y = innerHeight * 0.42;
+    if (J.items && J.camera && J.T) {
+      const v = this.tmpJ || (this.tmpJ = new J.T.Vector3());
+      let sx = 0, sy = 0, n = 0;
+      for (const it of J.items) {
+        it.getWorldPosition(v); v.project(J.camera);
+        if (v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1) { sx += (v.x * 0.5 + 0.5) * J.W; sy += (-v.y * 0.5 + 0.5) * J.H; n++; }
+      }
+      if (n && J.p > 0.34 && J.p < 0.54) { x = sx / n; y = sy / n; }
+    }
+    this.lookAt(x, y);
+    if (!this.wowSaid && J.p > 0.95) { this.wowSaid = true; this.say("ว้าว!", "event"); }
+  }
+
+  startSpectate() {
+    this.spectating = true;
+    this.wowSaid = false;
+    this.preSpectate = { x: this.fx, b: this.fb };
+    this.dimT = 0;
+    this.say("ขอดูด้วยคนนะ", "event");
+    // มุมล่างที่ว่างที่สุด
+    const w = this.size.w, b0 = this.defaultBottom();
+    const corners = [w * 0.32 + 4, this.vw - w * 0.32 - 4].map((x) => ({ x, n: this.blocked(this.bodyRect(x, b0, 0.45)) }));
+    const corner = corners[0].n <= corners[1].n ? corners[0] : corners[1];
+    this.cancelMotion();
+    this.setState("spectate", 1e9);
+    this.yawTarget = 0;
+    this.play("Idle", 0.3);
+    this.setFace({ smile: 0.5, browsUp: 0.4 });
+    this.runMotion([
+      { t: 0, db: 0 },
+      { t: 0.9, db: 0 },
+      { t: 1.25, db: -1.3, e: "in", do: () => { this.fx = corner.x; this.fb = b0; } },
+      { t: 1.3, db: -1.3 },
+      { t: 1.7, db: -0.62, e: "out" },
+    ], 1.7, () => { this.base.db = -0.62; Object.assign(this.mo, MO_DEF); });
+  }
+
+  endSpectate() {
+    this.spectating = false;
+    this.lookAt(null);
+    const back = this.preSpectate || { x: this.anchorX, b: this.anchorB };
+    this.cancelMotion();
+    this.setState("act", 3);
+    this.runMotion([{ t: 0, db: 0 }, { t: 0.25, db: -0.7, e: "in" }], 0.25, () => {
+      this.base.db = 0;
+      this.fx = back.x; this.fb = back.b;
+      this.clampPos();
+      this.enter("return");
+    });
+  }
+
+  // แตะตอนเป็นผู้ชม: โผล่ขึ้นมาแป๊บเดียวแล้วมุดกลับ
+  spectatePeek() {
+    if (this.state === "peek") return;
+    if (this.base.db > -0.1) { this.say("ชู่ว์ ดูอยู่~", "tap", { live: true }); return; }   // ยังมุดไม่เสร็จ
+    this.setState("peek", 3);
+    this.setFace({ happyEyes: 1, smile: 1 });
+    this.say("ชู่ว์ ดูอยู่~", "tap", { live: true });
+    this.runMotion([
+      { t: 0, db: 0 }, { t: 0.25, db: 0.62, e: "out" }, { t: 1.25, db: 0.62 }, { t: 1.55, db: 0, e: "in" },
+    ], 1.55, () => { this.setState("spectate", 1e9); this.setFace({ smile: 0.5 }); });
+  }
+
+  onBubbleClosed() {}
+
   // .lvc-pet ติดขอบล่างด้วย CSS (bottom:0) แล้วเลื่อนขึ้นตามระยะเท้า → แถบเบราว์เซอร์ยุบ/ขยายไม่ทำให้เท้าคลาด
   place() {
     const h = this.size.charH, mo = this.mo || MO_DEF;
     const x = Math.round(this.fx + mo.dx * h - this.size.w / 2);
-    const y = Math.round(this.footB - (this.fb + mo.db * h));
+    const y = Math.round(this.footB - (this.fb + (mo.db + this.base.db) * h));
     this.el.style.transform = `translate3d(${x}px,${y}px,0)`;
   }
 
@@ -303,10 +650,11 @@ class Pet {
   }
 
   applyMo() {
-    const m = this.mo;
-    const tf = m.rot || m.sx !== 1 || m.sy !== 1 ? `rotate(${m.rot.toFixed(2)}deg) scale(${m.sx.toFixed(3)},${m.sy.toFixed(3)})` : "";
+    const m = this.mo, k = 1 - 0.25 * this.dim, sx = m.sx * k, sy = m.sy * k;
+    const tf = m.rot || sx !== 1 || sy !== 1 ? `rotate(${m.rot.toFixed(2)}deg) scale(${sx.toFixed(3)},${sy.toFixed(3)})` : "";
     if (tf !== this._fxTf) { this.fxEl.style.transform = tf; this._fxTf = tf; }
-    const op = m.op >= 0.999 ? "" : m.op.toFixed(3);
+    const o = m.op * (1 - 0.5 * this.dim);
+    const op = o >= 0.999 ? "" : o.toFixed(3);
     if (op !== this._fxOp) { this.fxEl.style.opacity = op; this._fxOp = op; }
   }
 
@@ -315,6 +663,7 @@ class Pet {
     this.exited = false;
     this.waitingEnter = false;
     this.cancelMotion();
+    this.base.db = 0;
     this.el.style.visibility = "";
     this.el.classList.remove("is-gone");
     this.el.classList.add("is-ready");
@@ -356,6 +705,9 @@ class Pet {
 
   leave() {
     if (this.hidden || this.exited) return;
+    this.bubble.close(false);
+    if (this.spectating) { this.spectating = false; this.lookAt(null); }
+    this.base.db = 0;
     saveTxState(this);
     this.el.classList.remove("is-held", "show-ui");
     this.cancelMotion();
@@ -446,6 +798,7 @@ class Pet {
     }
     for (const k in this.face) this.face[k] = damp(this.face[k], this.faceTarget[k], 14, dt);
     const vals = Object.assign({}, this.face, { blink: Math.max(this.face.blink, eyesBusy ? 0 : blink) });
+    if (this.talking) { this.talkT += dt; vals.open = Math.max(vals.open, 0.18 + 0.42 * Math.abs(Math.sin(this.talkT * 15))); }
     for (const m of this.morphs) {
       const dict = m.morphTargetDictionary, inf = m.morphTargetInfluences;
       for (const k in dict) inf[dict[k]] = vals[k] || 0;
@@ -459,11 +812,12 @@ class Pet {
     if (this.reduced) { this.setState("idle", 4); this.yawTarget = 0; return; }
     const r = Math.random();
     if (this.state === "idle" && r < 0.14) { this.hop(); return; }
+    if (this.displaced() || this.dimT) { this.setState("idle", rand(3, 6)); return; }   // หลบอยู่: ไม่เดินเล่น
     const [a, b] = this.roamRange();
     if (b - a < 40) { this.setState("idle", rand(3, 6)); return; }
     let tx = rand(a, b), tries = 0;
-    while (Math.abs(tx - this.fx) < 45 && tries++ < 6) tx = rand(a, b);
-    if (Math.abs(tx - this.fx) < 30) { this.setState("idle", rand(2, 4)); return; }
+    while ((Math.abs(tx - this.fx) < 45 || this.blocked(this.bodyRect(tx, this.fb))) && tries++ < 6) tx = rand(a, b);
+    if (Math.abs(tx - this.fx) < 30 || this.blocked(this.bodyRect(tx, this.fb))) { this.setState("idle", rand(2, 4)); return; }
     this.targetX = tx;
     this.dir = tx > this.fx ? 1 : -1;
     this.yawTarget = this.dir * WALK_YAW;
@@ -488,6 +842,7 @@ class Pet {
 
   react() {
     if (this.state === "held" || this.exited) return;
+    if (this.spectating) { this.spectatePeek(); return; }
     this.cancelMotion();
     this.showUi();
     if (this.reduced) {
@@ -568,8 +923,7 @@ class Pet {
       else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         e.preventDefault();
         const s = e.key === "ArrowLeft" ? -1 : 1;
-        this.anchorX = clamp(this.fx + s * 90, 0, this.vw);
-        this.anchorB = this.fb;
+        this.anchorX = clamp(this.fx + s * 90, 0, this.vw);   // ย้ายบ้านแค่แกน x (ความสูงบ้านที่ผู้ใช้ลากไว้คงเดิม)
         this.clampPos();
         this.saveAnchor();
         if (this.reduced) { this.fx = this.anchorX; return; }
@@ -601,6 +955,7 @@ class Pet {
     const vv = window.visualViewport;
     if (vv) vv.addEventListener("resize", () => { const was = this.zoomed; if (!this.checkZoom() && was) relayout(); });
     doc.addEventListener("visibilitychange", () => { if (!doc.hidden && this.clock) this.clock.getDelta(); });
+    addEventListener("scroll", () => { this.lastScroll = performance.now(); }, { passive: true });
     this.canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); this.destroy(); }, false);
   }
 
@@ -609,6 +964,7 @@ class Pet {
     this.raf = 0;
     this.loop = () => {};
     this.el.remove();
+    this.bubble.el.remove(); this.bubble.sr.remove();
     try { this.renderer.dispose(); } catch (e) {}
     if (pet === this) { pet = null; window.__LVC_PET = null; }
   }
@@ -616,6 +972,9 @@ class Pet {
   startHold(e) {
     if (this.exited) return;
     this.cancelMotion();
+    if (this.spectating) { this.spectating = false; this.lookAt(null); this.fb += this.base.db * this.size.charH; }
+    this.base.db = 0;
+    this.dimT = 0;
     this.setState("held", 0);
     this.el.classList.add("is-held");
     this.play("Held", 0.15);
@@ -691,6 +1050,7 @@ class Pet {
   hide(save) {
     if (this.hidden) return;
     this.hidden = true;
+    this.bubble.close(false);
     if (save) store.write({ hidden: true });
     this.el.classList.add("is-gone");
     const btn = ensureShowButton();
@@ -714,7 +1074,8 @@ class Pet {
     this.acc = (this.acc || 0) + this.clock.getDelta();
     if (this.hidden || this.zoomed || (this.exited && !this.motion)) { this.acc = 0; return; }
     // ยืนเฉย ๆ วาดแค่ ~30 ภาพ/วินาที ประหยัดแบต
-    if (this.state === "idle" && !this.motion && this.blinkPhase < 0 && this.acc < 1 / 30) return;
+    const calm = (this.state === "idle" || this.state === "spectate") && !this.motion && this.blinkPhase < 0 && !this.talking && this.dim === this.dimT;
+    if (calm && this.acc < 1 / 30) return;
     const raw = this.acc;
     const dt = Math.min(0.1, raw);
     this.acc = 0;
@@ -727,7 +1088,20 @@ class Pet {
       if (this.state === "act" && this.stateT <= 0 && !this.exited) { this.cancelMotion(); this.idle(); }
     }
     this.updateMotion(Math.min(0.25, raw));   // ท่าเข้า/ออกยึดเวลาจริง จบตรงเวลาแม้เครื่องช้า
+    // ตรวจทุก ~250 ms (ไม่ใช่ทุกเฟรม): โหมดผู้ชม · หลบของสำคัญ · ตำแหน่งแถบเมนู
+    this.tickAcc += raw;
+    if (this.tickAcc >= 0.25 && !this.exited) {
+      this.tickAcc = 0;
+      const now = performance.now();
+      const hdr = doc.querySelector(".site-header");
+      this.headerBottom = hdr ? Math.max(0, hdr.getBoundingClientRect().bottom) : 0;
+      this.spectateTick();
+      this.avoidTick(now);
+    }
+    this.dim = damp(this.dim, this.dimT, 5, dt);
+    if (Math.abs(this.dim - this.dimT) < 0.002) this.dim = this.dimT;
     this.applyMo();
+    this.talking = this.bubble.update(raw);
 
     // เดิน
     if (this.state === "walk") {
@@ -757,7 +1131,10 @@ class Pet {
     this.yaw = damp(this.yaw, this.yawTarget, 9, dt);
     this.model.rotation.y = this.yaw;
 
+    this.updateLook(dt);
+    this.resetLookBones();
     this.mixer.update(dt);
+    this.applyLook();
     this.updateFace(dt);
 
     // ตำแหน่งบนจอ (ใช้ปลายเท้าเป็นจุดอ้างอิง)
