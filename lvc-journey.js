@@ -387,6 +387,7 @@ class Journey {
     this.frames = 0; this.frameSum = 0; this.lastActive = -1;
     this.mouse = { x: 0, y: 0, tx: 0, ty: 0 };
     this.prevCam = null;
+    this.setupHeader();
     this.pin();
     this.applyDom(0);
     this.near = new IntersectionObserver((e) => { this.visible = e[e.length - 1].isIntersecting; if (this.visible) this.build(); this.loop(); }, { rootMargin: "120% 0px" });
@@ -411,11 +412,51 @@ class Journey {
 
   length() { return innerHeight * (innerWidth < 761 ? 6.2 : 7.2); }
 
+  /* v13.1 (A4): ฉากตรึงเต็มจอเริ่มที่ขอบบน แต่แถบเมนู (sticky, z 40) ทับอยู่
+   * ระหว่างตรึงฉาก: เลื่อนลง → แถบหลบขึ้น · เลื่อนขึ้น / ออกจากฉาก / โฟกัสเข้าเมนู → กลับมา (~0.35 วิ) */
+  setupHeader() {
+    const hdr = document.querySelector(".site-header");
+    this.hdr = hdr;
+    this.hdrHidden = false;
+    this.hdrAcc = 0;
+    this.lastY = window.scrollY;
+    this.hdrUntil = 0;
+    this.tagSize = null;
+    if (!hdr) { this.hdrH = 0; this.clearTop = 12; return; }
+    document.documentElement.classList.add("lvc-jr-hdr");
+    const measure = () => { this.hdrH = hdr.getBoundingClientRect().height; this.tagSize = null; };
+    measure();
+    this.clearTop = this.hdrH + 12;
+    window.addEventListener("resize", measure, { passive: true });
+    hdr.addEventListener("focusin", () => this.setHeader(false));
+  }
+
+  setHeader(hide) {
+    if (!this.hdr) return;
+    if (hide && this.hdr.contains(document.activeElement)) hide = false;
+    if (hide === this.hdrHidden) return;
+    this.hdrHidden = hide;
+    document.documentElement.classList.toggle("lvc-hdr-hide", hide);
+    this.hdrUntil = performance.now() + 450;   // ให้ป้ายชี้ขยับตามแถบจนแถบเลื่อนเสร็จ
+    this.loop();
+  }
+
+  headerOnScroll(active) {
+    const y = window.scrollY, dy = y - this.lastY;
+    this.lastY = y;
+    if (!active) { this.hdrAcc = 0; this.setHeader(false); return; }
+    this.hdrAcc = dy > 0 ? Math.max(0, this.hdrAcc) + dy : dy < 0 ? Math.min(0, this.hdrAcc) + dy : this.hdrAcc;
+    if (this.hdrAcc > 12) this.setHeader(true);
+    else if (this.hdrAcc < -12) this.setHeader(false);
+  }
+
   pin() {
     this.trigger = this.ST.create({
       trigger: this.s, start: "top top", end: () => "+=" + this.length(), pin: this.stage, pinSpacing: true,
       anticipatePin: 1, invalidateOnRefresh: true, refreshPriority: -1,
+      onToggle: (self) => this.headerOnScroll(self.isActive),
       onUpdate: (self) => {
+        this.headerOnScroll(self.isActive);
         this.target = self.progress;
         // ยังไม่มี/ไม่มี WebGL: ข้อความและภาพนิ่งตามการเลื่อนทันที
         if (!this.built) { this.p = this.target; this.applyDom(this.p); }
@@ -572,8 +613,13 @@ class Journey {
       this.renderer.render(this.scene, this.camera);
       this.watch(dt);
     }
+    const hdrAnim = now < this.hdrUntil;
+    const clearT = (this.hdrHidden ? 0 : this.hdrH) + 12;
+    // dt อาจติดลบเมื่อเวลาเฟรมของ rAF มาก่อน performance.now() ที่ loop() จดไว้ → ห้ามใช้ค่าลบ
+    this.clearTop += (clearT - this.clearTop) * (1 - Math.exp(-Math.max(0, dt) * 12));
+    if (!Number.isFinite(this.clearTop)) this.clearTop = clearT;
     this.applyDom(this.p);
-    if (moving || idle) this.raf = requestAnimationFrame((t) => this.tick(t));
+    if (moving || idle || hdrAnim) this.raf = requestAnimationFrame((t) => this.tick(t));
   }
 
   watch(dt) {
@@ -732,6 +778,9 @@ class Journey {
     if (tagsOn && this.camera) {
       const v = new this.T.Vector3();
       const narrow = this.W < 761;
+      // พื้นที่ที่มองเห็นจริง: ใต้แถบเมนู (ถ้าแถบโผล่) ถึงขอบล่าง เว้นขอบ 8 px
+      if (!this.tagSize) this.tagSize = this.tags.map((a) => [a.offsetWidth, a.offsetHeight]);
+      const minX = 8, maxX = this.W - 8, minY = this.clearTop, maxY = this.H - 8;
       this.items.forEach((h, i) => {
         const a = smooth(0.365 + i * 0.012, 0.41 + i * 0.012, t) * (1 - smooth(0.49, 0.52, t));
         h.getWorldPosition(v);
@@ -740,18 +789,24 @@ class Journey {
         const x = (v.x * 0.5 + 0.5) * this.W, y = (-v.y * 0.5 + 0.5) * this.H;
         const side = x > this.W * 0.55 ? 1 : -1;
         const up = i % 2 ? 1 : -1;
-        const tx = x + side * (narrow ? 22 : 64), ty = y + up * (narrow ? 30 : 50);
+        let tx = x + side * (narrow ? 22 : 64), ty = y + up * (narrow ? 30 : 50);
+        const [tw, th] = this.tagSize[i];
+        tx = side > 0 ? clamp(tx, minX, maxX - tw) : clamp(tx, minX + tw, maxX);
+        ty = clamp(ty, minY + th / 2, maxY - th / 2);
+        // จุดของโมเดลอยู่นอกพื้นที่ (ใต้แถบเมนู/นอกจอ) → ป้ายจางหาย
+        const inView = smooth(minY - 6, minY + 26, y) * smooth(-10, 24, x) * smooth(this.W + 10, this.W - 24, x) * smooth(this.H + 10, this.H - 20, y);
+        const av = a * inView;
         const tag = this.tags[i];
-        const vis = v.z < 1 && a > 0.02 && x > -40 && x < this.W + 40;
-        tag.style.opacity = vis ? a : 0;
+        const vis = v.z < 1 && av > 0.02;
+        tag.style.opacity = vis ? av : 0;
         tag.style.transform = "translate(" + tx.toFixed(1) + "px," + ty.toFixed(1) + "px) translate(" + (side > 0 ? "0" : "-100%") + ",-50%)";
-        tag.style.pointerEvents = vis && a > 0.6 ? "auto" : "none";
+        tag.style.pointerEvents = vis && av > 0.6 ? "auto" : "none";
         const ln = this.lines[i], dot = this.dots[i];
         ln.setAttribute("x1", x.toFixed(1)); ln.setAttribute("y1", y.toFixed(1));
         ln.setAttribute("x2", tx.toFixed(1)); ln.setAttribute("y2", ty.toFixed(1));
-        ln.style.opacity = vis ? a * 0.8 : 0;
+        ln.style.opacity = vis ? av * 0.8 : 0;
         dot.setAttribute("cx", x.toFixed(1)); dot.setAttribute("cy", y.toFixed(1));
-        dot.style.opacity = vis ? a : 0;
+        dot.style.opacity = vis ? av : 0;
       });
     }
   }
@@ -803,6 +858,8 @@ function boot() {
   window.__LVC_JOURNEY = J;
   motionQ.addEventListener && motionQ.addEventListener("change", (e) => {
     if (!e.matches || !J) return;
+    J.setHeader(false);
+    document.documentElement.classList.remove("lvc-jr-hdr");
     J.trigger.kill(true);
     J.teardown();
     J.near.disconnect(); J.far.disconnect();

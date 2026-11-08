@@ -146,3 +146,10 @@
 .lvc-jr.is-static .lvc-jr__ch--final .lvc-jr__actions { justify-content: flex-start; }
 @media (prefers-reduced-motion: reduce) { .lvc-jr__grain { animation: none; } .lvc-jr__ch { transition: none; } }
 @media print { .lvc-jr { display: none; } }
+
+/* v13.1 (A4): ระหว่างตรึงฉาก แถบเมนูหลบขึ้นตอนเลื่อนลง (lvc-journey.js สลับ html.lvc-hdr-hide) */
+html.lvc-jr-hdr body .site-header {
+  transition: transform .35s var(--ease-out, cubic-bezier(.2, .8, .2, 1)), background-color .22s ease, color .22s ease, border-color .22s ease, box-shadow .5s ease;
+}
+html.lvc-jr-hdr.lvc-hdr-hide body .site-header { transform: translateY(-100%); box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { html.lvc-jr-hdr.lvc-hdr-hide body .site-header { transform: none; } }
