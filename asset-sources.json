@@ -9,5 +9,6 @@
   "achievement-3.jpg": "https://lvc.ac.th/www2026/congratulate/congratulate-69-07-03.jpg",
   "learning-community.webp": "https://lvc.ac.th/www2026/activities/activities-24-04-69/S__61956105_0-webp.webp",
   "campus.webp": "Photo of the college supplied by the site owner with the v10 request (1536x1024), converted to WebP",
-  "og-cover.jpg": "Rendered from campus.webp with the v10 intro shader plus the site title text (1200x630)"
+  "og-cover.jpg": "Rendered from campus.webp with the v10 intro shader plus the site title text (1200x630)",
+  "pet/sweetie-belle.glb": "assets/pet/sweetie-belle.glb — converted with source/pet/build_pet.py from the Blender model in sweetie-belle.zip supplied by the site owner (2026-11-08); model credited in the file to 图云 (free); character Sweetie Belle © Hasbro"
 }
