@@ -4,11 +4,14 @@
  *   ฉากเป็นโทนหนังเสมอ (ไม่ขึ้นกับโหมดสว่าง/มืดของเว็บ) · สีแบรนด์: แดงเลือดหมู แชมเปญ งาช้าง
  * ============================================================================ */
 .lvc-jr {
+  --jr-ui: 0px; /* v13.1 (A5): ความสูงแถบเบราว์เซอร์ตอนขยาย = 100lvh − 100svh (Safari iOS/iPadOS) */
   --jr-ink: #f6efe2; --jr-dim: #cdbfae; --jr-gold: #e3c48d; --jr-dark: #070506; --jr-ivory-bg: #efe8dc;
   position: relative; background: var(--jr-dark); color: var(--jr-ink); isolation: isolate;
 }
 .lvc-jr__stage {
-  position: relative; height: 100vh; height: 100svh; min-height: 520px; overflow: hidden;
+  /* v13.1 (A5): 100lvh = จอตอนแถบ Safari ยุบ → เต็มจอเสมอ ขนาดคงที่ระหว่างเลื่อน (ไม่ resize WebGL/ScrollTrigger)
+     เดิม 100svh เตี้ยกว่าจอตอนแถบยุบ ~75px → เห็นพื้นดำใต้ฉาก */
+  position: relative; height: 100vh; height: 100lvh; min-height: 520px; overflow: hidden;
   background: color-mix(in srgb, var(--jr-ivory-bg) calc(var(--jr-ivory, 0) * 100%), var(--jr-dark));
 }
 .lvc-jr__poster {
@@ -88,7 +91,7 @@
 /* บทข้อความ */
 .lvc-jr__copy { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
 .lvc-jr__ch {
-  position: absolute; left: var(--gutter, 32px); bottom: clamp(56px, 11vh, 120px); width: min(440px, calc(100% - var(--gutter, 32px) * 2));
+  position: absolute; left: var(--gutter, 32px); bottom: calc(var(--jr-ui) + clamp(56px, 11vh, 120px)); width: min(440px, calc(100% - var(--gutter, 32px) * 2));
   opacity: 0; transform: translateY(18px); filter: blur(6px);
   transition: opacity .7s ease, transform .9s var(--ease-out, ease), filter .7s ease;
 }
@@ -104,7 +107,7 @@
 .lvc-jr.is-light .lvc-jr__ch h2, .lvc-jr.is-light .lvc-jr__ch h3 { color: #22191c; text-shadow: none; }
 .lvc-jr.is-light .lvc-jr__ch p { color: #5b4c48; }
 .lvc-jr.is-light .lvc-jr__kicker, .lvc-jr.is-light .lvc-jr__ch p b { color: #8f2433; }
-.lvc-jr__ch--final { left: 50%; bottom: clamp(28px, 6vh, 70px); transform: translate(-50%, 18px); width: min(560px, calc(100% - 32px)); text-align: center; }
+.lvc-jr__ch--final { left: 50%; bottom: calc(var(--jr-ui) + clamp(28px, 6vh, 70px)); transform: translate(-50%, 18px); width: min(560px, calc(100% - 32px)); text-align: center; }
 .lvc-jr__ch--final.is-on { transform: translate(-50%, 0); }
 .lvc-jr__ch--final .lvc-jr__kicker { letter-spacing: .12em; font-size: 13px; }
 .lvc-jr__sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -113,7 +116,7 @@
 
 /* แถบตำแหน่ง */
 .lvc-jr__hud {
-  position: absolute; z-index: 7; right: var(--gutter, 32px); bottom: clamp(56px, 11vh, 120px); display: grid; gap: 10px; justify-items: end;
+  position: absolute; z-index: 7; right: var(--gutter, 32px); bottom: calc(var(--jr-ui) + clamp(56px, 11vh, 120px)); display: grid; gap: 10px; justify-items: end;
   color: var(--jr-dim); font-size: 12px; letter-spacing: .14em; font-variant-numeric: tabular-nums;
 }
 .lvc-jr__count b { color: var(--jr-ink); font-weight: 600; }
@@ -124,11 +127,11 @@
 .lvc-jr.is-light .lvc-jr__bar { background: #22191c26; }
 
 @media (max-width: 760px) {
-  .lvc-jr__ch { bottom: 76px; }
+  .lvc-jr__ch { bottom: calc(var(--jr-ui) + 76px); }
   .lvc-jr__ch h2, .lvc-jr__ch h3 { font-size: clamp(30px, 9vw, 40px); }
   .lvc-jr__ch p { font-size: 14px; }
   .lvc-jr__hud { top: 96px; bottom: auto; }
-  .lvc-jr__ch--final { bottom: 84px; }
+  .lvc-jr__ch--final { bottom: calc(var(--jr-ui) + 84px); }
   .lvc-jr__tags a { font-size: 12px; padding: 4px 10px 4px 7px; gap: 6px; }
   .lvc-jr__nums { align-items: flex-start; padding-top: 16vh; }
   .lvc-jr__nums b { font-size: 54px; }
@@ -146,6 +149,9 @@
 .lvc-jr.is-static .lvc-jr__ch--final .lvc-jr__actions { justify-content: flex-start; }
 @media (prefers-reduced-motion: reduce) { .lvc-jr__grain { animation: none; } .lvc-jr__ch { transition: none; } }
 @media print { .lvc-jr { display: none; } }
+
+/* v13.1 (A5): ข้อความ/ตัวนับด้านล่างยกขึ้นเท่าแถบเบราว์เซอร์ จึงไม่หลุดจอตอนแถบขยาย */
+@supports (height: 100lvh) and (height: 100svh) { .lvc-jr { --jr-ui: calc(100lvh - 100svh); } }
 
 /* v13.1 (A4): ระหว่างตรึงฉาก แถบเมนูหลบขึ้นตอนเลื่อนลง (lvc-journey.js สลับ html.lvc-hdr-hide) */
 html.lvc-jr-hdr body .site-header {

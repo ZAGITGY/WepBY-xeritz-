@@ -780,7 +780,9 @@ class Journey {
       const narrow = this.W < 761;
       // พื้นที่ที่มองเห็นจริง: ใต้แถบเมนู (ถ้าแถบโผล่) ถึงขอบล่าง เว้นขอบ 8 px
       if (!this.tagSize) this.tagSize = this.tags.map((a) => [a.offsetWidth, a.offsetHeight]);
-      const minX = 8, maxX = this.W - 8, minY = this.clearTop, maxY = this.H - 8;
+      // ฉากสูง 100lvh: ตอนแถบเบราว์เซอร์ขยาย ส่วนล่างของฉากอยู่ใต้แถบ → ใช้ความสูงที่มองเห็นจริง
+      const visH = Math.min(this.H, window.innerHeight || this.H);
+      const minX = 8, maxX = this.W - 8, minY = this.clearTop, maxY = visH - 8;
       this.items.forEach((h, i) => {
         const a = smooth(0.365 + i * 0.012, 0.41 + i * 0.012, t) * (1 - smooth(0.49, 0.52, t));
         h.getWorldPosition(v);
@@ -794,7 +796,7 @@ class Journey {
         tx = side > 0 ? clamp(tx, minX, maxX - tw) : clamp(tx, minX + tw, maxX);
         ty = clamp(ty, minY + th / 2, maxY - th / 2);
         // จุดของโมเดลอยู่นอกพื้นที่ (ใต้แถบเมนู/นอกจอ) → ป้ายจางหาย
-        const inView = smooth(minY - 6, minY + 26, y) * smooth(-10, 24, x) * smooth(this.W + 10, this.W - 24, x) * smooth(this.H + 10, this.H - 20, y);
+        const inView = smooth(minY - 6, minY + 26, y) * smooth(-10, 24, x) * smooth(this.W + 10, this.W - 24, x) * smooth(visH + 10, visH - 20, y);
         const av = a * inView;
         const tag = this.tags[i];
         const vis = v.z < 1 && av > 0.02;
