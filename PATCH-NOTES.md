@@ -1,3 +1,24 @@
+# Patch 2026-11-08.13.1 — walking pet in the bottom-left corner (Sweetie Belle)
+
+Requested from a game screen recording (a pet roaming the bottom-left of the lobby), using the owner's Blender model (`sweetie-belle.zip`). On every page: index, programs, news, contact, 404.
+
+## New: `lvc-pet.js` + `assets/pet/sweetie-belle.glb`
+- Behaviour: idles 2.5–6 s, turns sideways and walks to a random point within ±17% of the viewport width around its home spot, turns back to face the viewer; occasional hop; blinks. Walk speed is matched to the foot slide of the clip (no skating).
+- Tap/click: jump with smiling eyes, open laugh, blush and three floating hearts. Drag: picked-up pose (arms up, legs dangling, eyes squeezed), body sways with drag velocity; where it is dropped becomes the new home spot (localStorage `lvc-pet`, kept across pages and reloads, stored relative to the viewport). Hide: × button by the head (hover on desktop, shown for 3.5 s after a tap on touch screens); hidden state is remembered and only a small heart button stays bottom-left to bring the pet back (the model is not downloaded while hidden). Keyboard: the pet is focusable, Enter/Space = play, ←/→ = walk that way.
+- Rendering: one small transparent canvas that moves with the pet (CSS transform), three.js r180 from `vendor/three` (same module instance as the home page), orthographic camera tilted 0.2 rad, unlit materials (the model is flat-shaded toon with inverted-hull outlines baked into the mesh), morph targets for the face. Idle renders at ~30 fps, otherwise every frame; the RAF loop does nothing while hidden. WebGL context loss removes the pet.
+- Loading: after `load`, after the home intro (`html.lvc-loading`) ends, then on idle. Save-Data → not loaded (heart button only). No WebGL → nothing added. Reduced Motion → stands still (tap changes the expression, drag still works). Print → hidden. z-index 41: above the sticky header (40), below back-to-top (42) and the compare bar (45); the mobile menu is a modal `<dialog>` so it is always above.
+- Asset URLs resolve from the module URL (`import.meta.url`), so the 404 page also works.
+
+## Model build (`source/pet/`)
+- `build_pet.py` (Blender 5.2 as the `bpy` Python module): removes the "Please delete" duplicates and moves the real head/pupils/highlights (offset 0.7 in the file) back into place; bakes Mirror + Solidify (outline hull) + Subdivision level 1 while keeping 8 shape keys as morph targets (`happyEyes blink smile laugh squeeze open browsUp blush`); converts materials to plain colour/texture (outline materials prefixed `OL_`), textures 1024 px WebP; authors Idle / Walk / Happy / Held by driving the rig's IK controls and exports deform bones with sampled (constraint-baked) animation.
+- `make.sh`: gltf-transform dedup → prune → resample → `prune_rest.mjs` (drops channels that stay at the rest pose for the whole clip; `keep_anim_armature=False` was tried and dropped constant non-rest bones, which snapped the arms to T-pose) → meshopt. 5.4 MB raw → 1.41 MB.
+- New vendored files: `vendor/three/addons/GLTFLoader.min.js`, `BufferGeometryUtils.min.js` (three.js r180, MIT) and `meshopt_decoder.module.min.js` (meshoptimizer, MIT), imports rewritten to the vendored three build.
+
+## Rights note
+The model's root bone reads "本模型由图云制作，免费提供" (made by 图云, free). The character Sweetie Belle belongs to Hasbro (My Little Pony: Equestria Girls); the modeller's "free" does not cover the character. Check before using on the college's public site.
+
+---
+
 # Patch 2026-11-06.13.0 — cinematic scroll journey replaces the LVC showcase
 
 Direction from the reference video the owner sent (a product site where scrolling drives one continuous camera move): dark cinematic grade in LVC colours, the real campus photo as the fly-through scene.

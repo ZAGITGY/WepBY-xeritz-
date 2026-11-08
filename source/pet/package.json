@@ -1,0 +1,12 @@
+{
+  "name": "lvc-pet-model",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Builds assets/pet/sweetie-belle.glb from the Blender source (see README-TH.md)",
+  "devDependencies": {
+    "@gltf-transform/cli": "4.5.1",
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1"
+  }
+}
