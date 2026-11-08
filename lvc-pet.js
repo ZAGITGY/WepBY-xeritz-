@@ -54,6 +54,7 @@ const CSS = `
 .lvc-pet.is-zoomed *{visibility:hidden!important;pointer-events:none!important}
 .lvc-pet.is-ready{opacity:1}
 .lvc-pet.is-gone{opacity:0;transition-duration:.25s}
+.lvc-pet__body{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 .lvc-pet canvas{position:absolute;left:0;top:0;display:block;pointer-events:none}
 .lvc-pet__shadow{position:absolute;border-radius:50%;pointer-events:none;
   background:radial-gradient(closest-side,rgba(40,24,40,.30),rgba(40,24,40,0));transform-origin:50% 50%}
@@ -120,11 +121,12 @@ class Pet {
     const el = (this.el = doc.createElement("div"));
     el.className = "lvc-pet";
     el.innerHTML =
-      '<div class="lvc-pet__shadow"></div><canvas aria-hidden="true"></canvas>' +
-      '<div class="lvc-pet__hit" role="button" tabindex="0" aria-label="ตัวการ์ตูน Sweetie Belle — กดเพื่อเล่นด้วย ลากเพื่อย้ายที่ หรือใช้ปุ่มลูกศรซ้าย/ขวา"></div>' +
+      '<div class="lvc-pet__shadow"></div><div class="lvc-pet__body"><canvas aria-hidden="true"></canvas>' +
+      '<div class="lvc-pet__hit" role="button" tabindex="0" aria-label="ตัวการ์ตูน Sweetie Belle — กดเพื่อเล่นด้วย ลากเพื่อย้ายที่ หรือใช้ปุ่มลูกศรซ้าย/ขวา"></div></div>' +
       '<button type="button" class="lvc-pet__hide" aria-label="ซ่อนตัวการ์ตูน" title="ซ่อนตัวการ์ตูน">×</button>';
     doc.body.appendChild(el);
     this.canvas = el.querySelector("canvas");
+    this.body = el.querySelector(".lvc-pet__body");   // ชั้นที่หมุนตอนถูกลาก (ปุ่ม × กับเงาไม่หมุนตาม)
     this.shadow = el.querySelector(".lvc-pet__shadow");
     this.hit = el.querySelector(".lvc-pet__hit");
     this.hideBtn = el.querySelector(".lvc-pet__hide");
@@ -183,7 +185,8 @@ class Pet {
 
     /* state */
     this.yaw = 0; this.yawTarget = 0;
-    this.sway = 0; this.swayV = 0;
+    this.sway = 0; this.swayV = 0;     // มุมแกว่งตอนถูกลาก (เรเดียน) หมุนที่ DOM ไม่ใช่ในฉาก 3D
+    this.dragV = 0; this.dragA = 0;
     this.state = "idle";
     this.stateT = rand(1.5, 3);
     this.dir = 1;
@@ -460,6 +463,9 @@ class Pet {
     // จับที่แถว ๆ มือ/ศีรษะ (แกน y นับจากขอบล่าง)
     this.grab = { ox: this.fx - e.clientX, ob: this.fb - (innerHeight - e.clientY) };
     this.holdX = this.fx; this.holdB = this.fb;
+    // จุดหมุน = จุดที่จับ (พิกัดใน .lvc-pet ซึ่งเท้าอยู่ที่ (w/2, footY))
+    this.body.style.transformOrigin = `${(this.size.w / 2 - this.grab.ox).toFixed(1)}px ${(this.footY + this.grab.ob).toFixed(1)}px`;
+    this.dragV = 0; this.dragA = 0;
     this.lastX = e.clientX;
   }
 
@@ -478,6 +484,26 @@ class Pet {
     this.setFace({ smile: 0.8, blush: 0.3 });
     clearTimeout(this.faceTO);
     this.faceTO = setTimeout(() => { if (this.state === "idle") this.setFace({ smile: 0.3 }); }, 1600);
+  }
+
+  /* ลูกตุ้ม: θ'' = −ω²·sinθ + (a/L)·cosθ − c·θ'  (θ บวก = ตามเข็มนาฬิกา = เท้าเหวี่ยงไปทางซ้าย) */
+  swing(dt, accel) {
+    const held = this.state === "held";
+    if (!held && Math.abs(this.sway) < 0.002 && Math.abs(this.swayV) < 0.01) {
+      if (this.sway !== 0) { this.sway = 0; this.swayV = 0; this.body.style.transform = ""; }
+      return;
+    }
+    const L = this.size.charH * 0.6;                 // ระยะจุดจับถึงกลางตัว (px)
+    const w2 = 50, c = held ? 4.5 : 11;             // คาบแกว่งราว 0.9 วิ · ปล่อยแล้วหยุดไว
+    const steps = Math.max(1, Math.ceil(dt / 0.008));
+    const h = dt / steps;
+    for (let i = 0; i < steps; i++) {
+      const a = -w2 * Math.sin(this.sway) + (accel / L) * Math.cos(this.sway) - c * this.swayV;
+      this.swayV += a * h;
+      this.sway = clamp(this.sway + this.swayV * h, -0.52, 0.52);   // สูงสุด ~30°
+      if (Math.abs(this.sway) >= 0.52) this.swayV *= 0.3;
+    }
+    this.body.style.transform = `rotate(${(this.sway * 180 / Math.PI).toFixed(2)}deg)`;
   }
 
   saveAnchor() {
@@ -551,21 +577,21 @@ class Pet {
       }
     }
 
-    // ถูกลาก: ตามนิ้ว/เมาส์แบบหน่วงนิด ๆ แกว่งตามความเร็ว
+    // ถูกลาก: ตามนิ้ว/เมาส์แบบหน่วงนิด ๆ ตัวห้อยใต้จุดที่จับ แกว่งเหมือนลูกตุ้ม
+    let accel = 0;
     if (this.state === "held") {
       const px = this.fx;
       this.fx = damp(this.fx, this.holdX, 22, dt);
       this.fb = damp(this.fb, this.holdB, 22, dt);
       const vx = (this.fx - px) / Math.max(dt, 1e-3);
-      this.swayV += (-clamp(vx / 900, -0.6, 0.6) - this.sway) * 60 * dt;
-    } else {
-      this.swayV += -this.sway * 60 * dt;
+      const ax = (vx - this.dragV) / Math.max(dt, 1e-3);
+      this.dragV = vx;
+      this.dragA = damp(this.dragA, ax, 18, dt);
+      accel = this.dragA;
     }
-    this.swayV *= Math.exp(-7 * dt);
-    this.sway += this.swayV * dt;
+    this.swing(dt, accel);
 
     this.yaw = damp(this.yaw, this.yawTarget, 9, dt);
-    this.pivot.rotation.set(0, 0, this.sway);
     this.model.rotation.y = this.yaw;
 
     this.mixer.update(dt);
