@@ -96,6 +96,8 @@
   function leave(url) {
     busy = true;
     prefetch(url.href);
+    // ให้ส่วนอื่น (เช่นตัวการ์ตูน lvc-pet.js) รู้ว่ากำลังจะคลุมจอเปลี่ยนหน้า
+    window.dispatchEvent(new CustomEvent("lvc:tx-leave", { detail: { href: url.href, coverMs: COVER_MS } }));
     var el = TX.build("covering");
     document.body.appendChild(el);
     // ชั้นบนสุด: คลุมเมนูมือถือ (dialog) ได้ด้วย
@@ -121,6 +123,7 @@
     busy = false;
     try { sessionStorage.removeItem("lvc-tx"); } catch (e) {}
     if (el) part(el);
+    window.dispatchEvent(new Event("lvc:tx-cancel"));   // เปลี่ยนหน้าไม่สำเร็จ/กลับมาจาก bfcache
   }
 
   document.addEventListener("click", function (e) {

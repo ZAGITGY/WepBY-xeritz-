@@ -43,18 +43,59 @@ const hasWebGL = () => {
   try { const c = doc.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; }
 };
 
+/* ---------- เปลี่ยนหน้า (lvc-transition.js) ---------- */
+const TX = window.__LVC_TX || null;
+const ARRIVING = !!(TX && TX.arriving);   // มาด้วยริบบิ้น: หน้าคลุมอยู่ รอ lvc:tx-open
+const TX_KEY = "lvc-pet-tx";               // sessionStorage: ตำแหน่ง/ทิศ ตอนออกจากหน้าก่อน
+const saveTxState = (p) => {
+  try {
+    const dir = p.yawTarget ? Math.sign(p.yawTarget) : p.dir || 1;
+    sessionStorage.setItem(TX_KEY, JSON.stringify({ x: p.fx / (p.vw || 1), b: p.fb, dir, t: Date.now() }));
+  } catch (e) {}
+};
+const takeTxState = () => {
+  try {
+    const v = JSON.parse(sessionStorage.getItem(TX_KEY) || "null");
+    sessionStorage.removeItem(TX_KEY);
+    if (v && Date.now() - v.t < 12000 && typeof v.x === "number" && typeof v.b === "number") return v;
+  } catch (e) {}
+  return null;
+};
+
+/* ---------- ท่าใหญ่ที่ชั้น DOM: keyframe ต่อคุณสมบัติ (dx/db เป็นหน่วย "ความสูงตัว") ---------- */
+const MO_DEF = { dx: 0, db: 0, rot: 0, sx: 1, sy: 1, op: 1 };
+const EASE = {
+  lin: (t) => t,
+  in: (t) => t * t,
+  out: (t) => 1 - (1 - t) * (1 - t),
+  inOut: (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2),
+};
+const sampleTrack = (arr, t, def) => {
+  if (!arr) return def;
+  if (t <= arr[0].t) return arr[0].v;
+  for (let i = 1; i < arr.length; i++) {
+    const b = arr[i];
+    if (t <= b.t) {
+      const a = arr[i - 1];
+      const u = b.t > a.t ? (t - a.t) / (b.t - a.t) : 1;
+      return a.v + (b.v - a.v) * (EASE[b.e] || EASE.inOut)(u);
+    }
+  }
+  return arr[arr.length - 1].v;
+};
+
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const damp = (cur, target, rate, dt) => cur + (target - cur) * (1 - Math.exp(-rate * dt));
 
 /* ---------- CSS ---------- */
 const CSS = `
-.lvc-pet{position:fixed;left:0;bottom:0;z-index:41;pointer-events:none;opacity:0;transition:opacity .5s ease;contain:layout style;will-change:transform}
+.lvc-pet{position:fixed;left:0;bottom:0;z-index:41;pointer-events:none;opacity:0;visibility:hidden;contain:layout style;will-change:transform}
 .lvc-pet.is-zoomed{opacity:0!important;visibility:hidden;transition:opacity .2s ease,visibility 0s .2s}
 .lvc-pet.is-zoomed *{visibility:hidden!important;pointer-events:none!important}
-.lvc-pet.is-ready{opacity:1}
-.lvc-pet.is-gone{opacity:0;transition-duration:.25s}
-.lvc-pet__body{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.lvc-pet.is-ready{opacity:1;visibility:visible}
+.lvc-pet.is-gone{opacity:0;transition:opacity .25s ease}
+.lvc-pet__body,.lvc-pet__fx{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 .lvc-pet canvas{position:absolute;left:0;top:0;display:block;pointer-events:none}
 .lvc-pet__shadow{position:absolute;border-radius:50%;pointer-events:none;
   background:radial-gradient(closest-side,rgba(40,24,40,.30),rgba(40,24,40,0));transform-origin:50% 50%}
@@ -102,7 +143,7 @@ const ensureShowButton = () => {
   showBtn.addEventListener("click", () => {
     store.write({ hidden: false });
     showBtn.hidden = true;
-    if (pet) pet.show(); else start(true);
+    if (pet) pet.show(); else start("button");
   });
   doc.body.appendChild(showBtn);
   return showBtn;
@@ -112,7 +153,7 @@ const ensureShowButton = () => {
 let pet = null;
 
 class Pet {
-  constructor(THREE, gltf) {
+  constructor(THREE, gltf, opts = {}) {
     this.T = THREE;
     this.reduced = motionQ.matches;
     motionQ.addEventListener && motionQ.addEventListener("change", (e) => { this.reduced = e.matches; });
@@ -121,12 +162,13 @@ class Pet {
     const el = (this.el = doc.createElement("div"));
     el.className = "lvc-pet";
     el.innerHTML =
-      '<div class="lvc-pet__shadow"></div><div class="lvc-pet__body"><canvas aria-hidden="true"></canvas>' +
-      '<div class="lvc-pet__hit" role="button" tabindex="0" aria-label="ตัวการ์ตูน Sweetie Belle — กดเพื่อเล่นด้วย ลากเพื่อย้ายที่ หรือใช้ปุ่มลูกศรซ้าย/ขวา"></div></div>' +
+      '<div class="lvc-pet__shadow"></div><div class="lvc-pet__body"><div class="lvc-pet__fx"><canvas aria-hidden="true"></canvas>' +
+      '<div class="lvc-pet__hit" role="button" tabindex="0" aria-label="ตัวการ์ตูน Sweetie Belle — กดเพื่อเล่นด้วย ลากเพื่อย้ายที่ หรือใช้ปุ่มลูกศรซ้าย/ขวา"></div></div></div>' +
       '<button type="button" class="lvc-pet__hide" aria-label="ซ่อนตัวการ์ตูน" title="ซ่อนตัวการ์ตูน">×</button>';
     doc.body.appendChild(el);
     this.canvas = el.querySelector("canvas");
     this.body = el.querySelector(".lvc-pet__body");   // ชั้นที่หมุนตอนถูกลาก (ปุ่ม × กับเงาไม่หมุนตาม)
+    this.fxEl = el.querySelector(".lvc-pet__fx");     // ชั้นท่าใหญ่ (กระโดด ตก หมุน ย่อ-ยืด) จุดหมุนที่เท้า
     this.shadow = el.querySelector(".lvc-pet__shadow");
     this.hit = el.querySelector(".lvc-pet__hit");
     this.hideBtn = el.querySelector(".lvc-pet__hide");
@@ -198,7 +240,14 @@ class Pet {
     this.anchorB = typeof saved.ab === "number" ? saved.ab : this.defaultBottom();
     this.fx = this.anchorX;
     this.fb = this.anchorB;            // แกน y ทุกจุด = ระยะเท้าจากขอบล่างจอ
+    if (opts.initPos) {                // มาจากหน้าก่อน: ยืนที่เดิม หันทางเดิม
+      this.fx = opts.initPos.x * this.vw;
+      this.fb = opts.initPos.b;
+      this.dir = opts.initPos.dir || 1;
+    }
     this.clampPos();
+    this.mo = Object.assign({}, MO_DEF);   // ค่าเลื่อน/หมุน/ย่อของชั้นท่าใหญ่ (หน่วยความสูงตัว)
+    this.motion = null;
     this.place();
     this.play("Idle", 0);
 
@@ -206,17 +255,125 @@ class Pet {
     this.checkZoom();
     this.clock = new THREE.Clock();
     this.loop = this.loop.bind(this);
+    // สร้างแบบซ่อนไว้ก่อน คอมไพล์ shader ล่วงหน้า แล้วค่อยเล่นท่าเข้า (enter)
+    this.exited = true;
+    this.waitingEnter = false;
+    try { renderer.compile(this.scene, this.camera); } catch (e) {}
+    this.mixer.update(0);
+    renderer.render(this.scene, this.camera);
     this.raf = requestAnimationFrame(this.loop);
-    requestAnimationFrame(() => el.classList.add("is-ready"));
   }
 
   defaultBottom() { return 10; }
 
   // .lvc-pet ติดขอบล่างด้วย CSS (bottom:0) แล้วเลื่อนขึ้นตามระยะเท้า → แถบเบราว์เซอร์ยุบ/ขยายไม่ทำให้เท้าคลาด
   place() {
-    const x = Math.round(this.fx - this.size.w / 2);
-    const y = Math.round(this.footB - this.fb);
+    const h = this.size.charH, mo = this.mo || MO_DEF;
+    const x = Math.round(this.fx + mo.dx * h - this.size.w / 2);
+    const y = Math.round(this.footB - (this.fb + mo.db * h));
     this.el.style.transform = `translate3d(${x}px,${y}px,0)`;
+  }
+
+  /* ---------- ท่าใหญ่ที่ชั้น DOM ---------- */
+  runMotion(keys, dur, done) {
+    const tr = {}, cues = [];
+    for (const k of keys) {
+      for (const p in MO_DEF) if (p in k) (tr[p] || (tr[p] = [])).push({ t: k.t, v: k[p], e: k.e || "inOut" });
+      if (k.do) cues.push({ t: k.t, fn: k.do });
+    }
+    for (const p in tr) tr[p].sort((a, b) => a.t - b.t);
+    cues.sort((a, b) => a.t - b.t);
+    this.motion = { tr, cues, t: 0, dur: dur != null ? dur : Math.max(...keys.map((k) => k.t)), done };
+    this.updateMotion(0);
+  }
+
+  cancelMotion() {
+    this.motion = null;
+    Object.assign(this.mo, MO_DEF);
+    this.applyMo();
+  }
+
+  updateMotion(dt) {
+    const m = this.motion;
+    if (!m) return;
+    m.t += dt;
+    for (const p in MO_DEF) this.mo[p] = sampleTrack(m.tr[p], m.t, MO_DEF[p]);
+    while (m.cues.length && m.cues[0].t <= m.t) { const c = m.cues.shift(); try { c.fn(); } catch (e) {} }
+    if (this.motion === m && m.t >= m.dur) { this.motion = null; if (m.done) m.done(); }
+  }
+
+  applyMo() {
+    const m = this.mo;
+    const tf = m.rot || m.sx !== 1 || m.sy !== 1 ? `rotate(${m.rot.toFixed(2)}deg) scale(${m.sx.toFixed(3)},${m.sy.toFixed(3)})` : "";
+    if (tf !== this._fxTf) { this.fxEl.style.transform = tf; this._fxTf = tf; }
+    const op = m.op >= 0.999 ? "" : m.op.toFixed(3);
+    if (op !== this._fxOp) { this.fxEl.style.opacity = op; this._fxOp = op; }
+  }
+
+  /* ---------- ท่าเข้า / ท่าออก ---------- */
+  enter(kind = "first") {
+    this.exited = false;
+    this.waitingEnter = false;
+    this.cancelMotion();
+    this.el.style.visibility = "";
+    this.el.classList.remove("is-gone");
+    this.el.classList.add("is-ready");
+    if (this.clock) this.clock.getDelta();
+    this.yawTarget = 0;
+    if (this.reduced) {                         // ลดการเคลื่อนไหว: จางเข้าอย่างเดียว
+      this.setState("act", 2);
+      this.play("Idle", 0);
+      this.runMotion([{ t: 0, op: 0 }, { t: 0.45, op: 1, e: "lin" }], 0.45, () => this.idle(3));
+      return;
+    }
+    if (kind === "walk-in") {                   // โหลดไม่ทันริบบิ้น: เดินเข้าจากขอบจอ
+      const target = this.fx;
+      const fromLeft = target < this.vw / 2;
+      this.fx = fromLeft ? -this.size.w / 2 : this.vw + this.size.w / 2;
+      this.targetX = target;
+      this.dir = fromLeft ? 1 : -1;
+      this.yaw = this.yawTarget = this.dir * WALK_YAW;
+      this.setState("walk", 20);
+      this.play("Walk", 0, WALK_TS);
+      this.setFace({ smile: 0.7 });
+      return;
+    }
+    // กระโดดพรวดขึ้นจากใต้ขอบจอ ลงพื้นแล้วย่อตัว
+    this.setState("act", 2.5);
+    this.yaw = this.dir * 0.5;
+    this.play("Held", 0);
+    this.setFace({ happyEyes: 1, open: 0.6 });
+    this.runMotion([
+      { t: 0, db: -1.25, sx: 1, sy: 1 },
+      { t: 0.36, db: 0.42, e: "out" },
+      { t: 0.6, db: 0, e: "in", do: () => { this.play("Idle", 0.12); this.setFace({ smile: 1, blush: 0.3 }); } },
+      { t: 0.6, sx: 1, sy: 1 },
+      { t: 0.7, sx: 1.12, sy: 0.86, e: "out" },
+      { t: 0.86, sx: 0.97, sy: 1.04 },
+      { t: 1.0, sx: 1, sy: 1 },
+    ], 1.0, () => this.idle(rand(2, 4)));
+  }
+
+  leave() {
+    if (this.hidden || this.exited) return;
+    saveTxState(this);
+    this.el.classList.remove("is-held", "show-ui");
+    this.cancelMotion();
+    this.exited = true;                         // loop ยังวาดต่อจนท่าออกจบ (มี motion)
+    this.setState("act", 1.5);
+    const done = () => { this.el.style.visibility = "hidden"; this.el.classList.remove("is-ready"); };
+    if (this.reduced) { this.runMotion([{ t: 0, op: 1 }, { t: 0.3, op: 0, e: "lin" }], 0.3, done); return; }
+    // กระโดดเล็ก ๆ แล้วจางหาย (≤ 0.8 วิ ก่อนริบบิ้นคลุมจอ)
+    this.yawTarget = 0;
+    this.playHappy();
+    this.setFace({ happyEyes: 1, smile: 1 });
+    this.runMotion([
+      { t: 0, db: 0, sx: 1, sy: 1, op: 1 },
+      { t: 0.1, sx: 1.1, sy: 0.88 },
+      { t: 0.3, sx: 0.95, sy: 1.06, db: 0.32, e: "out" },
+      { t: 0.45, op: 1 },
+      { t: 0.62, db: 0.5, op: 0, e: "in" },
+    ], 0.62, done);
   }
 
   /* ขนาดตามจอ */
@@ -243,6 +400,7 @@ class Pet {
     Object.assign(this.shadow.style, { left: cw / 2 - sw / 2 + "px", top: footY - sh / 2 + "px", width: sw + "px", height: sh + "px" });
     this.footY = footY;
     this.footB = ch - footY;           // ขอบล่างแคนวาส → เท้า
+    this.fxEl.style.transformOrigin = `${cw / 2}px ${footY}px`;
   }
 
   clampPos() {
@@ -329,7 +487,8 @@ class Pet {
   }
 
   react() {
-    if (this.state === "held") return;
+    if (this.state === "held" || this.exited) return;
+    this.cancelMotion();
     this.showUi();
     if (this.reduced) {
       this.setFace({ happyEyes: 1, laugh: 1, blush: 1 });
@@ -455,6 +614,8 @@ class Pet {
   }
 
   startHold(e) {
+    if (this.exited) return;
+    this.cancelMotion();
     this.setState("held", 0);
     this.el.classList.add("is-held");
     this.play("Held", 0.15);
@@ -544,27 +705,29 @@ class Pet {
   show() {
     if (!this.hidden) return;
     this.hidden = false;
-    this.el.style.visibility = "";
-    this.el.classList.remove("is-gone");
-    this.clock.getDelta();
-    this.react();
+    this.enter("call");
   }
 
   /* ---------- เฟรม ---------- */
   loop() {
     this.raf = requestAnimationFrame(this.loop);
     this.acc = (this.acc || 0) + this.clock.getDelta();
-    if (this.hidden || this.zoomed) { this.acc = 0; return; }
+    if (this.hidden || this.zoomed || (this.exited && !this.motion)) { this.acc = 0; return; }
     // ยืนเฉย ๆ วาดแค่ ~30 ภาพ/วินาที ประหยัดแบต
-    if (this.state === "idle" && this.blinkPhase < 0 && this.acc < 1 / 30) return;
-    const dt = Math.min(0.1, this.acc);
+    if (this.state === "idle" && !this.motion && this.blinkPhase < 0 && this.acc < 1 / 30) return;
+    const raw = this.acc;
+    const dt = Math.min(0.1, raw);
     this.acc = 0;
 
     // ตัดสินใจ
     if (this.state !== "held") {
       this.stateT -= dt;
       if (this.state === "idle" && this.stateT <= 0) this.think();
+      // กันค้าง: ท่าไหนเกินเวลาที่ตั้งไว้ กลับไปยืนเอง
+      if (this.state === "act" && this.stateT <= 0 && !this.exited) { this.cancelMotion(); this.idle(); }
     }
+    this.updateMotion(Math.min(0.25, raw));   // ท่าเข้า/ออกยึดเวลาจริง จบตรงเวลาแม้เครื่องช้า
+    this.applyMo();
 
     // เดิน
     if (this.state === "walk") {
@@ -601,27 +764,52 @@ class Pet {
     this.place();
     let lift = 0;
     if (this.rootBone) { this.model.updateMatrixWorld(); lift = Math.max(0, this.rootBone.getWorldPosition(this.tmpV).y - this.rootRestY); }
-    const s = this.state === "held" ? 0 : clamp(1 - lift * 2.2, 0.35, 1);
-    this.shadow.style.opacity = String(s);
-    this.shadow.style.transform = `scale(${s})`;
+    const up = this.mo.db;               // ท่าใหญ่ลอยขึ้น/มุดลง: เงาอยู่ที่พื้นเสมอ
+    const s = this.state === "held" || up < -0.05 ? 0 : clamp(1 - lift * 2.2 - up * 1.4, 0.3, 1) * this.mo.op;
+    this.shadow.style.opacity = String(+s.toFixed(3));
+    this.shadow.style.transform = `translateY(${(up * this.size.charH).toFixed(1)}px) scale(${Math.max(s, 0.3).toFixed(3)})`;
 
     this.renderer.render(this.scene, this.camera);
   }
 }
 
 /* ---------- เริ่มทำงาน ---------- */
+// โหลดไฟล์ทันทีที่สคริปต์ทำงาน (มักอยู่ในแคชแล้ว) แต่สร้างฉาก 3D หลัง intro จบ ไม่ให้ intro สะดุด
+let assetsP = null;
+const loadAssets = () => assetsP || (assetsP = Promise.all([
+  import(THREE_URL), import(GLTF_URL), import(MESHOPT_URL),
+  fetch(MODEL_URL, { priority: "low" }).then((r) => { if (!r.ok) throw new Error("model " + r.status); return r.arrayBuffer(); }),
+]));
+
+const introGate = () => new Promise((resolve) => {
+  if (!root.classList.contains("lvc-loading")) return resolve();
+  const done = () => { mo.disconnect(); removeEventListener("lvc:loaded", done); resolve(); };
+  const mo = new MutationObserver(() => { if (!root.classList.contains("lvc-loading")) done(); });
+  mo.observe(root, { attributes: true, attributeFilter: ["class"] });
+  addEventListener("lvc:loaded", done);
+});
+
+// เปิดเว็บครั้งแรก/รีเฟรช (ไม่มี intro): รอหน้าโหลดเสร็จ แต่ไม่เกิน 1.2 วิ
+const pageGate = () => doc.readyState === "complete" ? Promise.resolve()
+  : new Promise((resolve) => { addEventListener("load", resolve, { once: true }); setTimeout(resolve, 1200); });
+
+let txOpen = !ARRIVING;
 let starting = false;
-async function start(fromButton) {
+async function start(how) {
   if (starting || pet) return;
   starting = true;
   try {
-    const [THREE, { GLTFLoader }, { MeshoptDecoder }] = await Promise.all([import(THREE_URL), import(GLTF_URL), import(MESHOPT_URL)]);
+    const [[THREE, { GLTFLoader }, { MeshoptDecoder }, buf]] = await Promise.all([loadAssets(), introGate()]);
     const loader = new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
-    const gltf = await loader.loadAsync(MODEL_URL);
-    pet = new Pet(THREE, gltf);
+    const gltf = await new Promise((res, rej) => loader.parse(buf, here("./assets/pet/"), res, rej));
+    const initPos = how === "boot" ? takeTxState() : null;
+    pet = new Pet(THREE, gltf, { initPos });
     window.__LVC_PET = pet;
-    if (fromButton) pet.react();
+    if (how === "button") pet.enter("call");
+    else if (ARRIVING && !txOpen) pet.waitingEnter = true;      // เข้าพร้อมริบบิ้นแหวก
+    else if (ARRIVING) pet.enter("walk-in");                     // ริบบิ้นแหวกไปแล้ว: เดินเข้าจากขอบจอ
+    else { await pageGate(); pet.enter("first"); }
   } catch (err) {
     console.warn("[lvc-pet] ปิดตัวการ์ตูน:", err);
     if (pet && pet.el) pet.el.remove();
@@ -631,24 +819,19 @@ async function start(fromButton) {
   }
 }
 
-function whenReady(fn) {
-  const go = () => {
-    const ric = window.requestIdleCallback || ((f) => setTimeout(f, 600));
-    setTimeout(() => ric(fn, { timeout: 2500 }), 700);
-  };
-  const afterIntro = () => {
-    if (!root.classList.contains("lvc-loading")) return go();
-    const mo = new MutationObserver(() => {
-      if (!root.classList.contains("lvc-loading")) { mo.disconnect(); go(); }
-    });
-    mo.observe(root, { attributes: true, attributeFilter: ["class"] });
-  };
-  if (doc.readyState === "complete") afterIntro();
-  else addEventListener("load", afterIntro, { once: true });
-}
+addEventListener("lvc:tx-open", () => {
+  txOpen = true;
+  if (pet && pet.waitingEnter) pet.enter("tx");
+});
+addEventListener("lvc:tx-leave", () => { if (pet) pet.leave(); });
+// เปลี่ยนหน้าไม่สำเร็จ หรือกด Back แล้วได้หน้าเดิมจาก bfcache: ตัวเดิมกลับมา (ไม่สร้างใหม่ จึงไม่ซ้อนสองตัว)
+const comeBack = () => { if (pet && pet.exited && !pet.hidden && !pet.waitingEnter) pet.enter("return"); };
+addEventListener("lvc:tx-cancel", comeBack);
+addEventListener("pageshow", (e) => { if (e.persisted) comeBack(); });
 
 (function init() {
-  if (!hasWebGL()) return;
+  if (window.__LVC_PET_BOOT || !hasWebGL()) return;
+  window.__LVC_PET_BOOT = true;
   const style = doc.createElement("style");
   style.id = "lvc-pet-style";
   style.textContent = CSS;
@@ -661,5 +844,5 @@ function whenReady(fn) {
     ensureShowButton().hidden = false;
     return;
   }
-  whenReady(() => start(false));
+  start("boot");
 })();
