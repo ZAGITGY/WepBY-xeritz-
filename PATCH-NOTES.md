@@ -1,3 +1,29 @@
+# Patch 2026-11-08.2 — pet bug fixes, journey header/stage fixes, pet personality
+
+Each cause below was measured before fixing (headless Chromium with simulated Safari behaviour where needed); Safari-only behaviour has an on-device checklist in README-TH.md and `?petdebug=1`.
+
+## Bugs
+- **A1 pet warps when the Safari toolbar moves / on pinch zoom** — placed from the top but computed from the bottom, corrected only on the late `resize` (feet 85.5 px instead of 10.5 px with the bar collapsed, −64.5 px expanded). Now `bottom:0` + translate up, every y value is a distance from the bottom edge, the home spot is never rewritten by resize; `visualViewport.scale > 1.01` fades it out, disables input and saving. 10 simulated fast-scroll/toolbar cycles: 0.0 px drift.
+- **A2 body clipped while dragging** — the swing rotated the 3D pivot at the feet inside a ±0.62-unit canvas (92/130 frames touched the edge). The swing is now a CSS `rotate()` on a body layer around the grab point (pendulum driven by drag acceleration, ≤ 30°); × and the bubble do not rotate. 0/139 frames touch the edge; every frame of every clip checked.
+- **A3 pet just appears after a page change** — nothing listened to the transition (917 ms after `lvc:tx-open`; 2014 ms after the intro). `lvc-transition.js` now dispatches `lvc:tx-leave` (href) and `lvc:tx-cancel`; the pet plays an exit and saves x/bottom/facing in sessionStorage; the next page fetches immediately, builds hidden, and enters on `lvc:tx-open` (measured 0–13 ms) or walks in from the edge if late; ~0.3 s after the intro; bfcache/back re-enters the same instance.
+- **A4 header over the programs scene** — the pinned stage starts at `top top` under the sticky header (88/78/74 px); tags came close to it and 12–23 scan steps had tags off screen. While pinned the header slides up on scroll-down and returns on scroll-up/leaving/keyboard focus (0.35 s); tags and leader lines are clamped to the visible area and fade when their model point is outside it. Also guarded a negative `dt` in `tick()` that made the new damping diverge.
+- **A5 black band under the stage on iPad** — `100svh` stage. Now `100lvh` (always fills, constant size so no WebGL resize/ScrollTrigger refresh while scrolling; GSAP 3.15 already ignores mobile resize on touch) and `--jr-ui = 100lvh − 100svh` lifts the chapter text and counter so they stay visible with the toolbar expanded.
+- **A6 pet over important content** — spectator mode while the journey is pinned (line, ducks to the emptiest bottom corner with only the head showing, looks at the models, "ว้าว!" once, jumps back after; tap pops up "ชู่ว์ ดูอยู่~"). Avoidance everywhere: 3×3 `elementsFromPoint` probe every 250 ms against headings, text, links, buttons, fields, canvases, header, journey tags and `[data-pet-avoid]` (`="off"` opts out); ≥ 0.4 s overlap → walk/jump to the nearest free spot on the bottom edge, none → 75% and faded, back home when free and scrolling stopped 1 s; home never changed. Probes are cached while nothing moves.
+
+## Pet personality (`pet-reactions.js` acts as data, `pet-lines.js` lines)
+- Speech bubble (typewriter by `Intl.Segmenter("th")`, mouth movement, priority tap > event > idle, ≥ 25 s between self-initiated lines, no repeats per session, sections greeted once, quiet after two quick closes, silent during transitions/intro/dialogs/typing, aria-live for tap replies only, width rounded up so Thai never wraps mid-word, beside the pet while held).
+- 7 entrances + sleeping-after-a-day, 4 exits + admissions cheer + bye; never the same as the last 3 (localStorage).
+- Taps by zone, long press, head rub, 5/10 rapid taps; drag lines and leg speed; fling to throw with wall bounce; link glance, fast scroll, top, bottom, program groups, theme, dialogs, search/no result/saved, tab away, rotation; idle acts every 8–20 s, ping, sleep after 30–40 s.
+- Head/neck/pupil look-at (mouse, tap, scroll direction), purposeful walking with acceleration/braking and matched clip speed, spring hair and skirt, special days.
+- Cut: waving (no arm clip), entrance #8 sliding down the ribbon.
+- `?petdebug=1`: canvas/hit outlines, feet distance from bottom, innerHeight, visualViewport.scale, fps, state/act, and a button for every act.
+- Idle cost (3 runs each, same page): pet loop 15.8 ms/s vs 14.3 ms/s before (run-to-run spread 12.5–16.2), renders/s unchanged.
+
+## Versions
+`lvc-pet.js` VERSION 2026-11-08.2; `?v=2026-11-08.2` for lvc-pet.js (5 pages), lvc-transition.js (4 pages), lvc-journey.js and journey.css (home); pet-lines.js/pet-reactions.js imported with the same version.
+
+---
+
 # Patch 2026-11-08.13.1 — walking pet in the bottom-left corner (Sweetie Belle)
 
 Requested from a game screen recording (a pet roaming the bottom-left of the lobby), using the owner's Blender model (`sweetie-belle.zip`). On every page: index, programs, news, contact, 404.
