@@ -229,6 +229,7 @@ img { display: block; max-width: none; -webkit-user-drag: none; user-select: non
 </main>
 
 <script src="assets/js/gsap.min.js"></script>
+<script src="assets/js/butterflies.js" defer data-duration="14"></script>
 <script>
 (function () {
   'use strict';
@@ -361,6 +362,7 @@ img { display: block; max-width: none; -webkit-user-drag: none; user-select: non
 
   function finish() {
     state = 'done'; playhead = D; render();
+    if (window.Butterflies) window.Butterflies.release();   // most of the swarm flies off once the page is ready
     hud.setAttribute('data-state', 'done');
     replayBtn.disabled = false;
     startAmbient();
@@ -378,6 +380,7 @@ img { display: block; max-width: none; -webkit-user-drag: none; user-select: non
     replayBtn.disabled = true;
     hud.setAttribute('data-state', 'loading');
     stopAmbient();
+    if (window.Butterflies) window.Butterflies.play();      // a new swarm for the replay
     var o = { t: D };
     gsap.to(o, { t: 0, duration: reduce ? .3 : 1, ease: 'power2.inOut',
       onUpdate: function () { playhead = o.t; render(); },
