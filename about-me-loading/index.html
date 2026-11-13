@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>About me · เกี่ยวกับฉัน</title>
+<meta name="description" content="About me — เกี่ยวกับฉัน">
+<meta name="theme-color" content="#f7dcdd">
+<meta property="og:type" content="website">
+<meta property="og:title" content="About me · เกี่ยวกับฉัน">
+<meta property="og:description" content="About me — เกี่ยวกับฉัน">
+<!-- หลังอัปโหลดขึ้นเว็บจริง ให้เปลี่ยนเป็น URL เต็ม เช่น https://โดเมน/assets/img/og-cover.jpg ไม่งั้นรูปตอนแชร์ลิงก์จะไม่ขึ้น -->
+<meta property="og:image" content="assets/img/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<script>document.documentElement.className = 'js';</script>
+<style>
+/* ---------- fonts (all SIL Open Font License, see assets/fonts/LICENSE.txt) ---------- */
+@font-face { font-family: "Baskervville"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("assets/fonts/baskervville-400.woff2") format("woff2"); }
+@font-face { font-family: "Baskervville"; font-style: italic; font-weight: 400; font-display: swap;
+  src: url("assets/fonts/baskervville-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Bodoni Moda"; font-style: italic; font-weight: 400; font-display: swap;
+  src: url("assets/fonts/bodoni-moda-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Athiti"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("assets/fonts/athiti-500-thai.woff2") format("woff2"); }
+
+/* ---------- tokens ---------- */
+:root {
+  /* colour */
+  --paper-pink: #f7dcdd;   /* page background, measured from the Canva export */
+  --rose: #e686ae;         /* "About me" */
+  --ink: #252323;          /* Thai title, labels, star, loader */
+  --ink-soft: rgba(37, 35, 35, .22);
+  /* type families */
+  --font-serif: "Baskervville", "Baskerville", "Libre Baskerville", Georgia, "Noto Serif Thai", serif;
+  --font-thai: "Athiti", "Noto Sans Thai", "Sarabun", "Thonburi", sans-serif;
+  --font-label: "Bodoni Moda", "Bodoni 72", Didot, "Baskervville", "Noto Serif Thai", serif;
+  /* type scale, in design px (the stage is 1920 x 1080 and scales as one piece) */
+  --fs-title: 209px;
+  --fs-thai: 259.6px;
+  --fs-label: 45.6px;
+  --fs-page: 38.4px;
+  --fs-hud: 38.4px;
+  /* spacing scale (design px) */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+  /* motion */
+  --dur-quick: .18s; --dur-std: .45s; --dur-slow: 1.2s;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-in-out: cubic-bezier(.4, 0, .2, 1);
+  /* one hairline for everything */
+  --hairline: 2px;
+}
+
+/* ---------- page ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--paper-pink); color: var(--ink); font-family: var(--font-serif); overflow: hidden;
+  -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: none; -webkit-user-drag: none; user-select: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.scene { position: fixed; inset: 0; overflow: hidden; background: var(--paper-pink); }
+.safe-probe { position: absolute; visibility: hidden; pointer-events: none;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
+
+/* The Canva page: 1920 x 1080 design px. JS scales and centres it; everything inside is placed in design px. */
+.stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0;
+  --L: 0; --T: 0; --R: 1920; --B: 1080; --s: 1; --ls: 1; --f: 1; --sal: 0; --sar: 0; --sat: 0; --sab: 0; }
+.js .stage { visibility: hidden; }
+.js .stage.is-ready { visibility: visible; }
+.art { position: absolute; inset: 0; }
+
+/* background: the frame at full quality, plus a mirrored tile that carries the paper past the frame on other screen shapes */
+.bg-tile { position: absolute; left: -3840px; top: -2160px; width: 9600px; height: 5400px;
+  background: var(--paper-pink) url("assets/img/bg-tile.webp") 0 0 / 3840px 2160px repeat; }
+.bg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+
+/* a placed image: --x --y --w --h are design px */
+.piece { position: absolute; left: calc(var(--x) * 1px); top: calc(var(--y) * 1px); width: calc(var(--w) * 1px); height: calc(var(--h) * 1px); }
+.piece .float, .piece img { display: block; width: 100%; height: 100%; }
+
+/* torn paper strips: an un-rotated strip image, turned -37.598deg like in Canva.
+   Flipped copies continue the strip beyond both ends so no cut edge shows on tall or wide screens. */
+.paper { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.paper__rot { position: absolute; left: calc((var(--cx) - var(--w) / 2) * 1px); top: calc((var(--cy) - var(--h) / 2) * 1px);
+  width: calc(var(--w) * 1px); height: calc(var(--h) * 1px); transform: rotate(-37.59807deg); }
+.paper__img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.paper__img--before { left: calc(-100% + 4px); transform: scaleX(-1); }
+.paper__img--after { left: calc(100% - 4px); transform: scaleX(-1); }
+
+/* text: `top` is the baseline, --bl is where that font puts its baseline inside a line-height:1 box */
+.word { position: absolute; margin: 0; line-height: 1; white-space: nowrap; transform: translateY(calc(var(--bl) * -1em)); }
+.word .ch, .word .rise { display: inline-block; }
+.word--title { font-family: var(--font-serif); font-size: var(--fs-title); letter-spacing: .017em; color: var(--rose); --bl: .8515; }
+.word--thai { font-family: var(--font-thai); font-weight: 500; font-size: var(--fs-thai); color: var(--ink); --bl: .85; }
+.word--thai .cond { display: inline-block; transform: scaleX(var(--kx)); transform-origin: 0 50%; }
+
+/* corner pieces keep Canva's margins to the screen edges, and never get smaller than a readable size (--ls) */
+.corner { position: absolute; width: 0; height: 0; }
+.corner--page { left: calc((var(--L) + 121.44 * var(--f) + var(--sal)) * 1px); top: calc((var(--T) + 83.16 * var(--f) + var(--sat)) * 1px);
+  transform: scale(var(--ls)); transform-origin: 0 0; }
+.corner--credit { left: calc((var(--L) + 109.2 * var(--f) + var(--sal)) * 1px); top: calc((var(--B) - 122.5 * var(--f) - var(--sab)) * 1px);
+  transform: scale(var(--ls)); transform-origin: 0 0; }
+.corner--star { left: calc((var(--R) - 108 * var(--f) - var(--sar)) * 1px); top: calc((var(--B) - 108 * var(--f) - var(--sab)) * 1px);
+  transform: scale(var(--ls)); transform-origin: 0 0; }
+.label { position: absolute; margin: 0; line-height: 1; white-space: nowrap; color: var(--ink); transform: translateY(calc(var(--bl) * -1em)); }
+.label--page { left: 1.2px; top: 28.2px; font-family: var(--font-serif); font-style: italic; font-size: var(--fs-page);
+  letter-spacing: .013em; font-variant-numeric: lining-nums; font-feature-settings: "lnum" 1; --bl: .8515; }
+.label--credit { left: 1.7px; top: 0; font-family: var(--font-label); font-style: italic; font-size: var(--fs-label); letter-spacing: .067em; --bl: .8625; }
+.label--credit .cond { display: inline-block; transform: scaleX(.805); transform-origin: 0 50%; }
+.star { position: absolute; left: -84.03px; top: -84.03px; width: 88px; height: 88px; }
+.star .float, .star img { display: block; width: 100%; height: 100%; }
+
+/* loader, then replay button — sits left of the star, on the same line */
+.hud { position: absolute; left: calc((var(--R) - 108 * var(--f) - var(--sar)) * 1px); top: calc((var(--B) - 108 * var(--f) - var(--sab)) * 1px);
+  width: 0; height: 0; transform: scale(var(--ls)); transform-origin: 0 0; }
+.hud__box { position: absolute; right: 108px; top: -68px; width: 232px; height: 58px; }
+.loader, .replay { position: absolute; inset: 0; margin: 0; font-family: var(--font-serif); font-style: italic; font-size: var(--fs-hud);
+  line-height: 1; letter-spacing: .034em; color: var(--ink); font-variant-numeric: lining-nums tabular-nums; font-feature-settings: "lnum" 1, "tnum" 1; }
+.loader__num, .replay__label { position: absolute; right: 0; top: 0; white-space: nowrap; }
+.hud__track { position: absolute; left: 0; right: 0; bottom: 0; height: var(--hairline); background: var(--ink-soft); overflow: hidden; }
+.hud__fill { position: absolute; inset: 0; background: var(--ink); transform: scaleX(0); transform-origin: 0 50%; }
+.replay { appearance: none; -webkit-appearance: none; border: 0; padding: 0; background: none; cursor: pointer; text-align: right;
+  text-transform: uppercase; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  transition: opacity var(--dur-std) var(--ease-out), transform var(--dur-quick) var(--ease-out); }
+.replay::before { content: ""; position: absolute; inset: calc(-13px / (var(--s) * var(--ls))); } /* tap area: 13 screen px on every side, so at least 44px tall on phones */
+.replay__label { display: inline-flex; align-items: center; gap: var(--sp-3); }
+.replay__icon { width: .74em; height: .74em; flex: none; margin-top: -.06em; transition: transform var(--dur-std) var(--ease-out); }
+.replay:hover .replay__icon { transform: rotate(-90deg); }
+.replay:hover .replay__label { opacity: .72; }
+.replay:active { transform: scale(.97); }
+.replay:focus-visible { outline: var(--hairline) solid var(--ink); outline-offset: 10px; }
+.replay[disabled] { pointer-events: none; }
+.loader, .replay { transition: opacity var(--dur-std) var(--ease-out), transform var(--dur-quick) var(--ease-out); }
+.hud[data-state="loading"] .replay, .hud[data-state="done"] .loader { opacity: 0; visibility: hidden; transition: opacity var(--dur-std) var(--ease-out), visibility 0s var(--dur-std); }
+.loader { opacity: 1; }
+
+/* without JavaScript: show the finished picture */
+.static { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+
+@media (prefers-reduced-motion: reduce) {
+  .replay, .loader, .replay__icon { transition-duration: .01s; }
+}
+</style>
+</head>
+<body>
+<main class="scene" id="scene">
+  <h1 class="sr-only"><span lang="en">About me</span> — เกี่ยวกับฉัน</h1>
+  <div class="safe-probe" id="safe-probe"></div>
+
+  <div class="stage" id="stage">
+    <div class="art" aria-hidden="true">
+      <div class="bg-tile"></div>
+      <img class="bg" alt="" decoding="async" data-track
+           srcset="assets/img/bg@1x.webp 1920w, assets/img/bg@2x.webp 3840w"
+           sizes="(max-aspect-ratio: 4/3) 116.4vw, min(100vw, 177.78vh)" src="assets/img/bg@1x.webp">
+
+      <!-- torn paper, cream sheet underneath -->
+      <div class="paper" id="paper-cream" style="--cx:960; --cy:667.9489; --w:2401.0032; --h:816.3411">
+        <div class="paper__rot">
+          <img class="paper__img paper__img--before" alt="" decoding="async" srcset="assets/img/paper-cream@1x.webp 2401w, assets/img/paper-cream@2x.webp 4802w" sizes="(max-aspect-ratio: 4/3) 145.6vw, min(125.1vw, 222.3vh)" src="assets/img/paper-cream@1x.webp">
+          <img class="paper__img paper__img--after" alt="" decoding="async" srcset="assets/img/paper-cream@1x.webp 2401w, assets/img/paper-cream@2x.webp 4802w" sizes="(max-aspect-ratio: 4/3) 145.6vw, min(125.1vw, 222.3vh)" src="assets/img/paper-cream@1x.webp">
+          <img class="paper__img" alt="" decoding="async" data-track srcset="assets/img/paper-cream@1x.webp 2401w, assets/img/paper-cream@2x.webp 4802w" sizes="(max-aspect-ratio: 4/3) 145.6vw, min(125.1vw, 222.3vh)" src="assets/img/paper-cream@1x.webp">
+        </div>
+      </div>
+      <!-- torn paper, kraft sheet on top -->
+      <div class="paper" id="paper-kraft" style="--cx:1004.6171; --cy:620.4613; --w:2234.8725; --h:722.2552">
+        <div class="paper__rot">
+          <img class="paper__img paper__img--before" alt="" decoding="async" srcset="assets/img/paper-kraft@1x.webp 2235w, assets/img/paper-kraft@2x.webp 4470w" sizes="(max-aspect-ratio: 4/3) 135.5vw, min(116.4vw, 206.9vh)" src="assets/img/paper-kraft@1x.webp">
+          <img class="paper__img paper__img--after" alt="" decoding="async" srcset="assets/img/paper-kraft@1x.webp 2235w, assets/img/paper-kraft@2x.webp 4470w" sizes="(max-aspect-ratio: 4/3) 135.5vw, min(116.4vw, 206.9vh)" src="assets/img/paper-kraft@1x.webp">
+          <img class="paper__img" alt="" decoding="async" data-track srcset="assets/img/paper-kraft@1x.webp 2235w, assets/img/paper-kraft@2x.webp 4470w" sizes="(max-aspect-ratio: 4/3) 135.5vw, min(116.4vw, 206.9vh)" src="assets/img/paper-kraft@1x.webp">
+        </div>
+      </div>
+
+      <!-- "About me" -->
+      <div class="piece" id="letter-a" style="--x:120; --y:176; --w:608; --h:344">
+        <img alt="" decoding="async" data-track src="assets/img/letter-a.webp">
+      </div>
+      <p class="word word--title" id="word-bout" lang="en" style="left:607.8px; top:504.7px"><span class="ch">b</span><span class="ch">o</span><span class="ch">u</span><span class="ch">t</span></p>
+      <p class="word word--title" id="word-me" lang="en" style="left:1321.1px; top:504.7px"><span class="ch">m</span><span class="ch">e</span></p>
+
+      <!-- "เกี่ยวกับ ฉัน" -->
+      <p class="word word--thai" id="word-th1" style="left:488.5px; top:791.5px"><span class="rise"><span class="cond" style="--kx:.742">เกี่ยวกับ</span></span></p>
+      <p class="word word--thai" id="word-th2" style="left:1153.1px; top:791.5px"><span class="rise"><span class="cond" style="--kx:.771">ฉัน</span></span></p>
+
+      <!-- objects -->
+      <div class="piece" id="mirror" style="--x:853.44; --y:81.28; --w:600; --h:920">
+        <div class="float"><img alt="" decoding="async" data-track srcset="assets/img/mirror@1x.webp 600w, assets/img/mirror@2x.webp 1200w" sizes="(max-aspect-ratio: 4/3) 36.4vw, min(31.25vw, 55.56vh)" src="assets/img/mirror@1x.webp"></div>
+      </div>
+      <div class="piece" id="ribbon" style="--x:1204.48; --y:-24.96; --w:1704; --h:440">
+        <div class="float"><img alt="" decoding="async" data-track srcset="assets/img/ribbon@1x.webp 1704w, assets/img/ribbon@2x.webp 3408w" sizes="(max-aspect-ratio: 4/3) 103.3vw, min(88.75vw, 157.8vh)" src="assets/img/ribbon@1x.webp"></div>
+      </div>
+      <div class="piece" id="heart" style="--x:295.04; --y:616.32; --w:120; --h:104">
+        <div class="float"><img alt="" decoding="async" data-track srcset="assets/img/heart@1x.webp 120w, assets/img/heart@2x.webp 240w" sizes="(max-aspect-ratio: 4/3) 7.3vw, min(6.25vw, 11.1vh)" src="assets/img/heart@1x.webp"></div>
+      </div>
+      <div class="piece" id="butterfly" style="--x:1515.84; --y:573.12; --w:128; --h:96">
+        <div class="float"><img alt="" decoding="async" data-track srcset="assets/img/butterfly@1x.webp 128w, assets/img/butterfly@2x.webp 256w" sizes="(max-aspect-ratio: 4/3) 7.8vw, min(6.67vw, 11.9vh)" src="assets/img/butterfly@1x.webp"></div>
+      </div>
+
+      <!-- corner pieces -->
+      <div class="corner corner--page"><div class="rise" id="label-page"><p class="label label--page" lang="en">PAGE 01</p></div></div>
+      <div class="corner corner--credit"><div class="rise" id="label-credit"><p class="label label--credit" lang="en"><span class="cond">Design BY XER1TZ</span></p></div></div>
+      <div class="corner corner--star"><div class="star" id="star"><div class="float"><img alt="" decoding="async" data-track src="assets/img/star.webp"></div></div></div>
+    </div>
+
+    <!-- loader, becomes the replay button at 100% -->
+    <div class="hud" id="hud" data-state="loading">
+      <div class="hud__box">
+        <div class="loader" id="loader" role="progressbar" aria-label="กำลังโหลด" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span class="loader__num"><span id="num">0</span>%</span>
+        </div>
+        <button class="replay" id="replay" type="button" aria-label="เล่นซ้ำ" disabled>
+          <span class="replay__label">
+            <svg class="replay__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.2 3.2v5h5"/></svg>
+            <span lang="en">Replay</span>
+          </span>
+        </button>
+        <span class="hud__track" aria-hidden="true"><span class="hud__fill" id="fill"></span></span>
+      </div>
+    </div>
+  </div>
+
+  <noscript>
+    <style>.stage { display: none; }</style>
+    <img class="static" src="assets/img/og-cover.jpg" alt="About me — เกี่ยวกับฉัน, Design BY XER1TZ">
+  </noscript>
+</main>
+
+<script src="assets/js/gsap.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var scene = document.getElementById('scene');
+  var stage = document.getElementById('stage');
+  var hud = document.getElementById('hud');
+  var num = document.getElementById('num');
+  var fill = document.getElementById('fill');
+  var loader = document.getElementById('loader');
+  var replayBtn = document.getElementById('replay');
+  var probe = document.getElementById('safe-probe');
+  var $ = function (sel) { return stage.querySelectorAll(sel); };
+
+  /* ---------- fit the 1920 x 1080 stage to any screen ---------- */
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function layout() {
+    var vw = scene.clientWidth, vh = scene.clientHeight;
+    if (!vw || !vh) return;
+    var ar = vw / vh;
+    // landscape: the whole Canva frame, untouched. portrait: move in a little on the title so it reads on a phone.
+    var t = clamp((4 / 3 - ar) / (4 / 3 - 3 / 4), 0, 1);
+    var zoom = 1 + 0.164 * t, cx = 960 - 75 * t, cy = 540;
+    var s = Math.min(vw / 1920, vh / 1080) * zoom;
+    stage.style.transform = 'translate(' + (vw / 2 - cx * s) + 'px,' + (vh / 2 - cy * s) + 'px) scale(' + s + ')';
+    var cs = getComputedStyle(probe);
+    var set = function (k, v) { stage.style.setProperty(k, String(v)); };
+    set('--s', s);
+    set('--L', cx - vw / (2 * s)); set('--R', cx + vw / (2 * s));
+    set('--T', cy - vh / (2 * s)); set('--B', cy + vh / (2 * s));
+    set('--ls', Math.max(1, 13 / (38.4 * s)));        // small labels never below ~13px
+    set('--f', Math.max(1, 20 / (108 * s)));          // corner margins never below ~20px
+    set('--sal', parseFloat(cs.paddingLeft) / s); set('--sar', parseFloat(cs.paddingRight) / s);
+    set('--sat', parseFloat(cs.paddingTop) / s); set('--sab', parseFloat(cs.paddingBottom) / s);
+    stage.classList.add('is-ready');
+  }
+  layout();
+  window.addEventListener('resize', layout);
+  window.addEventListener('orientationchange', layout);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', layout);
+
+  if (!window.gsap) { hud.style.display = 'none'; return; }   // no animation library: the finished picture stays on screen
+
+  /* ---------- what has to be loaded ---------- */
+  function imageReady(img) {
+    return new Promise(function (resolve) {
+      if (img.complete) return resolve();                        // already loaded, or already failed
+      img.addEventListener('load', resolve, { once: true });
+      img.addEventListener('error', resolve, { once: true });   // never hang on a missing file
+    });
+  }
+  var ready = {};
+  function track(key, promise) { ready[key] = false; promise.then(function () { ready[key] = true; }); }
+  setTimeout(function () { Object.keys(ready).forEach(function (k) { ready[k] = true; }); }, 20000);   // last resort: never wait longer than 20s
+  track('bg', Promise.all([imageReady($('.bg')[0])]));
+  track('cream', imageReady($('#paper-cream [data-track]')[0]));
+  track('kraft', imageReady($('#paper-kraft [data-track]')[0]));
+  ['letter-a', 'mirror', 'ribbon', 'heart', 'butterfly', 'star'].forEach(function (id) {
+    track(id, imageReady(stage.querySelector('#' + id + ' img')));
+  });
+  var fontJobs = document.fonts && document.fonts.load ? [
+    document.fonts.load('400 206px "Baskervville"', 'boutme'),
+    document.fonts.load('italic 400 38px "Baskervville"', 'PAGE 01 Replay 100%'),
+    document.fonts.load('500 260px "Athiti"', 'เกี่ยวกับฉัน'),
+    document.fonts.load('italic 400 46px "Bodoni Moda"', 'Design BY XER1TZ')
+  ] : [];
+  var timeout = new Promise(function (r) { setTimeout(r, 6000); });     // a slow font must not block the page forever
+  track('fonts', Promise.race([Promise.all(fontJobs).catch(function () {}), timeout]));
+
+  /* ---------- the reveal: one timeline, scrubbed by the loader ---------- */
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var AX = 0.7923, AY = -0.6101;            // direction of the paper strips
+  var tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out', duration: 1 } });
+  var gates = [];                            // [time, key]: the playhead waits here until that file is in
+  function step(targets, from, vars, at, key) {
+    var start = reduce ? { autoAlpha: 0 } : Object.assign({ autoAlpha: 0 }, from);
+    var end = Object.assign({ autoAlpha: 1, x: 0, y: 0, xPercent: 0, yPercent: 0, rotation: 0, scale: 1 }, vars);
+    if (reduce) { end.duration = Math.min(end.duration || 1, .5); end.ease = 'power1.out'; if (end.stagger) end.stagger = .03; }
+    gsap.set(targets, start);
+    tl.to(targets, end, at);
+    if (key) gates.push([at, key]);
+  }
+  var T = reduce ? function (x) { return x * .45; } : function (x) { return x; };
+  step('#paper-cream', { x: -AX * 240, y: -AY * 240 }, { duration: 1.5 }, T(0), 'cream');
+  step('#paper-kraft', { x: AX * 280, y: AY * 280 }, { duration: 1.5 }, T(.18), 'kraft');
+  step('#letter-a', { x: -36, y: 24, rotation: -4, scale: .96, transformOrigin: '72% 92%' }, { duration: 1.3 }, T(1.05), 'letter-a');
+  step('#word-bout .ch', { yPercent: 34 }, { duration: .9, stagger: .07 }, T(1.45), 'fonts');
+  step('#word-me .ch', { yPercent: 34 }, { duration: .9, stagger: .07 }, T(1.85), 'fonts');
+  step('#word-th1 .rise', { y: 44 }, { duration: 1 }, T(2.25), 'fonts');
+  step('#word-th2 .rise', { y: 44 }, { duration: 1 }, T(2.41), 'fonts');
+  step('#mirror', { y: 46, rotation: -7, scale: .94, transformOrigin: '50% 62%' }, { duration: 1.3 }, T(2.75), 'mirror');
+  step('#ribbon', { x: 150, y: -34 }, { duration: 1.2 }, T(3.35), 'ribbon');
+  step('#butterfly', { scale: .5, rotation: 24, y: 18 }, { duration: .9 }, T(3.95), 'butterfly');
+  step('#heart', { scale: .5, rotation: -24, y: 18 }, { duration: .9 }, T(4.1), 'heart');
+  step('#label-page', { y: -14 }, { duration: .8 }, T(4.35), 'fonts');
+  step('#label-credit', { y: 14 }, { duration: .8 }, T(4.5), 'fonts');
+  step('#star', { scale: .3, rotation: -90 }, { duration: .9 }, T(4.65), 'star');
+  var D = tl.duration();
+  gates.sort(function (a, b) { return a[0] - b[0]; });
+  function limit() {
+    if (!ready.bg) return 0;
+    for (var i = 0; i < gates.length; i++) if (!ready[gates[i][1]]) return gates[i][0];
+    return D;
+  }
+
+  /* ---------- loader ---------- */
+  var playhead = 0, state = 'loading', shown = -1;
+  function render() {
+    tl.time(playhead);
+    var p = clamp(playhead / D, 0, 1), pct = state === 'done' ? 100 : Math.min(99, Math.floor(p * 100));
+    fill.style.transform = 'scaleX(' + (state === 'done' ? 1 : p) + ')';
+    if (pct !== shown) { shown = pct; num.textContent = pct; loader.setAttribute('aria-valuenow', pct); }
+  }
+  render();
+
+  /* ---------- small ambient life once everything has landed ---------- */
+  var ambient = [];
+  function startAmbient() {
+    if (reduce) return;
+    var loop = function (sel, vars) { ambient.push(gsap.to(sel, Object.assign({ ease: 'sine.inOut', yoyo: true, repeat: -1 }, vars))); };
+    loop('#mirror .float', { y: -7, rotation: .5, transformOrigin: '50% 60%', duration: 3.6 });
+    loop('#ribbon .float', { y: 3, rotation: .3, transformOrigin: '0% 85%', duration: 4.4 });
+    loop('#butterfly .float', { y: -5, rotation: 5, duration: 1.9 });
+    loop('#heart .float', { scale: 1.05, rotation: -3, duration: 2.5 });
+    loop('#star .float', { scale: 1.14, rotation: 14, duration: 2.9 });
+  }
+  function stopAmbient() {
+    ambient.forEach(function (t) { t.kill(); }); ambient = [];
+    gsap.to($('.float'), { x: 0, y: 0, rotation: 0, scale: 1, duration: .4, ease: 'power2.out', overwrite: true });
+  }
+
+  function finish() {
+    state = 'done'; playhead = D; render();
+    hud.setAttribute('data-state', 'done');
+    replayBtn.disabled = false;
+    startAmbient();
+  }
+  gsap.ticker.add(function (time, delta) {
+    if (state !== 'loading') return;
+    var lim = limit();
+    if (playhead < lim) { playhead = Math.min(playhead + delta / 1000, lim); render(); }
+    if (playhead >= D) finish();
+  });
+
+  replayBtn.addEventListener('click', function () {
+    if (state !== 'done') return;
+    state = 'rewinding';
+    replayBtn.disabled = true;
+    hud.setAttribute('data-state', 'loading');
+    stopAmbient();
+    var o = { t: D };
+    gsap.to(o, { t: 0, duration: reduce ? .3 : 1, ease: 'power2.inOut',
+      onUpdate: function () { playhead = o.t; render(); },
+      onComplete: function () { playhead = 0; render(); gsap.delayedCall(.25, function () { state = 'loading'; }); } });
+  });
+})();
+</script>
+</body>
+</html>
