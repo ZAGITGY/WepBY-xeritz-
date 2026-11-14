@@ -1,0 +1,30 @@
+{
+    "format_version": 2,
+    "header": {
+        "name": "TreeVein",
+        "description": "Sneak + axe: whole tree. Sneak + pickaxe: whole ore vein. (Behavior pack: turns achievements OFF for the world.)",
+        "uuid": "fa7bd7ad-2026-48a5-9766-ea928ac318d1",
+        "version": [1, 0, 0],
+        "min_engine_version": [1, 21, 110]
+    },
+    "modules": [
+        {
+            "type": "data",
+            "uuid": "a339ac99-502c-4189-807d-3e640ff4d108",
+            "version": [1, 0, 0]
+        },
+        {
+            "type": "script",
+            "language": "javascript",
+            "uuid": "43db4a34-fc8d-4788-ae34-2efbb3453eb8",
+            "version": [1, 0, 0],
+            "entry": "scripts/main.js"
+        }
+    ],
+    "dependencies": [
+        {
+            "module_name": "@minecraft/server",
+            "version": "2.2.0"
+        }
+    ]
+}

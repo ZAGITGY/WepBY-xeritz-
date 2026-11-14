@@ -1,0 +1,18 @@
+{
+    "format_version": 2,
+    "header": {
+        "name": "Ore Glow",
+        "description": "Vivid ores with a glowing outline. Real glow with Vibrant Visuals. Resource pack only: achievements stay ON.",
+        "uuid": "adb5422e-b3e6-4e72-be9c-5814f5a0f603",
+        "version": [1, 0, 0],
+        "min_engine_version": [1, 21, 120]
+    },
+    "modules": [
+        {
+            "type": "resources",
+            "uuid": "d3518ae6-c101-4280-a6b3-a0a08b656c9d",
+            "version": [1, 0, 0]
+        }
+    ],
+    "capabilities": ["pbr"]
+}
