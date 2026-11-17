@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แม่รักลูก · ร้านของใช้แม่และเด็ก</title>
+<meta name="description" content="แม่รักลูก ร้านของใช้แม่และเด็ก ดูสินค้า เรื่องราวของร้าน และช่องทางติดต่อ">
+<meta name="theme-color" content="#FFF8EF">
+<!-- หลังขึ้นเว็บจริง: เปลี่ยน og:image และ og:url เป็น URL เต็ม เช่น https://ชื่อเว็บ/assets/og-image.jpg -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="แม่รักลูก · ร้านของใช้แม่และเด็ก">
+<meta property="og:description" content="แม่รักลูก ร้านของใช้แม่และเด็ก ดูสินค้า เรื่องราวของร้าน และช่องทางติดต่อ">
+<meta property="og:image" content="assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Crect width='56' height='56' rx='14' fill='%23FFF8EF'/%3E%3Cg fill='none' stroke-width='6'%3E%3Cpath d='M7 40a21 21 0 0 1 42 0' stroke='%23F7A8C0'/%3E%3Cpath d='M15 40a13 13 0 0 1 26 0' stroke='%23F8DF8E'/%3E%3Cpath d='M23 40a5 5 0 0 1 10 0' stroke='%23A9D3F2'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<script>
+  // ซ่อนของที่จะเล่นแอนิเมชันไว้ก่อน เฉพาะเครื่องที่ไม่ได้ตั้ง "ลดการเคลื่อนไหว"
+  document.documentElement.classList.add('js');
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+</script>
+<style>
+/* ===== Token — แก้สี ฟอนต์ ระยะ ที่นี่ที่เดียว ===== */
+:root{
+  /* สีพื้นและตัวหนังสือ (คอนทราสต์บนพื้นครีม: --ink 9.6:1, --ink-2 5.5:1) */
+  --bg:#FFF8EF;            /* พื้นครีม */
+  --surface:#FFFFFF;       /* การ์ด */
+  --ink:#4A3B5C;           /* ตัวหนังสือหลัก (ม่วงพลัม) */
+  --ink-2:#6E6080;         /* ตัวหนังสือรอง */
+  --line:rgba(74,59,92,.14);
+  /* สีรุ้งพาสเทลจากโลโก้ ใช้กับพื้น ไอคอน และโมเดล 3D */
+  --p-pink:#F7A8C0; --p-peach:#FBC6A4; --p-yellow:#F8DF8E;
+  --p-mint:#AEE2C6; --p-sky:#A9D3F2;  --p-lav:#CBB7EC;
+  /* สีรุ้งเข้ม สำหรับตัวหนังสือใหญ่และไอคอน (ผ่าน 3:1 บนพื้นครีม/ขาว) */
+  --t-pink:#D9577F; --t-orange:#D8732F; --t-yellow:#B0840F;
+  --t-green:#3A9A6A; --t-blue:#3A86C8; --t-purple:#8A63CF;
+  /* สีรุ้งอ่อนมาก สำหรับพื้นของแต่ละส่วน */
+  --tint-pink:#FDEBF1; --tint-peach:#FEF0E6; --tint-yellow:#FDF5DA;
+  --tint-mint:#E8F7EF; --tint-sky:#E8F3FC;  --tint-lav:#F3EDFC;
+
+  /* ฟอนต์: Mali = หัวข้อ/โลโก้, Prompt = เนื้อหา */
+  --font-display:'Mali','Prompt','Noto Sans Thai',sans-serif;
+  --font-ui:'Prompt','Noto Sans Thai',sans-serif;
+  --fs-sm:14px; --fs-base:16px; --fs-md:18px; --fs-lg:24px;
+  --fs-xl:clamp(32px,5vw,56px);
+  --fs-hero:clamp(76px, min(19vw, 25svh), 240px);
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px; --s9:96px;
+  --pad:clamp(20px,4vw,64px);
+  --maxw:1200px;
+  --r-pill:999px; --r-card:28px; --r-sm:16px;
+  --shadow:0 10px 30px -12px rgba(74,59,92,.25);
+  --shadow-lift:0 20px 44px -16px rgba(74,59,92,.34);
+  /* โมชัน: CSS ใช้ 2 ค่าแรก ส่วน GSAP ใช้ power3.out (ของเข้า) และ back.out (ตัวโลโก้เด้ง) */
+  --t-fast:200ms; --t-mid:450ms;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:var(--fs-base);line-height:1.7;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{overflow-x:hidden}
+img,svg{display:block}
+a{color:inherit;text-decoration:none;cursor:pointer}
+:focus-visible{outline:3px solid var(--t-blue);outline-offset:3px;border-radius:12px}
+.skip{position:fixed;left:var(--s4);top:var(--s4);z-index:60;padding:var(--s3) var(--s5);border-radius:var(--r-pill);background:var(--ink);color:#fff;font-weight:600;transform:translateY(-200%)}
+.skip:focus-visible{transform:none}
+.ico{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.c1{color:var(--t-pink)}.c2{color:var(--t-orange)}.c3{color:var(--t-yellow)}
+.c4{color:var(--t-green)}.c5{color:var(--t-blue)}.c6{color:var(--t-purple)}
+
+/* ===== Hero (หน้าแรก) ===== */
+.hero{position:relative;min-height:100svh;overflow:hidden;isolation:isolate;display:flex;flex-direction:column}
+.bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
+.b1{width:46vmax;height:46vmax;left:-14vmax;top:-16vmax;background:var(--p-pink)}
+.b2{width:38vmax;height:38vmax;right:-10vmax;top:-12vmax;background:var(--p-sky)}
+.b3{width:34vmax;height:34vmax;left:30%;bottom:-20vmax;background:var(--p-yellow)}
+.b4{width:30vmax;height:30vmax;right:-8vmax;bottom:-10vmax;background:var(--p-lav)}
+.b5{width:24vmax;height:24vmax;left:-8vmax;bottom:5%;background:var(--p-mint)}
+.arcs{position:absolute;right:-6vmax;bottom:-30vmax;width:78vmax;opacity:.35}
+#scene{position:absolute;inset:0;z-index:1;width:100%;height:100%;display:block;pointer-events:none}
+
+.nav{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:var(--s5) var(--pad)}
+.brand{display:flex;align-items:center;gap:var(--s3);font-family:var(--font-display);font-weight:700;font-size:var(--fs-lg);line-height:1.3;min-height:44px}
+.brand svg{width:44px;height:24px;flex:none}
+.links{display:flex;gap:clamp(var(--s4),3vw,var(--s7));list-style:none;padding:0;font-weight:500;font-size:var(--fs-md)}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);position:relative}
+.links a::after{content:"";position:absolute;left:var(--s2);right:var(--s2);bottom:8px;height:3px;border-radius:3px;background:var(--t-pink);transform:scaleX(0);transform-origin:left;transition:transform var(--t-fast) var(--ease)}
+.links a:hover::after{transform:scaleX(1)}
+
+.content{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad) var(--s7)}
+.eyebrow{font-family:'Prompt',sans-serif;font-weight:600;font-size:var(--fs-sm);letter-spacing:.32em;color:var(--ink-2);margin-bottom:var(--s2)}
+h1{font-family:var(--font-display);font-weight:700;font-size:var(--fs-hero);line-height:1.15}
+h1 .line{display:block;white-space:nowrap}
+h1 .l2{padding-left:clamp(28vw,40vw,52vw)}
+h1 .syl{display:inline-block}
+
+.foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s4) var(--s5);margin-top:var(--s5)}
+.sub{font-size:var(--fs-md);color:var(--ink-2);flex-basis:100%}
+
+/* ปุ่ม: สูงอย่างน้อย 44px ทุกขนาด */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:52px;padding:0 var(--s6);border-radius:var(--r-pill);font-weight:600;font-size:var(--fs-md);line-height:1.2;transition:transform var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+.btn-main{background:var(--ink);color:#fff;box-shadow:var(--shadow)}
+.btn-main:hover{background:#5B4B6B;transform:translateY(-2px)}
+.btn-ghost{border:2px solid var(--ink);background:rgba(255,255,255,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.btn-ghost:hover{background:#fff;transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn-sm{min-height:44px;padding:0 var(--s5);font-size:var(--fs-base)}
+.btn-soft{background:var(--tint);color:var(--ink);border:2px solid transparent}
+.btn-soft:hover{border-color:var(--ink);transform:translateY(-2px)}
+/* ปุ่มที่ยังรอข้อมูลร้าน (กดไม่ได้) */
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-2);border:2px dashed var(--line);box-shadow:none;cursor:not-allowed;transform:none}
+
+/* ===== แถบเมนูลัด (โผล่หลังเลื่อนผ่านหน้าแรก) ===== */
+.minibar{position:fixed;inset:0 0 auto;z-index:50;padding-top:env(safe-area-inset-top);background:rgba(255,248,239,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);transform:translateY(-110%);visibility:hidden;transition:transform var(--t-mid) var(--ease),visibility 0s linear var(--t-mid)}
+.minibar.is-on{transform:none;visibility:visible;transition:transform var(--t-mid) var(--ease),visibility 0s}
+.mb-inner{max-width:calc(var(--maxw) + var(--pad) * 2);margin:0 auto;padding:var(--s2) var(--pad);display:flex;align-items:center;gap:var(--s5)}
+.brand-sm{font-size:22px;gap:var(--s2);margin-right:auto}
+.brand-sm svg{width:36px;height:20px}
+.mb-links{display:flex;gap:var(--s2);list-style:none;padding:0;font-weight:500}
+.mb-links a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s3);border-radius:var(--r-pill);transition:background-color var(--t-fast) var(--ease)}
+.mb-links a:hover{background:var(--tint-lav)}
+
+/* ===== ส่วนเนื้อหา ===== */
+.section{position:relative;padding:var(--s9) 0}
+.section[id]{scroll-margin-top:72px}
+.container{max-width:calc(var(--maxw) + var(--pad) * 2);margin:0 auto;padding:0 var(--pad)}
+.sec-head{max-width:680px;margin-bottom:var(--s7)}
+.kicker{display:inline-flex;align-items:center;gap:var(--s2);font-weight:600;color:var(--ink-2);margin-bottom:var(--s3)}
+.kicker svg{width:32px;height:18px}
+h2{font-family:var(--font-display);font-weight:700;font-size:var(--fs-xl);line-height:1.3;text-wrap:balance}
+.lead{font-size:var(--fs-md);color:var(--ink-2);margin-top:var(--s3);max-width:40ch}
+.rb,.nw{white-space:nowrap}
+
+/* ป้ายรอข้อมูลร้าน — ลบทั้งแท็กแล้วใส่ข้อมูลจริงแทน */
+.todo{display:inline-block;max-width:100%;border:1.5px dashed var(--t-pink);border-radius:12px;padding:2px 10px;background:rgba(255,255,255,.75);color:var(--ink-2);font-size:var(--fs-sm);font-weight:500;line-height:1.6}
+.todo-lg{font-size:var(--fs-base);padding:var(--s3) var(--s4);border-radius:var(--r-sm)}
+
+/* --- สินค้า --- */
+.pgrid{list-style:none;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s4) var(--s3)}
+.pcard{display:flex;flex-direction:column;gap:var(--s3);padding:var(--s3);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);box-shadow:var(--shadow);transition:transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+.pcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
+.pimg{position:relative;aspect-ratio:1;border-radius:var(--r-sm);background-color:var(--tint);background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 2px,transparent 2.5px);background-size:18px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s3);padding:var(--s3);text-align:center;overflow:hidden}
+.pimg .badge{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--surface);color:var(--c);box-shadow:var(--shadow)}
+.pbody{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s2);padding:0 var(--s1) var(--s1);flex:1}
+.pcard .todo{white-space:nowrap}
+.pname{font-family:var(--font-ui);font-size:var(--fs-md);font-weight:600;line-height:1.4}
+.pprice{font-weight:600;color:var(--t-pink)}
+.pcard .btn{margin-top:auto;width:100%}
+
+/* --- เกี่ยวกับร้าน --- */
+.about{background:var(--tint-lav)}
+.about::before,.contact::before{content:"";position:absolute;left:0;right:0;top:-19px;height:20px;background:radial-gradient(circle at 50% 100%,var(--sc) 13px,transparent 13.5px) 50% 0/36px 20px repeat-x}
+.about{--sc:var(--tint-lav)}
+.about-grid{display:grid;gap:var(--s7);align-items:center}
+.about-media{position:relative;padding-bottom:var(--s5)}
+.photo{position:relative;aspect-ratio:4/3;border-radius:var(--r-card);background-color:var(--surface);background-image:radial-gradient(circle,var(--tint-lav) 0 3px,transparent 3.5px);background-size:22px 22px;border:1px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s4);padding:var(--s5);text-align:center;color:var(--t-purple)}
+.photo .ico{width:48px;height:48px;stroke-width:1.6}
+.about-arcs{position:absolute;right:-8px;bottom:-4px;width:min(46%,220px);overflow:hidden}
+.about-arcs path{fill:none;stroke-width:14;stroke-linecap:round}
+.story{margin:var(--s5) 0 var(--s6);max-width:680px}
+.points{list-style:none;padding:0;display:grid;gap:var(--s3)}
+.points li{display:flex;align-items:center;gap:var(--s4);padding:var(--s3) var(--s4) var(--s3) var(--s3);background:var(--surface);border-radius:var(--r-pill);box-shadow:var(--shadow)}
+.num{display:grid;place-items:center;width:44px;height:44px;flex:none;border-radius:50%;background:var(--tint);color:var(--c);font-family:var(--font-display);font-weight:700;font-size:var(--fs-lg);line-height:1}
+
+/* --- ติดต่อ --- */
+.contact{--sc:var(--tint-mint);background:var(--tint-mint)}
+.contact-grid{display:grid;gap:var(--s5)}
+.cards{list-style:none;padding:0;display:grid;gap:var(--s4)}
+.ccard{display:grid;grid-template-columns:auto 1fr;gap:var(--s2) var(--s4);align-items:start;align-content:start;padding:var(--s5);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow)}
+.ccard .badge{grid-row:span 2;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--tint);color:var(--c)}
+.ccard h3{font-size:var(--fs-md);font-weight:600;line-height:1.4}
+.ccard .btn{grid-column:1 / -1;margin-top:var(--s2)}
+.map{position:relative;min-height:240px;border-radius:var(--r-card);background-color:var(--surface);background-image:linear-gradient(var(--tint-sky) 2px,transparent 2px),linear-gradient(90deg,var(--tint-sky) 2px,transparent 2px);background-size:32px 32px;border:1px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s3);padding:var(--s5);text-align:center;overflow:hidden}
+.map .pin{display:grid;place-items:center;width:64px;height:64px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--p-pink);color:var(--ink);box-shadow:var(--shadow)}
+.map .pin .ico{transform:rotate(45deg)}
+
+/* --- ท้ายเว็บ --- */
+.footer{background:var(--ink);color:var(--bg);padding:var(--s8) 0 calc(var(--s6) + env(safe-area-inset-bottom))}
+.foot-grid{display:grid;gap:var(--s5)}
+.brand-light .c1{color:var(--p-pink)}.brand-light .c2{color:var(--p-peach)}.brand-light .c3{color:var(--p-yellow)}
+.brand-light .c4{color:var(--p-mint)}.brand-light .c5{color:var(--p-sky)}.brand-light .c6{color:var(--p-lav)}
+.footer .tag{color:#E4DCEC}
+.flinks{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5)}
+.flinks a{display:inline-flex;align-items:center;min-height:44px;text-decoration:underline;text-decoration-color:rgba(255,248,239,.35);text-underline-offset:6px;transition:text-decoration-color var(--t-fast) var(--ease)}
+.flinks a:hover{text-decoration-color:currentColor}
+.copy{font-size:var(--fs-sm);color:#E4DCEC;border-top:1px solid rgba(255,248,239,.16);padding-top:var(--s5)}
+
+/* ===== ซ่อนก่อนเล่นแอนิเมชัน (เฉพาะเครื่องที่ไม่ได้ลดการเคลื่อนไหว) ===== */
+.motion .reveal,.motion #scene,.motion [data-reveal],.motion .pcard{opacity:0}
+
+/* ===== จอใหญ่ขึ้น ===== */
+@media (min-width:720px){
+  .pgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5)}
+  .pcard{padding:var(--s4)}
+  .pbody{padding:0 var(--s2) var(--s2)}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .foot-grid{grid-template-columns:1fr auto;align-items:center}
+  .foot-grid .copy{grid-column:1 / -1}
+}
+@media (min-width:960px){
+  .about-grid{grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:var(--s8)}
+  .photo{aspect-ratio:1}
+  .contact-grid{grid-template-columns:minmax(0,7fr) minmax(0,5fr);align-items:stretch}
+  .map{min-height:100%}
+}
+/* จอแนวตั้ง (มือถือ แท็บเล็ต): ตัวหนังสือด้านบน ปุ่มชิดล่าง โมเดลอยู่ตรงกลาง */
+@media (max-aspect-ratio:1/1){
+  :root{--fs-hero:min(27vw,22svh)}
+  h1 .l2{padding-left:24vw}
+  .content{justify-content:flex-start;padding-top:10svh}
+  .foot{margin-top:auto;padding-top:var(--s7)}
+}
+@media (max-width:720px){
+  .links li:not(:last-child){display:none}
+  .links a{border:2px solid var(--ink);border-radius:var(--r-pill);padding:0 var(--s4)}
+  .links a::after{display:none}
+  .brand span{font-size:22px}
+  .foot .btn{flex:1 1 auto}
+  .mb-links{display:none}
+  .section{padding:var(--s8) 0}
+}
+@media (max-width:340px){
+  .pgrid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">ข้ามไปที่เนื้อหา</a>
+
+<!-- ไอคอนชุดเดียว เส้น 2px -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-arcs" viewBox="0 0 56 30"><g fill="none" stroke-width="5.5"><path d="M3 30a25 25 0 0 1 50 0" stroke="#F7A8C0"/><path d="M12 30a16 16 0 0 1 32 0" stroke="#F8DF8E"/><path d="M21 30a7 7 0 0 1 14 0" stroke="#A9D3F2"/></g></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5c0 4.1-3.6 7.5-8 7.5-1.2 0-2.3-.2-3.3-.7L4 19.6l1.3-3.8A7 7 0 0 1 4 11.5C4 7.4 7.6 4 12 4s8 3.4 8 7.5Z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.5 4-2 1.3a11 11 0 0 0 6.5 6.5l1.3-2 4 1.5v2.6a2 2 0 0 1-2.1 2A16.5 16.5 0 0 1 4.6 5.6a2 2 0 0 1 2-2.1Z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m20.5 16-4.5-4.5L7 19"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0M5.5 12.2V20h13v-7.8M10 20v-4.5h4V20"/></symbol>
+</svg>
+
+<header class="hero" id="top">
+  <div class="bg" aria-hidden="true">
+    <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span><span class="blob b5"></span>
+    <svg class="arcs" viewBox="0 0 200 100" fill="none" stroke-width="12">
+      <path d="M8 100a92 92 0 0 1 184 0" stroke="#F7A8C0"/>
+      <path d="M26 100a74 74 0 0 1 148 0" stroke="#FBC6A4"/>
+      <path d="M44 100a56 56 0 0 1 112 0" stroke="#F8DF8E"/>
+      <path d="M62 100a38 38 0 0 1 76 0" stroke="#AEE2C6"/>
+      <path d="M80 100a20 20 0 0 1 40 0" stroke="#A9D3F2"/>
+    </svg>
+  </div>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <nav class="nav reveal" aria-label="เมนูหลัก">
+    <a class="brand" href="#top" aria-label="แม่รักลูก หน้าแรก">
+      <svg viewBox="0 0 56 30" aria-hidden="true"><use href="#i-arcs"/></svg>
+      <span aria-hidden="true"><span class="c1">แ</span><span class="c2">ม่</span><span class="c3">รั</span><span class="c4">ก</span><span class="c5">ลู</span><span class="c6">ก</span></span>
+    </a>
+    <ul class="links">
+      <li><a href="#products">สินค้า</a></li>
+      <li><a href="#about">เกี่ยวกับร้าน</a></li>
+      <li><a href="#contact">ติดต่อ</a></li>
+    </ul>
+  </nav>
+
+  <div class="content">
+    <p class="eyebrow reveal">MOTHER &amp; BABY SHOP</p>
+    <h1 aria-label="แม่รักลูก">
+      <span class="line l1" aria-hidden="true"><span class="syl reveal c1">แ</span><span class="syl reveal c2">ม่</span><span class="syl reveal c3">รั</span><span class="syl reveal c4">ก</span></span>
+      <span class="line l2" aria-hidden="true"><span class="syl reveal c5">ลู</span><span class="syl reveal c6">ก</span></span>
+    </h1>
+    <div class="foot">
+      <p class="sub reveal">ร้านของใช้แม่และเด็ก</p>
+      <a class="btn btn-main reveal" href="#products">ดูสินค้า</a>
+      <a class="btn btn-ghost reveal" href="#contact">ติดต่อร้าน</a>
+    </div>
+  </div>
+</header>
+
+<nav class="minibar" aria-label="เมนูลัด">
+  <div class="mb-inner">
+    <a class="brand brand-sm" href="#top" aria-label="แม่รักลูก กลับขึ้นด้านบน">
+      <svg viewBox="0 0 56 30" aria-hidden="true"><use href="#i-arcs"/></svg>
+      <span aria-hidden="true"><span class="c1">แ</span><span class="c2">ม่</span><span class="c3">รั</span><span class="c4">ก</span><span class="c5">ลู</span><span class="c6">ก</span></span>
+    </a>
+    <ul class="mb-links">
+      <li><a href="#products">สินค้า</a></li>
+      <li><a href="#about">เกี่ยวกับร้าน</a></li>
+    </ul>
+    <a class="btn btn-main btn-sm" href="#contact">ติดต่อร้าน</a>
+  </div>
+</nav>
+
+<main id="main">
+  <!-- ===== สินค้า =====
+       เมื่อได้ข้อมูล: ใส่รูปแทน <div class="pimg"> เช่น <img class="pimg" src="assets/img/ชื่อไฟล์.webp" alt="ชื่อสินค้า" loading="lazy">
+       แล้วแทนป้าย [รอข้อมูล] ด้วยชื่อและราคาจริง เพิ่มการ์ดได้โดยคัดลอก <li class="pcard"> ทั้งก้อน -->
+  <section class="section products" id="products" aria-labelledby="products-title">
+    <div class="container">
+      <header class="sec-head">
+        <p class="kicker" data-reveal><svg viewBox="0 0 56 30" aria-hidden="true"><use href="#i-arcs"/></svg>สินค้า</p>
+        <h2 id="products-title" data-reveal>เลือกของใช้ให้ลูกน้อย</h2>
+        <p class="lead" data-reveal>สนใจชิ้นไหน กดสอบถามร้านได้เลย</p>
+      </header>
+      <ul class="pgrid">
+        <li class="pcard" style="--tint:var(--tint-pink);--c:var(--t-pink)">
+          <div class="pimg"><span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg></span><span class="todo">[รอข้อมูล: รูป]</span></div>
+          <div class="pbody"><h3 class="pname"><span class="todo">[รอข้อมูล: ชื่อ]</span></h3><p class="pprice"><span class="todo">[รอข้อมูล: ราคา]</span></p>
+            <a class="btn btn-soft btn-sm" href="#contact"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>สอบถาม</a></div>
+        </li>
+        <li class="pcard" style="--tint:var(--tint-peach);--c:var(--t-orange)">
+          <div class="pimg"><span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg></span><span class="todo">[รอข้อมูล: รูป]</span></div>
+          <div class="pbody"><h3 class="pname"><span class="todo">[รอข้อมูล: ชื่อ]</span></h3><p class="pprice"><span class="todo">[รอข้อมูล: ราคา]</span></p>
+            <a class="btn btn-soft btn-sm" href="#contact"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>สอบถาม</a></div>
+        </li>
+        <li class="pcard" style="--tint:var(--tint-yellow);--c:var(--t-yellow)">
+          <div class="pimg"><span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg></span><span class="todo">[รอข้อมูล: รูป]</span></div>
+          <div class="pbody"><h3 class="pname"><span class="todo">[รอข้อมูล: ชื่อ]</span></h3><p class="pprice"><span class="todo">[รอข้อมูล: ราคา]</span></p>
+            <a class="btn btn-soft btn-sm" href="#contact"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>สอบถาม</a></div>
+        </li>
+        <li class="pcard" style="--tint:var(--tint-mint);--c:var(--t-green)">
+          <div class="pimg"><span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg></span><span class="todo">[รอข้อมูล: รูป]</span></div>
+          <div class="pbody"><h3 class="pname"><span class="todo">[รอข้อมูล: ชื่อ]</span></h3><p class="pprice"><span class="todo">[รอข้อมูล: ราคา]</span></p>
+            <a class="btn btn-soft btn-sm" href="#contact"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>สอบถาม</a></div>
+        </li>
+        <li class="pcard" style="--tint:var(--tint-sky);--c:var(--t-blue)">
+          <div class="pimg"><span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg></span><span class="todo">[รอข้อมูล: รูป]</span></div>
+          <div class="pbody"><h3 class="pname"><span class="todo">[รอข้อมูล: ชื่อ]</span></h3><p class="pprice"><span class="todo">[รอข้อมูล: ราคา]</span></p>
+            <a class="btn btn-soft btn-sm" href="#contact"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>สอบถาม</a></div>
+        </li>
+        <li class="pcard" style="--tint:var(--tint-lav);--c:var(--t-purple)">
+          <div class="pimg"><span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg></span><span class="todo">[รอข้อมูล: รูป]</span></div>
+          <div class="pbody"><h3 class="pname"><span class="todo">[รอข้อมูล: ชื่อ]</span></h3><p class="pprice"><span class="todo">[รอข้อมูล: ราคา]</span></p>
+            <a class="btn btn-soft btn-sm" href="#contact"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>สอบถาม</a></div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== เกี่ยวกับร้าน =====
+       เมื่อได้รูป: แทน <div class="photo"> ด้วย <img class="photo" src="assets/img/ร้าน.webp" alt="หน้าร้านแม่รักลูก"> -->
+  <section class="section about" id="about" aria-labelledby="about-title">
+    <div class="container about-grid">
+      <div class="about-media">
+        <div class="photo" data-reveal>
+          <svg class="ico" aria-hidden="true"><use href="#i-store"/></svg>
+          <span class="todo">[รอข้อมูล: รูปหน้าร้านหรือเจ้าของร้าน]</span>
+        </div>
+        <svg class="about-arcs" viewBox="0 0 200 100" aria-hidden="true">
+          <path d="M10 100a90 90 0 0 1 180 0" stroke="#F7A8C0"/>
+          <path d="M28 100a72 72 0 0 1 144 0" stroke="#FBC6A4"/>
+          <path d="M46 100a54 54 0 0 1 108 0" stroke="#F8DF8E"/>
+          <path d="M64 100a36 36 0 0 1 72 0" stroke="#AEE2C6"/>
+          <path d="M82 100a18 18 0 0 1 36 0" stroke="#A9D3F2"/>
+        </svg>
+      </div>
+      <div class="about-text">
+        <p class="kicker" data-reveal><svg viewBox="0 0 56 30" aria-hidden="true"><use href="#i-arcs"/></svg>เกี่ยวกับร้าน</p>
+        <h2 id="about-title" data-reveal>รู้จักร้าน <span class="rb"><span class="c1">แ</span><span class="c2">ม่</span><span class="c3">รั</span><span class="c4">ก</span><span class="c5">ลู</span><span class="c6">ก</span></span></h2>
+        <p class="story" data-reveal><span class="todo todo-lg">[รอข้อมูล: เรื่องราวของร้าน เช่น <span class="nw">เปิดมาตั้งแต่เมื่อไร</span> <span class="nw">ใครเป็นคนดูแล</span> <span class="nw">และเลือกของแบบไหนมาขาย]</span></span></p>
+        <ol class="points">
+          <li data-reveal style="--tint:var(--tint-pink);--c:var(--t-pink)"><span class="num" aria-hidden="true">๑</span><span class="todo">[รอข้อมูล: จุดเด่นของร้าน ข้อที่ 1]</span></li>
+          <li data-reveal style="--tint:var(--tint-yellow);--c:var(--t-yellow)"><span class="num" aria-hidden="true">๒</span><span class="todo">[รอข้อมูล: จุดเด่นของร้าน ข้อที่ 2]</span></li>
+          <li data-reveal style="--tint:var(--tint-sky);--c:var(--t-blue)"><span class="num" aria-hidden="true">๓</span><span class="todo">[รอข้อมูล: จุดเด่นของร้าน ข้อที่ 3]</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ติดต่อ =====
+       เมื่อได้ข้อมูล: ใส่ลิงก์ที่ href แล้วลบ aria-disabled="true" ออก
+       LINE: href="https://line.me/R/ti/p/@ไลน์ไอดี"   โทร: href="tel:0812345678"   แผนที่: ลิงก์ Google Maps -->
+  <section class="section contact" id="contact" aria-labelledby="contact-title">
+    <div class="container">
+      <header class="sec-head">
+        <p class="kicker" data-reveal><svg viewBox="0 0 56 30" aria-hidden="true"><use href="#i-arcs"/></svg>ติดต่อร้าน</p>
+        <h2 id="contact-title" data-reveal>ทักถามร้านได้เลย</h2>
+        <p class="lead" data-reveal>เลือกช่องทางที่สะดวก</p>
+      </header>
+      <div class="contact-grid">
+        <ul class="cards">
+          <li class="ccard" data-reveal style="--tint:var(--tint-mint);--c:var(--t-green)">
+            <span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg></span>
+            <h3>LINE</h3>
+            <p><span class="todo">[รอข้อมูล: LINE ID]</span></p>
+            <a class="btn btn-main btn-sm" aria-disabled="true">แอดไลน์</a>
+          </li>
+          <li class="ccard" data-reveal style="--tint:var(--tint-sky);--c:var(--t-blue)">
+            <span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-phone"/></svg></span>
+            <h3>โทรศัพท์</h3>
+            <p><span class="todo">[รอข้อมูล: เบอร์โทร]</span></p>
+            <a class="btn btn-main btn-sm" aria-disabled="true">โทรหาร้าน</a>
+          </li>
+          <li class="ccard" data-reveal style="--tint:var(--tint-pink);--c:var(--t-pink)">
+            <span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg></span>
+            <h3>ที่อยู่ร้าน</h3>
+            <p><span class="todo">[รอข้อมูล: ที่อยู่ร้าน]</span></p>
+            <a class="btn btn-main btn-sm" aria-disabled="true">เปิดแผนที่</a>
+          </li>
+          <li class="ccard" data-reveal style="--tint:var(--tint-yellow);--c:var(--t-yellow)">
+            <span class="badge"><svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg></span>
+            <h3>เวลาเปิดร้าน</h3>
+            <p><span class="todo">[รอข้อมูล: วันและเวลาเปิดร้าน]</span></p>
+          </li>
+        </ul>
+        <div class="map" data-reveal>
+          <span class="pin"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg></span>
+          <span class="todo">[รอข้อมูล: แผนที่ร้าน (ลิงก์ Google Maps)]</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container foot-grid">
+    <div>
+      <a class="brand brand-light" href="#top" aria-label="แม่รักลูก กลับขึ้นด้านบน">
+        <svg viewBox="0 0 56 30" aria-hidden="true"><use href="#i-arcs"/></svg>
+        <span aria-hidden="true"><span class="c1">แ</span><span class="c2">ม่</span><span class="c3">รั</span><span class="c4">ก</span><span class="c5">ลู</span><span class="c6">ก</span></span>
+      </a>
+      <p class="tag">ร้านของใช้แม่และเด็ก</p>
+    </div>
+    <ul class="flinks" aria-label="เมนูท้ายเว็บ">
+      <li><a href="#products">สินค้า</a></li>
+      <li><a href="#about">เกี่ยวกับร้าน</a></li>
+      <li><a href="#contact">ติดต่อร้าน</a></li>
+    </ul>
+    <p class="copy">© 2026 แม่รักลูก</p>
+  </div>
+</footer>
+
+<script src="assets/js/gsap.min.js"></script>
+<script src="assets/js/ScrollTrigger.min.js"></script>
+<script src="assets/js/scene.js"></script>
+<script>
+(async function () {
+  const root = document.documentElement;
+  const gsap = window.gsap, ST = window.ScrollTrigger;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motion = !reduce && !!gsap && !!ST;
+  // ถ้า GSAP โหลดไม่ขึ้น หรือเครื่องตั้งลดการเคลื่อนไหว: แสดงทุกอย่างทันที ไม่มีแอนิเมชัน
+  const showAll = () => root.classList.remove('motion');
+  if (!motion) showAll();
+
+  /* ---------- แถบเมนูลัด: โผล่เมื่อเลื่อนพ้นหน้าแรก ---------- */
+  const hero = document.querySelector('.hero');
+  const bar = document.querySelector('.minibar');
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => bar.classList.toggle('is-on', !e.isIntersecting), { rootMargin: '-72px 0px 0px 0px' }).observe(hero);
+  } else bar.classList.add('is-on');
+
+  /* ---------- ฉาก 3D (three.js r187, อยู่ใน assets/js/scene.js) ---------- */
+  const canvas = document.getElementById('scene');
+  let scene3d = null;
+  try {
+    scene3d = window.MRScene.buildScene(canvas);
+    window.__scene3d = scene3d; // สำหรับตรวจตำแหน่งโมเดล
+    // ห้ามโมเดลทับ: เมนู ตัวหนังสือเล็ก ปุ่ม (ทับตัวหนังสือโลโก้ใหญ่ได้แค่ขอบ)
+    // วัดขนาดจากตัวอักษรจริง (ไม่ใช่ความกว้างเต็มบรรทัดของกล่อง)
+    const textRect = el => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect(); };
+    scene3d.setKeepOut(() => [
+      ...[...document.querySelectorAll('.nav .brand, .links a, .foot .btn')].map(el => ({ rect: el.getBoundingClientRect(), pad: 14 })),
+      ...[...document.querySelectorAll('.eyebrow, .sub')].map(el => ({ rect: textRect(el), pad: 14 })),
+      ...[...document.querySelectorAll('h1 .syl')].map(el => ({ rect: el.getBoundingClientRect(), shrink: 0.14 })),
+    ]);
+  } catch (e) {
+    console.warn('3D ไม่ได้โหลด ใช้พื้นหลังอย่างเดียว', e);
+  }
+
+  // รอฟอนต์ไม่เกิน 2.5 วินาที แล้วค่อยเริ่ม (ตำแหน่งตัวหนังสือจะได้นิ่งก่อนจัดโมเดล)
+  await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 2500))]);
+  if (scene3d) { await scene3d.ready; scene3d.relayout(); }
+
+  if (!motion) {
+    canvas.style.opacity = 1;
+    if (scene3d) scene3d.render();
+    return;
+  }
+
+  try {
+    gsap.registerPlugin(ST);
+    intro();
+    scrollScenes();
+  } catch (e) {
+    console.warn(e);
+    showAll();
+  }
+
+  /* ---------- ฉากเปิด ---------- */
+  function intro() {
+    const syl = gsap.utils.toArray('h1 .syl');
+    gsap.set('#scene', { opacity: 1 });
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.fromTo('.nav', { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: .6 }, 0)
+      .fromTo('.eyebrow', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .5 }, .15)
+      .fromTo(syl, { opacity: 0, yPercent: 60, rotation: () => gsap.utils.random(-8, 8) },
+        { opacity: 1, yPercent: 0, rotation: 0, duration: .9, ease: 'back.out(1.6)', stagger: .08 }, .2)
+      .fromTo('.foot .reveal', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .55, stagger: .1, clearProps: 'transform' }, .75);
+
+    if (!scene3d) return;
+    const { items, rig } = scene3d;
+    // ของใช้เด็กค่อยๆ ลอยขึ้นจากด้านล่าง แล้วหยุดอยู่หลังตัวหนังสือ (ปรับความเร็วที่ duration)
+    items.forEach((it, i) => {
+      tl.fromTo(it.inner.position, { y: it.riseFrom }, { y: 0, duration: 2.8 + (i % 3) * .3, ease: 'power3.out' }, .35 + i * .14);
+      tl.fromTo(it.inner.rotation, { z: gsap.utils.random(-.6, .6), y: -1.2 }, {
+        z: 0, y: 0, duration: 3, ease: 'power2.out',
+        onComplete: () => idle(it, i),
+      }, '<');
+    });
+    // ลอยเบาๆ หลังหยุด
+    function idle(it, i) {
+      gsap.to(it.inner.position, { y: '+=0.14', duration: 2.6 + (i % 4) * .4, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.to(it.inner.rotation, { y: (i % 2 ? .12 : -.12), z: (i % 2 ? -.05 : .05), duration: 3.4 + (i % 3) * .5, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+    }
+    // เอียงฉากตามเมาส์นิดเดียว
+    if (matchMedia('(pointer:fine)').matches) {
+      const rx = gsap.quickTo(rig.rotation, 'x', { duration: .9, ease: 'power3' });
+      const ry = gsap.quickTo(rig.rotation, 'y', { duration: .9, ease: 'power3' });
+      addEventListener('pointermove', e => {
+        ry((e.clientX / innerWidth - .5) * .12);
+        rx((e.clientY / innerHeight - .5) * .08);
+      });
+    }
+  }
+
+  /* ---------- แอนิเมชันตอนเลื่อนจอ ---------- */
+  function scrollScenes() {
+    // วาดฉาก 3D เฉพาะตอนหน้าแรกอยู่ในจอ (ประหยัดแบต)
+    if (scene3d) {
+      let on = false;
+      const loop = (v) => { if (v === on) return; on = v; v ? gsap.ticker.add(scene3d.render) : gsap.ticker.remove(scene3d.render); };
+      loop(true);
+      ST.create({ trigger: hero, start: 'top bottom', end: 'bottom top', onToggle: self => loop(self.isActive) });
+      // ระยะลึก: ของในฉากเลื่อนช้ากว่าหน้าเว็บนิดหน่อย
+      gsap.to(scene3d.rig.position, {
+        y: () => -scene3d.halfH * .45, ease: 'none',
+        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true, invalidateOnRefresh: true },
+      });
+    }
+
+    // หัวข้อแต่ละส่วน: ขึ้นทีละบรรทัด
+    gsap.utils.toArray('.sec-head, .about-text').forEach(head => {
+      const els = head.querySelectorAll(':scope > [data-reveal]');
+      gsap.fromTo(els, { autoAlpha: 0, y: 28 }, {
+        autoAlpha: 1, y: 0, duration: .6, ease: 'power3.out', stagger: .08,
+        scrollTrigger: { trigger: head, start: 'clamp(top 85%)', once: true },
+      });
+    });
+
+    // การ์ดสินค้า / จุดเด่น / ช่องทางติดต่อ: ขึ้นเป็นชุด
+    const pop = (sel, from) => ST.batch(sel, {
+      start: 'clamp(top 90%)', once: true, interval: .1, batchMax: 6,
+      onEnter: els => gsap.fromTo(els, { autoAlpha: 0, ...from }, { autoAlpha: 1, x: 0, y: 0, scale: 1, duration: .6, ease: 'power3.out', stagger: .08, overwrite: true, clearProps: 'transform' }),
+    });
+    pop('.pcard', { y: 36, scale: .96 });
+    pop('.points li', { x: -24 });
+    pop('.ccard, .map', { y: 32 });
+
+    // รูปร้าน + รุ้งกวาดขึ้น
+    const about = document.querySelector('.about');
+    gsap.fromTo('.photo', { autoAlpha: 0, y: 36, scale: .96 }, {
+      autoAlpha: 1, y: 0, scale: 1, duration: .8, ease: 'power3.out',
+      scrollTrigger: { trigger: about, start: 'clamp(top 75%)', once: true },
+    });
+    gsap.from('.about-arcs path', {
+      rotation: -180, svgOrigin: '100 100', duration: 1.1, ease: 'power3.out', stagger: .09,
+      scrollTrigger: { trigger: about, start: 'clamp(top 60%)', once: true },
+    });
+
+    // ฟอนต์/รูปทำให้ความสูงหน้าเปลี่ยน → คำนวณจุดเริ่มใหม่
+    ST.refresh();
+  }
+})();
+</script>
+<noscript><style>.reveal,#scene,[data-reveal]{opacity:1!important}</style></noscript>
+</body>
+</html>
