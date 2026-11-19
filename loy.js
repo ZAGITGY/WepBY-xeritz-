@@ -399,16 +399,83 @@ class River {
 }
 
 /* ======================================================================
+ *  หน้าแรกช่วงเทศกาล (ตามไฟล์ร่าง): หัวข้อ/ปุ่ม/นับถอยหลังใน hero + section "ถ้าจะไปลอยที่ท่าน้ำ"
+ *  แก้ข้อความในองค์ประกอบเดิมของ app.js (ไม่สร้างใหม่) แอนิเมชันเปิดตัวและการเลื่อนเดิมจึงทำงานเหมือนเดิม
+ * ====================================================================== */
+const NIGHT_START = Date.parse("2026-11-24T18:00:00+07:00"), NIGHT_END = Date.parse("2026-11-25T06:00:00+07:00");
+function countdownText() {
+  const now = Date.now(), ms = NIGHT_START - now;
+  if (ms > 0) {
+    const d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5), m = Math.floor((ms % 36e5) / 6e4);
+    return `อีก ${d} วัน ${h} ชั่วโมง ${m} นาที ถึงคืนลอยกระทง`;
+  }
+  return now < NIGHT_END ? "คืนนี้คืนลอยกระทง ลอยได้เลย" : "ปีนี้ลอยกันไปแล้ว พบกันปีหน้า";
+}
+function festivalHero() {
+  const op = document.querySelector(".scene-opening");
+  if (!op) return () => {};
+  const $ = (s) => op.querySelector(s);
+  const eyebrow = $(".eyebrow"), spans = op.querySelectorAll("h1 > span"), lead = $(":scope > p:not(.hero-note)");
+  const cta = $(".hero-actions a"), ctaLabel = cta && (cta.querySelector(".lvc-metal__label") || cta), note = $(".hero-note");
+  const undo = [];
+  const set = (el, prop, value) => { if (!el) return; undo.push([el, prop, el[prop]]); el[prop] = value; };
+  set(eyebrow, "textContent", "ลอยกระทง 2569 · คืนวันเพ็ญเดือนสิบสอง");
+  if (spans.length >= 2) {
+    set(spans[0], "textContent", "ลอยความตั้งใจ");
+    set(spans[1], "textContent", "ไปกับสายน้ำ");
+    set(spans[1], "className", "accent");
+    // style.display ไม่ใช่ hidden: CSS ของ hero ตั้ง display:block ให้ทุกบรรทัด
+    for (let i = 2; i < spans.length; i++) { undo.push([spans[i].style, "display", spans[i].style.display]); spans[i].style.display = "none"; set(spans[i], "className", spans[i].className.replace(/\baccent\b/, "").trim()); }
+  }
+  set(lead, "textContent", "เลือกกระทง เขียนคำอธิษฐาน แล้วปล่อยลงแม่น้ำของวิทยาลัยอาชีวศึกษาเลย ทุกคนที่เข้าเว็บจะเห็นกระทงของคุณลอยอยู่ด้วยกัน");
+  if (cta) { undo.push([cta, "href", cta.getAttribute("href")]); cta.setAttribute("href", "#loy"); }
+  set(ctaLabel, "textContent", "ลอยกระทงของคุณ ");
+  let timer = 0;
+  if (note) {
+    const mark = note.querySelector(".note-mark");
+    const text = document.createElement("span");
+    text.className = "loy-countdown";
+    undo.push([note, "innerHTML", note.innerHTML]);
+    note.textContent = "";
+    if (mark) note.append(mark);
+    note.append(text);
+    note.classList.add("is-loy");
+    const tick = () => { text.textContent = countdownText(); };
+    tick(); timer = setInterval(tick, 30000);
+  }
+  return () => { clearInterval(timer); if (note) note.classList.remove("is-loy"); for (const [el, prop, v] of undo.reverse()) { if (prop === "href") el.setAttribute("href", v); else el[prop] = v; } };
+}
+const ECO = [
+  ['<path d="M12 21c-4-3-7-7-7-11a7 7 0 0 1 14 0c0 4-3 8-7 11Z"/><path d="M12 21V9"/>', "ใช้วัสดุธรรมชาติ", "ใบตอง กาบกล้วย ดอกไม้สด ย่อยสลายได้เองในน้ำ"],
+  ['<circle cx="12" cy="12" r="8"/><path d="M6.5 6.5l11 11"/>', "ไม่ใช้โฟมและลวด", "ยึดกลีบด้วยไม้กลัดแทนเข็มหมุดหรือลวดเย็บ"],
+  ['<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5M11 20c0-3 2.5-5 5-5s5 2 5 5"/>', "ครอบครัวเดียว กระทงเดียว", "ลอยร่วมกันหนึ่งใบ ขยะในแม่น้ำก็น้อยลง"],
+];
+function ecoSection() {
+  const sec = document.createElement("section");
+  sec.className = "loy-eco";
+  sec.setAttribute("aria-labelledby", "loy-eco-title");
+  sec.innerHTML = `<div class="wrap">
+    <p class="loy__eyebrow"><i aria-hidden="true"></i>ลอยจริงก็ดูแลน้ำได้</p>
+    <h2 id="loy-eco-title" class="loy-eco__title">ถ้าจะไปลอยที่ท่าน้ำ</h2>
+    <ul class="loy-eco__list">${ECO.map(([icon, h, p]) => `<li><svg viewBox="0 0 24 24" aria-hidden="true">${icon}</svg><h3>${h}</h3><p>${p}</p></li>`).join("")}</ul>
+  </div>`;
+  return sec;
+}
+
+/* ======================================================================
  *  ข้อมูล: ออนไลน์ (Firestore) / ในเครื่อง
  * ====================================================================== */
 function init() {
   if (!root.hasAttribute("data-loy") || document.getElementById("loy")) return;
   const main = document.querySelector("main");
   if (!main) return;
+  const restoreHero = festivalHero();
   const sec = build();
   // ต่อจากฉาก 8 กลุ่มสาขา ก่อน "บริการที่ใช้บ่อย" (ไม่แทรกก่อนฉากที่ตรึงไว้ ตำแหน่งฉากเดิมจึงไม่เปลี่ยน)
   const services = main.querySelector(":scope > #services");
   if (services) services.before(sec); else main.append(sec);
+  const eco = ecoSection();
+  sec.after(eco);
 
   const $ = (s) => sec.querySelector(s);
   const form = $(".loy__form"), nameEl = $("#loy-name"), wishEl = $("#loy-wish"), errEl = $("#loy-error");
@@ -577,6 +644,9 @@ function init() {
   /* ---------- เปิดตัว section ตอนเลื่อนถึง (GSAP + ScrollTrigger ตัวเดียวกับหน้าแรก) ---------- */
   if (gsap && ST && !reduceQ.matches) {
     const parts = sec.querySelectorAll(".loy__eyebrow, .loy__title, .loy__lead, .loy__rules, .loy__form, .loy__river-head");
+    gsap.set(eco.querySelectorAll(".loy__eyebrow, .loy-eco__title, li"), { autoAlpha: 0, y: 24 });
+    ST.batch(eco.querySelectorAll(".loy__eyebrow, .loy-eco__title, li"), { start: "top 88%", once: true,
+      onEnter: (b) => gsap.to(b, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08, ease: "power3.out", overwrite: true, clearProps: "opacity,visibility,transform" }) });
     let shown = false;
     const reveal = () => { if (shown) return; shown = true; gsap.to(parts, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: "power3.out", clearProps: "opacity,visibility,transform" }); };
     gsap.set(parts, { autoAlpha: 0, y: 24 });
@@ -588,7 +658,7 @@ function init() {
 
   // หมดเทศกาลระหว่างเปิดหน้า (theme.js) → เอา section ออก
   addEventListener("lvc:themechange", (e) => {
-    if (e.detail && e.detail.loy === false && sec.isConnected) { river.visible = false; river.sync(); sec.remove(); if (ST) ST.refresh(); }
+    if (e.detail && e.detail.loy === false && sec.isConnected) { river.visible = false; river.sync(); sec.remove(); eco.remove(); restoreHero(); if (ST) ST.refresh(); }
   });
 
   load();

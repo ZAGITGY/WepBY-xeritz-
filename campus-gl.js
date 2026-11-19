@@ -24,6 +24,8 @@
   var SEEDS = 10;           // จำนวนจุดสีสูงสุดที่ชิดเดอร์รับได้ (ฉากเข้าเว็บ 6 + หน้าแรก 4 ระหว่างส่งต่อ)
   var KR = 6;               // กระทงในฉากกลางคืน (ลอยกระทง)
   var SRC = "./images/campus.webp";
+  // ลอยกระทง: ภาพกลางคืนจริง (ลบพระจันทร์ในภาพออกแล้ว เพื่อวาดจันทร์ขึ้นเอง) · โหลดไม่ได้ = ใช้ภาพกลางวันย้อมสีแทน
+  var NIGHT_SRC = "./images/campus-night-nomoon.webp";
 
   var VS = "attribute vec2 a;void main(){gl_Position=vec4(a,0.0,1.0);}";
   var FS = [
@@ -62,6 +64,7 @@
     "uniform float uNight;",
     "uniform vec4 uMoon;",
     "uniform float uWaterV;",
+    "uniform float uNightTex;",
     "uniform vec4 uKr[" + KR + "];",
     "float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}",
     "float vnoise(vec2 p){vec2 i=floor(p);vec2 f=fract(p);vec2 u=f*f*(3.0-2.0*f);",
@@ -105,11 +108,17 @@
     "  float skyZ=0.0;",
     "  if(uNight>0.0){",
     // ฟ้าจริงอยู่ขวาบนของภาพ (ผนังกระเบื้องสีฟ้าทางซ้ายไม่ใช่ฟ้า)
-    "    skyZ=sky*smoothstep(0.36,0.47,suv.x)*(1.0-smoothstep(0.40,0.5,suv.y));",
+    "    float zone=smoothstep(0.36,0.47,suv.x)*(1.0-smoothstep(0.40,0.5,suv.y));",
     "    float Ln=lum(col);",
-    "    vec3 ng=mix(vec3(Ln),col,0.4)*vec3(0.36,0.44,0.70);",
-    "    vec3 sk=mix(vec3(0.025,0.04,0.12),vec3(0.10,0.14,0.31),smoothstep(0.0,0.46,suv.y));",
-    "    col=mix(ng,sk,skyZ);",
+    "    if(uNightTex>0.5){",
+    // ภาพกลางคืนจริง: ฟ้า = มืดและอมน้ำเงิน · ไม่ต้องย้อมสี
+    "      skyZ=smoothstep(0.02,0.07,col.b-col.r)*(1.0-smoothstep(0.12,0.24,Ln))*zone;",
+    "    }else{",
+    "      skyZ=sky*zone;",
+    "      vec3 ng=mix(vec3(Ln),col,0.4)*vec3(0.36,0.44,0.70);",
+    "      vec3 sk=mix(vec3(0.025,0.04,0.12),vec3(0.10,0.14,0.31),smoothstep(0.0,0.46,suv.y));",
+    "      col=mix(ng,sk,skyZ);",
+    "    }",
     "    sky=skyZ;",
     "  }",
     "  float L=lum(col);",
@@ -208,7 +217,7 @@
     "}"
   ].join("\n");
 
-  var SCALARS = ["uTime", "uGhost", "uGhostMix", "uReveal", "uEdge", "uWarp", "uFeather", "uSoft", "uRim", "uSat", "uBright", "uWash", "uVeilAmt", "uBottom", "uSweep", "uClouds", "uGrain", "uNight", "uWaterV"];
+  var SCALARS = ["uTime", "uGhost", "uGhostMix", "uReveal", "uEdge", "uWarp", "uFeather", "uSoft", "uRim", "uSat", "uBright", "uWash", "uVeilAmt", "uBottom", "uSweep", "uClouds", "uGrain", "uNight", "uWaterV", "uNightTex"];
 
   /* ---------- ภาพ (ถอดรหัสครั้งเดียว ใช้ร่วมกันทั้งฉากเข้าเว็บและพื้นหลัง) ---------- */
   var images = {};
@@ -252,7 +261,7 @@
     try { gl = canvas.getContext("webgl", attrs) || canvas.getContext("experimental-webgl", attrs); } catch (e) { gl = null; }
     if (!gl) return null;
 
-    var prog, buf, texture, loc = {}, ok = false, lost = false, texSize = [1536, 1024];
+    var prog, buf, texture, loc = {}, ok = false, lost = false, texSize = [1536, 1024], curSrc = "", wantSrc = "";
     var seedBuf = new Float32Array(SEEDS * 4);
     try {
       prog = gl.createProgram();
@@ -333,7 +342,9 @@
         gl.uniform1f(loc.uClouds, u.clouds);
         gl.uniform1f(loc.uGrain, u.grain);
         var nt = u.night || null;
+        ensureSource();
         gl.uniform1f(loc.uNight, nt ? 1 : 0);
+        gl.uniform1f(loc.uNightTex, curSrc === NIGHT_SRC ? 1 : 0);
         gl.uniform1f(loc.uWaterV, nt ? nt.water : 2);
         gl.uniform4fv(loc.uMoon, nt ? nt.moon : [0, 0, 0, 0]);
         for (var j = 0; j < KR; j++) {
@@ -362,8 +373,7 @@
       if (opts.onLost) opts.onLost();
     }, false);
 
-    api.whenReady = loadImage(opts.src).then(function (img) {
-      if (lost) throw new Error("context lost");
+    function upload(img, url) {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -374,9 +384,31 @@
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
       if (gl.getError() !== gl.NO_ERROR) throw new Error("texture upload");
       texSize = [img.naturalWidth || 1536, img.naturalHeight || 1024];
+      curSrc = url;
+    }
+    // ธีมเปลี่ยนระหว่างเปิดหน้า (ลอยกระทง ↔ ปกติ) → โหลดภาพอีกชุดมาแทน วาดภาพเดิมไปก่อนจนกว่าจะพร้อม
+    function ensureSource() {
+      var want = opts.src || srcFor();
+      if (want === curSrc || want === wantSrc || !ok) return;
+      wantSrc = want;
+      loadImage(want).then(function (img) {
+        if (lost || wantSrc !== want) return;
+        try { upload(img, want); } catch (e) {}
+        wantSrc = "";
+        if (opts.onSwap) opts.onSwap();
+      }, function () { wantSrc = ""; });
+    }
+    var first = opts.src || srcFor();
+    api.whenReady = loadImage(first).catch(function (e) {
+      if (first === NIGHT_SRC) { first = SRC; return loadImage(SRC); }     // ภาพกลางคืนเสีย → ภาพกลางวันย้อมสี
+      throw e;
+    }).then(function (img) {
+      if (lost) throw new Error("context lost");
+      upload(img, first);
       ok = true;
       return api;
     });
+    api.ensureSource = ensureSource;
     return api;
   }
 
@@ -388,6 +420,7 @@
   }
   function isDark() { return document.documentElement.getAttribute("data-theme") === "dark"; }
   function isNight() { return document.documentElement.hasAttribute("data-loy"); }
+  function srcFor() { return isNight() ? NIGHT_SRC : SRC; }
   function colors(paperCss) {
     if (isNight()) {
       var pn = parseRGB(paperCss, [0.043, 0.063, 0.153]);
@@ -532,7 +565,16 @@
       u = base(frame, img, t, colors(o.paper));
       u.veil = [1, 0, 0.16, 0.5]; u.veilAmt = 0.9; u.bottom = nightOn ? 0.04 : 0.15;
     }
-    if (nightOn) { u.night = night(tall, still ? 20 : t); }
+    if (nightOn) {
+      u.night = night(tall, still ? 20 : t);
+      // o.moonAt [x, y, r] เป็นสัดส่วนของกรอบ: มือถือให้จันทร์อยู่ในที่ว่างข้างหัวข้อ (วัดจากหน้าเว็บโดย campus-backdrop.js)
+      if (o.moonAt) {
+        var mA = o.moonAt;
+        u.night.moon[0] = (frame[0] + mA[0] * frame[2] - img[0]) / img[2];
+        u.night.moon[1] = (frame[1] + mA[1] * frame[3] - img[1]) / img[3];
+        u.night.moon[2] = mA[2] * frame[3] / img[3];
+      }
+    }
     if (k <= 0.001) seeds = [];
     if (o.pointer && o.pointer[3] > 0.001) {
       var p = o.pointer;
@@ -582,6 +624,6 @@
   window.LVCCampus = {
     SEEDS: SEEDS, INTRO: INTRO,
     create: create, intro: intro, hero: hero, mix: mixPose,
-    cover: cover, colors: colors, loadImage: loadImage, noWebGL: noWebGL, isNight: isNight
+    cover: cover, colors: colors, loadImage: loadImage, noWebGL: noWebGL, isNight: isNight, src: srcFor
   };
 })();

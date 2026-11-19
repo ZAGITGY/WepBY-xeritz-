@@ -6,66 +6,74 @@
 
 /* ---------- โทนสี: ฟ้ากลางคืน แสงจันทร์ แสงเทียน ---------- */
 html[data-loy] {
-  --paper: #0b1027;
-  --ink: #f3efe4;
-  --muted: #b9bdd0;
-  --line: #2b3358;
-  --red: #f6a9a6;
-  --gold: #e8c27c;
-  --champagne: #ecd39d;
-  --surface: #121a3a;
-  --surface-raised: #182146;
-  --surface-soft: #151d40;
-  --theme-outline: #f4cd8c;
-  --theme-border: #3d4775;
-  --theme-selected: #2a2d5c;
-  --x-gold: #ecd39d;
-  --loy-moon: #fff3d6;
-  --loy-candle: #ffc66b;
-  --loy-water: #0e1a3d;
+  /* token จากไฟล์ร่าง drafts/loykrathong-draft.html (คืนวันเพ็ญ) */
+  --sky-0: #08101d; --sky-1: #0f1b2e; --sky-2: #172741;
+  --water-0: #050b16; --water-1: #0c1829;
+  --moon: #f4ead2; --moon-dim: #d8c9a3;
+  --gold-h: #ffd84a; --candle: #ffb547; --red-soft: #ef929c; --ink-dark: #231e20;
+  --paper: var(--sky-0);
+  --ink: #f3eee7;
+  --muted: #bdb8b1;
+  --line: rgba(243, 238, 231, .14);
+  --red: var(--red-soft);
+  --gold: #f5c518;
+  --champagne: var(--moon);
+  --surface: var(--sky-1);
+  --surface-raised: var(--sky-2);
+  --surface-soft: #12203a;
+  --theme-outline: #f5c518;
+  --theme-border: rgba(243, 238, 231, .24);
+  --theme-selected: rgba(245, 197, 24, .1);
+  --x-gold: var(--moon);
+  --loy-moon: var(--moon);
+  --loy-candle: var(--candle);
+  --loy-water: var(--water-1);
   background: var(--paper);
 }
-html[data-loy] .site-header { background: #0b1027f2; }
-html[data-loy] .achievement { background: #1d1638; }
-html[data-loy] .program-photo, html[data-loy] .poster-button { background: #1a2147; }
-html[data-loy] .menu-panel::backdrop { background: #04071ad0; }
-html[data-loy] ::selection { background: #4a3f78; color: #fff8ec; }
-html[data-loy] .theme-list span { border-color: #4a5384; }
-html[data-loy] .scene-technical p { color: #d9d5e6; }
-html[data-loy] .hero-bottom { color: #c9c7d6 !important; }
+html[data-loy] .site-header { background: rgba(8, 16, 29, .86); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+html[data-loy] .button:not(.lvc-metal) { background: var(--gold); color: var(--ink-dark); }
+html[data-loy] .button:not(.lvc-metal):hover { background: var(--gold-h); }
+html[data-loy] .scene-opening h1 .accent, html[data-loy] .content-page .page-intro h1 span:not([class]) { color: var(--gold); -webkit-text-fill-color: var(--gold); }
+html[data-loy] .achievement { background: var(--sky-2); }
+html[data-loy] .program-photo, html[data-loy] .poster-button { background: var(--sky-2); }
+html[data-loy] .menu-panel::backdrop { background: rgba(5, 11, 22, .82); }
+html[data-loy] ::selection { background: rgba(245, 197, 24, .32); color: #fff; }
+html[data-loy] .theme-list span { border-color: rgba(243, 238, 231, .3); }
+html[data-loy] .scene-technical p { color: var(--ink); }
+html[data-loy] .hero-bottom { color: var(--muted) !important; }
 html[data-loy] .page-intro h1 span { color: var(--gold); }
 
 /* แสงสีจาง ๆ (aurora) เป็นแสงจันทร์/แสงเทียน/น้ำ */
-html[data-loy] .lvc-aurora i:nth-child(1) { --c: #6f7fe03a; }
-html[data-loy] .lvc-aurora i:nth-child(2) { --c: #ffc66b33; }
-html[data-loy] .lvc-aurora i:nth-child(3) { --c: #2fb6c62a; }
+html[data-loy] .lvc-aurora i:nth-child(1) { --c: #1d31573d; }
+html[data-loy] .lvc-aurora i:nth-child(2) { --c: #ffb5472b; }
+html[data-loy] .lvc-aurora i:nth-child(3) { --c: #f4ead21c; }
 
 /* ฉากเข้าเว็บ: ม่าน/ป้ายเป็นสีกลางคืน */
 html[data-loy] .lvc-intro { background: var(--paper); }
-html[data-loy] .lvc-intro__shade { background: linear-gradient(0deg, rgba(11, 16, 39, .95) 4%, rgba(11, 16, 39, .72) 24%, rgba(11, 16, 39, .3) 40%, rgba(11, 16, 39, 0) 56%); }
-html[data-loy] .lvc-intro__brand { background: rgba(11, 16, 39, .58); }
-html[data-loy] .lvc-intro__skip { background: rgba(11, 16, 39, .66); }
-html[data-loy] .lvc-intro__bottom { background: rgba(11, 16, 39, .5); }
+html[data-loy] .lvc-intro__shade { background: linear-gradient(0deg, rgba(8, 16, 29, .95) 4%, rgba(8, 16, 29, .72) 24%, rgba(8, 16, 29, .3) 40%, rgba(8, 16, 29, 0) 56%); }
+html[data-loy] .lvc-intro__brand { background: rgba(8, 16, 29, .58); }
+html[data-loy] .lvc-intro__skip { background: rgba(8, 16, 29, .66); }
+html[data-loy] .lvc-intro__bottom { background: rgba(8, 16, 29, .5); }
 html[data-loy] .lvc-campus.is-fallback::after {
   background:
-    linear-gradient(90deg, rgba(11, 16, 39, 1) 18%, rgba(11, 16, 39, .66) 44%, rgba(11, 16, 39, .2) 64%),
-    linear-gradient(0deg, rgba(11, 16, 39, 1) 1%, rgba(11, 16, 39, 0) 14%);
+    linear-gradient(90deg, rgba(8, 16, 29, 1) 18%, rgba(8, 16, 29, .66) 44%, rgba(8, 16, 29, .2) 64%),
+    linear-gradient(0deg, rgba(8, 16, 29, 1) 1%, rgba(8, 16, 29, 0) 14%);
 }
 @media (max-width: 900px) and (orientation: portrait) {
-  html[data-loy] .lvc-campus.is-fallback::after { background: linear-gradient(180deg, rgba(11, 16, 39, 1) 36%, rgba(11, 16, 39, .4) 62%, rgba(11, 16, 39, .2) 100%); }
+  html[data-loy] .lvc-campus.is-fallback::after { background: linear-gradient(180deg, rgba(8, 16, 29, 1) 36%, rgba(8, 16, 29, .4) 62%, rgba(8, 16, 29, .2) 100%); }
 }
 .lvc-intro__loy { display: none; }
 html[data-loy] .lvc-intro__loy { display: block; margin-top: 10px; color: var(--loy-candle); font-size: 14px; letter-spacing: .08em; opacity: 0; transition: opacity 1s ease .6s; }
 html[data-loy] .lvc-intro.is-title .lvc-intro__loy { opacity: 1; }
 
 /* ริบบิ้นเปลี่ยนหน้า: กรมท่า ทอง คราม (ยังมีแดงประจำวิทยาลัยหนึ่งผืน) */
-html[data-loy] .lvc-tx__band--0 { --c: #141b3d; }
-html[data-loy] .lvc-tx__band--1 { --c: #a8873f; }
-html[data-loy] .lvc-tx__band--2 { --c: #2c2f6e; }
-html[data-loy] .lvc-tx__band--3 { --c: #0b1027; }
-html[data-loy] .lvc-tx__band--4 { --c: #a12839; }
-html[data-loy] .lvc-tx__band--5 { --c: #d7b56b; }
-html[data-loy] .lvc-tx__band--6 { --c: #1b2350; }
+html[data-loy] .lvc-tx__band--0 { --c: #0f1b2e; }
+html[data-loy] .lvc-tx__band--1 { --c: #c9a227; }
+html[data-loy] .lvc-tx__band--2 { --c: #172741; }
+html[data-loy] .lvc-tx__band--3 { --c: var(--sky-0); }
+html[data-loy] .lvc-tx__band--4 { --c: #9b182a; }
+html[data-loy] .lvc-tx__band--5 { --c: #f5c518; }
+html[data-loy] .lvc-tx__band--6 { --c: #12203a; }
 
 /* ประติมากรรม LVC อยู่ในฉากกลางคืน: แสงจันทร์เย็นลงเล็กน้อย + แสงเทียนอุ่นจากผิวน้ำด้านล่าง */
 html[data-loy] .sculpture canvas { filter: brightness(.86) saturate(.92) drop-shadow(0 18px 34px rgba(255, 190, 100, .16)); }
@@ -89,17 +97,17 @@ html[data-loy] .content-page .page-main {
 }
 
 /* ไม่มี WebGL (ภาพนิ่งด้วย CSS): ย้อมภาพเป็นกลางคืน + พระจันทร์ */
-html[data-loy] .lvc-intro__color, html[data-loy] .lvc-intro__ghost { filter: brightness(.5) saturate(.6) contrast(1.05); }
+html[data-loy] .lvc-intro__ghost { filter: grayscale(.85) contrast(.55) brightness(.45); }
 html[data-loy] .lvc-intro__fb::after {
   content: ""; position: absolute; inset: 0;
-  background: radial-gradient(circle at 80% 18%, #fffaf0 0 2.6%, #fff3d655 3%, #fff3d612 9%, transparent 14%), linear-gradient(#0b102755, #0b102788);
+  background: radial-gradient(circle at 80% 18%, #fffaf0 0 2.6%, #fff3d655 3%, #fff3d612 9%, transparent 14%), linear-gradient(var(--sky-0)55, var(--sky-0)88);
 }
 html[data-loy] .lvc-campus.is-fallback {
-  background: radial-gradient(circle at 82% 14%, #fffaf0 0 2.4%, #fff3d655 2.8%, #fff3d612 8%, transparent 12%) no-repeat,
-    linear-gradient(#0b10278c, #0b1027b0) no-repeat, url(./images/campus.webp) 62% 34% / cover no-repeat;
+  background: radial-gradient(circle at 82% 14%, #fffaf0 0 2.4%, #f4ead255 2.8%, #f4ead212 8%, transparent 12%) no-repeat,
+    url(./images/campus-night-nomoon.webp) 62% 34% / cover no-repeat;
 }
 @media (max-width: 900px) and (orientation: portrait) {
-  html[data-loy] .lvc-campus.is-fallback { background-size: auto, auto, auto 100%; background-position: 0 0, 0 0, 66% 50%; }
+  html[data-loy] .lvc-campus.is-fallback { background-size: auto, auto 100%; background-position: 0 0, 66% 50%; }
 }
 
 /* ============================================================================
@@ -107,7 +115,7 @@ html[data-loy] .lvc-campus.is-fallback {
  * ============================================================================ */
 .loy {
   position: relative; padding-top: clamp(72px, 9vw, 120px); color: var(--ink);
-  background: linear-gradient(180deg, var(--paper) 0%, #0c1431 58%, #0b1330 100%);
+  background: linear-gradient(180deg, var(--paper) 0%, var(--sky-1) 58%, var(--sky-1) 100%);
 }
 .loy__top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: clamp(32px, 6vw, 96px); align-items: start; }
 .loy__eyebrow { display: flex; align-items: center; gap: 12px; margin: 0; color: var(--gold); font-size: 13px; letter-spacing: .04em; }
@@ -125,18 +133,18 @@ html[data-loy] .lvc-campus.is-fallback {
 /* ---------- ฟอร์ม ---------- */
 .loy__form {
   padding: clamp(18px, 2.4vw, 28px); border: 1px solid var(--line); border-radius: 20px;
-  background: linear-gradient(180deg, #141c40e6, #10173ae6); box-shadow: 0 30px 70px -40px #000, 0 0 0 1px #ffffff08 inset;
+  background: linear-gradient(180deg, rgba(23, 39, 65, .55), rgba(15, 27, 46, .7)); box-shadow: 0 30px 70px -40px #000, 0 0 0 1px #ffffff08 inset;
 }
 .loy__pick { margin: 0; padding: 0; border: 0; min-width: 0; }
 .loy__pick legend { padding: 0; margin-bottom: 10px; font-size: 14px; color: var(--muted); }
 .loy__styles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.loy__style { position: relative; display: grid; justify-items: center; gap: 4px; padding: 10px 4px 8px; border: 1px solid var(--theme-border); border-radius: 14px; cursor: pointer; background: #0b1230; transition: border-color .18s, background-color .18s, transform .18s; }
+.loy__style { position: relative; display: grid; justify-items: center; gap: 4px; padding: 10px 4px 8px; border: 1px solid var(--theme-border); border-radius: 14px; cursor: pointer; background: rgba(23, 39, 65, .55); transition: border-color .18s, background-color .18s, transform .18s; }
 .loy__style input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .loy__style-art { display: block; width: 100%; max-width: 72px; aspect-ratio: 4 / 3; }
 .loy__style-art .loy-art { width: 100%; height: 100%; overflow: visible; }
 .loy__style-name { font-size: 13px; color: var(--muted); }
-.loy__style:hover { border-color: #6b76ab; }
-.loy__style:has(input:checked) { border-color: var(--gold); background: #2a2a55; }
+.loy__style:hover { border-color: rgba(245, 197, 24, .5); }
+.loy__style:has(input:checked) { border-color: var(--gold); background: rgba(245, 197, 24, .08); }
 .loy__style:has(input:checked) .loy__style-name { color: var(--gold); }
 .loy__style:has(input:focus-visible) { outline: 2px solid var(--theme-outline); outline-offset: 3px; }
 .loy__style input:checked ~ .loy__style-name { color: var(--gold); }
@@ -145,23 +153,23 @@ html[data-loy] .lvc-campus.is-fallback {
 .loy__field label small { color: var(--muted); font-size: 13px; }
 .loy__field input, .loy__field textarea {
   width: 100%; box-sizing: border-box; min-height: 48px; padding: 12px 14px; border: 1px solid var(--theme-border); border-radius: 12px;
-  background: #0a1029; color: var(--ink); font: 400 16px/1.6 var(--f-text, sans-serif); resize: none;
+  background: rgba(8, 16, 29, .6); color: var(--ink); font: 400 16px/1.6 var(--f-text, sans-serif); resize: none;
   transition: border-color .18s, box-shadow .18s;
 }
 .loy__field textarea { min-height: 84px; }
-.loy__field input:focus, .loy__field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px #e8c27c33; }
+.loy__field input:focus, .loy__field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold)33; }
 .loy__field [aria-invalid] { border-color: #ff9d8f; }
 .loy__n { justify-self: end; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .loy__error { min-height: 0; margin: 10px 0 0; color: #ffb3a7; font-size: 14px; line-height: 1.6; }
 .loy__error:empty { margin: 0; }
 .loy__send {
   display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 52px; margin-top: 16px;
-  border: 0; border-radius: 14px; cursor: pointer; color: #22160a; font: 500 16px/1.4 var(--f-text, sans-serif);
-  background: linear-gradient(180deg, #f6d084, #e7a548); box-shadow: 0 10px 30px -12px #ffb54d99;
+  border: 0; border-radius: 14px; cursor: pointer; color: var(--ink-dark); font: 500 16px/1.4 var(--f-text, sans-serif);
+  background: var(--gold); box-shadow: 0 8px 30px -8px rgba(245, 197, 24, .55);
   transition: transform .18s, filter .18s, opacity .18s;
 }
 .loy__send svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.loy__send:hover:not(:disabled) { filter: brightness(1.06); transform: translateY(-1px); }
+.loy__send:hover:not(:disabled) { background: var(--gold-h); transform: translateY(-1px); }
 .loy__send:active:not(:disabled) { transform: translateY(0) scale(.99); }
 .loy__send:disabled { cursor: not-allowed; opacity: .62; box-shadow: none; }
 .loy__send:focus-visible, .loy__btn:focus-visible { outline: 2px solid var(--theme-outline); outline-offset: 3px; }
@@ -176,7 +184,7 @@ html[data-loy] .lvc-campus.is-fallback {
 .loy__total b { display: inline-block; min-width: 1ch; color: var(--gold); font-family: var(--f-display, serif); font-weight: 500; font-size: clamp(24px, 2.4vw, 32px); font-variant-numeric: tabular-nums; margin-right: 4px; }
 .loy__status {
   flex: 1 0 100%; width: max-content; max-width: 100%; box-sizing: border-box; margin: 8px 0 0; padding: 10px 16px; border-radius: 12px;
-  background: #0b1027e0; border: 1px solid #f4cd8c55; color: #ffe2b0; font-size: 14px; line-height: 1.6; flex-grow: 0;
+  background: rgba(8, 16, 29, .88); border: 1px solid rgba(245, 197, 24, .33); color: var(--moon); font-size: 14px; line-height: 1.6; flex-grow: 0;
 }
 .loy__status[hidden] { display: none; }
 .loy__boats { position: absolute; inset: 0; z-index: 2; }
@@ -197,10 +205,10 @@ html[data-loy] .lvc-campus.is-fallback {
   content: ""; position: absolute; left: 50%; bottom: 14px; width: 70px; height: 70px; margin-left: -35px; border-radius: 50%; pointer-events: none;
   background: radial-gradient(closest-side, rgba(255, 196, 110, .34), rgba(255, 196, 110, 0)); transform: scale(var(--s, 1)); transform-origin: 50% 100%;
 }
-.loy-boat.is-mine .loy-art { filter: drop-shadow(0 0 5px #ffd27a) drop-shadow(0 0 14px rgba(255, 190, 100, .55)); }
+.loy-boat.is-mine .loy-art { filter: drop-shadow(0 0 5px var(--gold)) drop-shadow(0 0 14px rgba(255, 190, 100, .55)); }
 .loy-boat.is-mine::after {
   content: "ของคุณ"; position: absolute; left: 50%; bottom: calc(48px * var(--s, 1) + 4px); transform: translateX(-50%);
-  padding: 1px 7px; border-radius: 999px; background: #e8c27c; color: #22160a; font-size: 11px; line-height: 1.6; white-space: nowrap; pointer-events: none;
+  padding: 1px 7px; border-radius: 999px; background: var(--gold); color: var(--ink-dark); font-size: 11px; line-height: 1.6; white-space: nowrap; pointer-events: none;
 }
 .loy-boat.is-decor { opacity: .5; cursor: default; pointer-events: none; }
 .loy-boat:focus-visible { outline: 2px solid var(--loy-candle); outline-offset: 4px; }
@@ -215,7 +223,7 @@ html[data-loy] .lvc-campus.is-fallback {
 }
 .loy__card[hidden] { display: none; }
 .loy__card p { margin: 0; }
-.loy__card-mine { display: inline-block; margin-bottom: 8px !important; padding: 1px 9px; border-radius: 999px; background: #e8c27c; color: #22160a; font-size: 12px; }
+.loy__card-mine { display: inline-block; margin-bottom: 8px !important; padding: 1px 9px; border-radius: 999px; background: var(--gold); color: var(--ink-dark); font-size: 12px; }
 .loy__card-mine[hidden] { display: none; }
 .loy__card-name { color: var(--gold); font-size: 14px; font-weight: 500; }
 .loy__card-wish { margin-top: 6px !important; font-family: var(--f-display, serif); font-size: 18px; line-height: 1.65; overflow-wrap: anywhere; }
@@ -227,7 +235,7 @@ html[data-loy] .lvc-campus.is-fallback {
   flex: 1 1 auto; min-height: 44px; padding: 9px 14px; border: 1px solid var(--theme-border); border-radius: 10px; cursor: pointer;
   background: var(--surface-soft); color: var(--ink); font: 500 14px/1.4 var(--f-text, sans-serif);
 }
-.loy__btn:hover { border-color: #6b76ab; }
+.loy__btn:hover { border-color: rgba(245, 197, 24, .5); }
 .loy__btn--ghost { background: transparent; color: var(--muted); }
 .loy__btn--warn { background: #b8303f; border-color: #b8303f; color: #fff; }
 .loy__btn--warn:hover { background: #c93a4a; }
@@ -248,3 +256,21 @@ html[data-loy] .lvc-campus.is-fallback {
   .loy-flame { animation: none; }
   .loy__send, .loy__style, .loy-boat .loy-art { transition: none; }
 }
+
+/* ---------- หน้าแรกช่วงเทศกาล: นับถอยหลังใน hero (ตามไฟล์ร่าง) ---------- */
+html[data-loy] .hero-note.is-loy {
+  opacity: 1; display: inline-flex; align-items: center; gap: 12px; width: auto; max-width: 100%; padding: 8px 16px 8px 12px;
+  border: 1px solid var(--line); border-radius: 999px; background: rgba(8, 16, 29, .5); color: var(--muted); font-size: max(13px, .875rem); line-height: 1.5; letter-spacing: 0;
+}
+html[data-loy] .hero-note.is-loy .note-mark { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--candle); box-shadow: 0 0 12px var(--candle); }
+html[data-loy] .hero-note.is-loy .loy-countdown { font-variant-numeric: tabular-nums; }
+
+/* ---------- ถ้าจะไปลอยที่ท่าน้ำ (ตามไฟล์ร่าง) ---------- */
+.loy-eco { padding: clamp(64px, 8vw, 96px) 0; background: var(--sky-0); color: var(--ink); }
+.loy-eco__title { margin: 16px 0 0; font-family: var(--f-display, serif); font-weight: 500; font-size: clamp(32px, 3.6vw, 50px); line-height: 1.3; }
+.loy-eco__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 48px 0 0; padding: 0; list-style: none; }
+.loy-eco__list li { padding: 32px 24px; border: 1px solid var(--line); border-radius: 20px; background: rgba(23, 39, 65, .35); }
+.loy-eco__list svg { width: 36px; height: 36px; fill: none; stroke: var(--gold); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.loy-eco__list h3 { margin: 16px 0 0; font-family: var(--f-display, serif); font-weight: 500; font-size: 22px; line-height: 1.4; }
+.loy-eco__list p { margin: 8px 0 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
+@media (max-width: 860px) { .loy-eco__list { grid-template-columns: minmax(0, 1fr); } }

@@ -115,17 +115,22 @@
     <link rel="stylesheet" href="./extras.css?v=2026-11-06.13.0">
     <link rel="stylesheet" href="./campus.css?v=2026-11-06.13.0">
     <link rel="stylesheet" href="./alive.css?v=2026-11-06.13.0">
-    <link rel="preload" href="./images/campus.webp" as="image" type="image/webp" fetchpriority="high" />
+    <script>
+      // โหลดภาพฉากเปิดล่วงหน้า: ช่วงลอยกระทง (theme.js ใส่ data-loy แล้ว) ใช้ภาพกลางคืน
+      (function (l) { l.rel = "preload"; l.as = "image"; l.type = "image/webp"; l.setAttribute("fetchpriority", "high");
+        l.href = document.documentElement.hasAttribute("data-loy") ? "./images/campus-night-nomoon.webp" : "./images/campus.webp";
+        document.head.appendChild(l); })(document.createElement("link"));
+    </script>
     <script defer src="./scroll-fx.js?v=2026-11-06.13.0" onerror="window.__LVC_FX=0"></script>
     <script defer src="./app.js?v=2026-11-06.13.0"></script>
     <script type="module" src="./loy.js?v=2026-11-20.1"></script>
-    <script defer src="./campus-gl.js?v=2026-11-20.1"></script>
-    <script defer src="./campus-backdrop.js?v=2026-11-06.13.0"></script>
+    <script defer src="./campus-gl.js?v=2026-11-21.1"></script>
+    <script defer src="./campus-backdrop.js?v=2026-11-21.1"></script>
     <script type="module" src="./lvc-journey.js?v=2026-11-08.2"></script>
     <script defer src="./vendor/paper-liquid-metal.js?v=2026-11-06.13.0"></script>
     <script defer src="./metal-button.js?v=2026-11-06.13.0"></script>
     <script defer src="./hero-motion.js?v=2026-11-06.13.0"></script>
-    <script defer src="./intro.js?v=2026-11-20.1"></script>
+    <script defer src="./intro.js?v=2026-11-21.1"></script>
     <link rel="stylesheet" href="./assets/glass-folder/documents.css?v=2026-11-06.13.0">
     <link rel="stylesheet" href="./refine.css?v=2026-11-06.13.0"><link rel="stylesheet" href="./v12.css?v=2026-11-06.13.0"><link rel="stylesheet" href="./loy.css?v=2026-11-20.1">
     <script defer src="./assets/glass-folder/documents.js?v=2026-11-06.13.0"></script>

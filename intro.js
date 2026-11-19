@@ -291,7 +291,7 @@
     el.classList.add("is-fallback");
     placeFallbackBloom();
     var ghost = $(".lvc-intro__ghost"), color = $(".lvc-intro__color");
-    var src = (ghost && ghost.getAttribute("data-src")) || "./images/campus.webp";
+    var src = C && C.src ? C.src() : (ghost && ghost.getAttribute("data-src")) || "./images/campus.webp";   // ลอยกระทง = ภาพกลางคืน
     var shown2 = false;
     function go() {
       if (shown2 || finished || skipping) return;

@@ -52,7 +52,7 @@
     if (loy) root.setAttribute("data-loy", "2569"); else root.removeAttribute("data-loy");
     root.style.colorScheme = theme;
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", loy ? "#0b1027" : theme === "dark" ? "#181619" : "#fbfaf7");
+    if (meta) meta.setAttribute("content", loy ? "#0f1b2e" : theme === "dark" ? "#181619" : "#fbfaf7");
     controls.forEach(function (control) { control.update(); });
     window.dispatchEvent(new CustomEvent("lvc:themechange", { detail: { preference: preference, theme: theme, loy: loy } }));
     if (announce) controls.forEach(function (control) {

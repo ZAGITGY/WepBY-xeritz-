@@ -63,7 +63,7 @@
     markReady();
   }
 
-  var R = C.create(canvas, { onLost: fallback });
+  var R = C.create(canvas, { onLost: fallback, onSwap: function () { redrawNow(); } });   // onSwap: เปลี่ยนภาพกลางวัน/กลางคืนตามธีม
   if (!R) { fallback(); return; }
 
   // กลับมาหน้าแรกจากหน้าอื่น (ไม่มีฉากเข้าเว็บ) → สีค่อย ๆ แผ่ออกเป็นการเปิดตัว
@@ -102,7 +102,24 @@
   /* ---------- ท่าที่ใช้วาด ---------- */
   // ท่ามาตรฐาน (ไม่มีเมาส์/แสงกวาด) — ฉากเข้าเว็บเรียกใช้ตอนส่งต่อ เพื่อให้ภาพตรงกันทุกพิกเซล
   function pose(frame, now) {
-    return C.hero(frame, now / 1000, R.size(), { enter: 1, still: still(), paper: S.paper || readPaper() });
+    return C.hero(frame, now / 1000, R.size(), { enter: 1, still: still(), paper: S.paper || readPaper(), moonAt: moonSpot() });
+  }
+  // ลอยกระทง (มือถือแนวตั้ง): หาที่ว่างทางขวาของบรรทัดที่ 2 ของหัวข้อ ให้พระจันทร์ไม่ทับตัวหนังสือ · วัดตอนโหลด/ปรับขนาดเท่านั้น
+  var moonCache = null, moonDirty = true;
+  function moonSpot() {
+    if (!moonDirty) return moonCache;
+    moonDirty = false; moonCache = null;
+    if (!root.hasAttribute("data-loy") || stage.clientWidth > stage.clientHeight * 0.95) return null;
+    var line = document.querySelector(".scene-opening h1 > span:nth-child(2)");
+    if (!line) return null;
+    var sr = stage.getBoundingClientRect(), lr = line.getBoundingClientRect(), range = document.createRange();
+    range.selectNodeContents(line);
+    var tr = range.getBoundingClientRect();                       // ความกว้างของตัวอักษรจริง (ไม่ใช่ทั้งบรรทัด)
+    var free = sr.right - 14 - (tr.width ? tr.right : lr.right);
+    var r = Math.min(30, free * 0.34);
+    if (r < 15) return null;
+    moonCache = [(sr.right - 14 - r - Math.max(0, free - 2 * r) * 0.3 - sr.left) / sr.width, (lr.top + lr.height * 0.5 - sr.top) / sr.height, r / sr.height];
+    return moonCache;
   }
   window.__LVC_BACKDROP = {
     pose: pose,
@@ -123,7 +140,7 @@
       }
     }
     var u = C.hero([0, 0, canvas.width, canvas.height], now / 1000, R.size(), {
-      enter: S.enter, still: still(), paper: S.paper || readPaper(),
+      enter: S.enter, still: still(), paper: S.paper || readPaper(), moonAt: moonSpot(),
       pointer: S.p.s > 0.001 ? [S.p.x, S.p.y, S.p.r, S.p.s] : null, tap: tap
     });
     if (!still() && CFG.sweep > 0 && S.t0) {
@@ -204,6 +221,7 @@
   // นอกจอ / แท็บซ่อน: จดไว้ก่อน แล้ววาดครั้งเดียวตอนกลับมาเห็น (มือถือยิง resize ทุกครั้งที่แถบที่อยู่เว็บยุบ/ขยาย)
   var dirty = false;
   function redrawNow() {
+    moonDirty = true;
     if (!R.ready || S.failed) return;
     if (!S.visible || S.hidden) { dirty = true; return; }
     dirty = false; readPaper(); draw(performance.now()); kick();
@@ -239,7 +257,8 @@
     if (e && e.detail && e.detail.handoff === false && !S.looping && !still()) { S.enter = 0; S.entering = true; S.enterFrom = 0; }
     startLoop();
   });
-  window.addEventListener("lvc:loaded", function () { S.story = null; startLoop(); kick(); });
+  window.addEventListener("lvc:loaded", function () { S.story = null; moonDirty = true; startLoop(); kick(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { moonDirty = true; });
   window.addEventListener("pageshow", function (e) { if (e.persisted) { S.lastFrame = 0; redrawNow(); } });
   if (motion.addEventListener) motion.addEventListener("change", function () { S.entering = false; S.enter = 1; S.pt.s = 0; S.p.s = 0; redrawNow(); });
 
