@@ -1,0 +1,58 @@
+rules_version = '2';
+// ลอยกระทงออนไลน์ 2569 — กติกาฝั่งเซิร์ฟเวอร์ (คู่กับ loy-db.js) · วิธีติดตั้งดู FIREBASE-TH.md
+// - ทุกคนอ่านกระทงได้ (แม่น้ำรวม) · เขียนได้เฉพาะกระทงใหม่ที่ถูกรูปแบบ: ชนิดข้อมูล ความยาว เวลาเซิร์ฟเวอร์ hidden=false
+// - แอดมินไม่มีบัญชี: รหัสอยู่ใน admin/config (ไม่มีใครอ่านได้ rules อ่านได้เอง) ทุกคำสั่งแอดมินต้องเขียน mod/{id}
+//   ที่มีรหัสถูกต้องไปพร้อมกันในคำสั่งเดียว (getAfter + เวลาเดียวกัน) จึงจะซ่อน/แสดงกระทงได้
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function adminKey() { return get(/databases/$(database)/documents/admin/config).data.key; }
+    // คำสั่งนี้เขียน mod/{id} (ที่ผ่านการตรวจรหัสแล้ว) มาพร้อมกันหรือไม่
+    function modOk(id) {
+      return existsAfter(/databases/$(database)/documents/mod/$(id))
+        && getAfter(/databases/$(database)/documents/mod/$(id)).data.at == request.time;
+    }
+    // ข้อความ: ชนิด string ความยาว min–max ห้ามมีลิงก์/เบอร์โทร (ตรวจละเอียดอีกชั้นที่ loy-filter.js)
+    function text(s, min, max) {
+      return s is string && s.size() >= min && s.size() <= max
+        && !s.matches('(?i).*(https?://|www[.]).*')
+        && !s.matches('.*([0-9๐-๙][ .()/_-]{0,3}){9,}.*');
+    }
+
+    match /krathongs/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['name', 'wish', 'style', 'at', 'rnd', 'hidden'])
+        && request.resource.data.keys().hasAll(['name', 'wish', 'style', 'at', 'rnd', 'hidden'])
+        && text(request.resource.data.name, 0, 20)
+        && text(request.resource.data.wish, 1, 80)
+        && request.resource.data.style is int && request.resource.data.style >= 0 && request.resource.data.style <= 3
+        && request.resource.data.at == request.time
+        && request.resource.data.rnd is float && request.resource.data.rnd >= 0 && request.resource.data.rnd < 1
+        && request.resource.data.hidden == false;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hidden'])
+        && request.resource.data.hidden is bool
+        && modOk(id);
+      allow delete: if false;
+    }
+
+    match /reports/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['n', 'at'])
+        && request.resource.data.n == 1 && request.resource.data.at == request.time
+        && exists(/databases/$(database)/documents/krathongs/$(id));
+      allow update: if request.resource.data.keys().hasOnly(['n', 'at'])
+        && request.resource.data.n == resource.data.n + 1 && request.resource.data.at == request.time;
+      allow delete: if modOk(id);
+    }
+
+    match /mod/{id} {
+      allow read: if false;
+      allow create, update: if request.resource.data.keys().hasOnly(['key', 'act', 'at'])
+        && request.resource.data.key == adminKey()
+        && request.resource.data.act in ['login', 'hide', 'show', 'dismiss']
+        && request.resource.data.at == request.time;
+      allow delete: if false;
+    }
+
+    match /admin/{d} { allow read, write: if false; }
+  }
+}

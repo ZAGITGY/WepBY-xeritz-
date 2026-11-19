@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#faf9f6">
+  <script src="./theme.js?v=2026-11-20.1"></script>
   <title>ไม่พบหน้านี้ — วิทยาลัยอาชีวศึกษาเลย</title>
   <!-- v9.4: GitHub Pages / Netlify / Cloudflare Pages แสดงไฟล์นี้อัตโนมัติเมื่อเปิดลิงก์ที่ไม่มีอยู่
        สไตล์อยู่ในไฟล์เดียว เพราะหน้านี้อาจถูกเปิดจากโฟลเดอร์ไหนก็ได้ -->
@@ -14,7 +15,7 @@
     @font-face { font-family: "IBM Plex Sans Thai"; src: url(./fonts/ibm-plex-sans-thai-400-thai.woff2) format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0E01-0E5B, U+200C-200D, U+25CC; }
     @font-face { font-family: "IBM Plex Sans Thai"; src: url(./fonts/ibm-plex-sans-thai-400-latin.woff2) format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0000-00FF, U+2000-206F; }
     :root { --paper: #faf9f6; --ink: #241f20; --muted: #686d72; --line: #dfd9d2; --red: #a61d2d; --gold: #c9a96a; color-scheme: light dark; }
-    @media (prefers-color-scheme: dark) { :root { --paper: #181619; --ink: #f3eee7; --muted: #b9b1b0; --line: #40373b; --red: #ef929c; --gold: #d5c298; } }
+    @media (prefers-color-scheme: dark) { :root { --paper: #181619; --ink: #f3eee7; --muted: #b9b1b0; --line: #40373b; --red: #ef929c; --gold: #d5c298; --surface-raised: #2a252a; } }
     * { box-sizing: border-box; }
     html, body { margin: 0; min-height: 100%; }
     body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 32px 20px; background: var(--paper); color: var(--ink);
@@ -32,8 +33,12 @@
     a:focus-visible { outline: 3px solid #b18a00; outline-offset: 3px; }
     @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
     @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+    /* ลอยกระทง 2569 (theme.js ใส่ data-loy ตามวันที่): ฟ้ากลางคืน พระจันทร์ แสงเทียน */
+    html[data-loy] { --paper: #0b1027; --ink: #f3efe4; --muted: #b9bdd0; --line: #2b3358; --red: #b8303f; --gold: #e8c27c; --surface-raised: #182146; color-scheme: dark; }
+    html[data-loy] body { background: radial-gradient(circle at 80% 14%, #fffaf0 0 22px, #f3e2b8 26px, #fff3d633 28px, #fff3d610 64px, transparent 110px) no-repeat, var(--paper); }
+    html[data-loy] a.main { color: #fff; }
   </style>
-  <script type="module" src="./lvc-pet.js?v=2026-11-08.2"></script>
+  <script type="module" src="./lvc-pet.js?v=2026-11-20.1"></script>
 </head>
 <body>
   <main>

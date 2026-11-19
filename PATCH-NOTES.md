@@ -1,3 +1,58 @@
+# Patch 2026-11-20.1 — Loy Krathong 2569 theme: night campus, online krathong river
+
+The draft `drafts/loykrathong-draft.html` was not in the repo or the uploaded zip; per the owner, the look was designed from the brief, reusing the site's fonts, tokens and existing scenes. Built for the college's live site.
+
+## Theme on/off by date (`theme.js`, new `loy.css`, all 5 pages)
+- On from **20 Nov 2569 00:00 to 25 Nov 2569 06:00 Thai time** (`Date.UTC(2026,10,19,17)` → `Date.UTC(2026,10,24,23)`). While on: `data-theme="dark"` + `data-loy="2569"`, so every existing dark-mode rule still applies and `loy.css` only retunes it (night navy, moonlight cream, candle gold; every rule is scoped `html[data-loy]`, so it does nothing outside the festival).
+- The saved choice `lvc.theme` is never written by the festival, so light/dark/system comes back by itself afterwards. A page left open across a boundary switches on a timer.
+- Theme menu gets a 4th option "ลอยกระทง" during the window; picking light/dark/system opts out (`lvc.loy2569`), picking ลอยกระทง opts back in.
+- Testing: `?loy=1` / `?loy=0` (remembered for the tab, so ribbon page changes keep it), `?loy=auto` back to the date.
+- Content pages: moon and stars painted as a `.page-main` background (no canvas, no new stacking context). Ribbon transition colours: navy/gold/indigo plus one college red. 404 now loads `theme.js` and has its own night tokens; also fixed the existing pet bubble on 404 in OS dark mode (`--surface-raised` was missing, so it showed light text on white).
+
+## Night opening scene + home backdrop (`campus-gl.js`, `intro.js`; `campus-backdrop.js` unchanged)
+- Same shader, same intro→home handoff. New uniforms: `uNight`, `uMoon`, `uWaterV`, `uKr[6]`. Photo graded to moonlight; real sky (blue mask limited to the upper right, so the blue tile wall is not "sky") replaced by a night gradient with twinkling stars.
+- The moon is drawn only where the photo is sky, so the building and its sign hide it: in the intro it rises from behind the college sign (image v 0.43 → 0.245) while the colour blooms; at rest it sits above the sign (desktop) or in the free top-right corner beside the headline (phone).
+- The paved forecourt below image v 0.872 becomes water: mirrored, rippled reflection of the campus, a moon path that widens toward the viewer and glitters, and 6 shader krathongs (banana-leaf / lotus) drifting across with candle glow and a reflected light streak. Positions are image coordinates, so intro and home stay pixel-matched during the handoff. Night framing moves the image focus down so the water is in frame.
+- The LVC 3D sculpture stays in the scene (slightly cooler, warm under-glow). HUD labels and an extra "คืนลอยกระทง 2569" title line in the intro. No WebGL → CSS night tint + moon on the photo. Reduced Motion → still frame. `pow(x,2.0)` avoided on negative values (undefined in GLSL ES, NaN on Apple GPUs).
+
+## ลอยกระทงออนไลน์ + แม่น้ำของเรา (new `loy.js`, `loy-db.js`, `loy-filter.js`, `loy-config.js`)
+- Section inserted after the 8-group scene, before "บริการที่ใช้บ่อย" (not before the pinned scene, so its scroll positions don't move); `ScrollTrigger.refresh()` once after insert. Deep link: `index.html#loy`. Only built while `data-loy` is on; removed if the festival ends while the page is open.
+- Form: 4 krathong designs (SVG: ใบตอง, ดอกบัว, ขนมปัง, ดาวเรือง), name ≤ 20 (optional), wish 1–80 (`maxlength` + counter), errors under the field with `aria-invalid`, Enter sends. **1 krathong per 30 s per device** (localStorage) with a live countdown on the button.
+- Filter (`loy-filter.js`): Thai profanity (spacing/dots/emoji between letters removed, ๊/๋ treated as ้, repeated letters collapsed; allowlist for normal words that contain a bad word: หีบ เหี่ยว เชี่ยวชาญ กู้ แม่งาม/แม่งาน …), English profanity (leetspeak, letter-by-letter spelling, short words matched as whole words: peacock/assess pass), phone numbers (9+ Thai or Arabic digits with separators), links (http, www, domain.tld, "dot com"/"จุด com", line.me, bit.ly …).
+- River: latest 20 + random 26 (via a stored `rnd` field), de-duplicated, capped at 40; total from a server-side `count()` aggregation. Every 45 s, only while the river is visible and the tab is shown, it asks for krathongs newer than the newest one seen (≈ 1 read when nothing is new) and floats them in from the left. Krathongs are real `<button>`s (screen-reader label = name + wish; Tab once, then ←/→/Home/End); tap opens a card with name, wish, relative time, "แจ้งซ่อนกระทง" (confirm → hidden on this device at once + reported to the admin queue) and close (Esc returns focus).
+- Water: 2D canvas (gradient, ripples, moon path, candle reflections), ~30 fps on the GSAP ticker from `window.__LVC` (no second GSAP); stops when off screen (IntersectionObserver plus a once-per-second bounding-box check) or the tab is hidden. GSAP is also used for the reveal (ScrollTrigger, once), the launch/sink tweens and the count-up. Reduced Motion: no ticker, boats spread out and still, no flame flicker.
+- Firebase not configured / down / quota out → local mode: your krathongs float on this device (localStorage, last 20), 7 decorative ones keep the river alive, and a status message says so; it retries on its own (every ~50 s while visible) and keeps the local ones when it reconnects.
+- Firestore via its REST API (no Firebase SDK, about 4 KB instead of about 300 KB). Config file `loy-config.js` is empty until the owner sends the project config.
+
+## Server rules, admin, setup guide
+- `firebase/firestore.rules`: public read; create only with exactly `name, wish, style, at, rnd, hidden`; string/int/float/bool types; name 0–20, wish 1–80; style 0–3; `at == request.time`; `hidden == false`; no links/phone numbers (regex). No edits or deletes by visitors. Reports: n starts at 1 and only increments by 1, only for an existing krathong.
+- Admin without accounts (owner's choice): the password lives in `admin/config` (unreadable). Every admin write must also write `mod/{id}` with the right key in the same commit; rules check it with `getAfter()` and `at == request.time`, so an old record can't be reused. Admins can only change `hidden` (not the text).
+- `firebase/firestore.indexes.json` (hidden+at, hidden+rnd), `firebase/firebase.json`.
+- `loy-admin.html` (noindex): password → tabs ถูกแจ้ง (with counts) / ล่าสุด / ซ่อนอยู่ → ซ่อน, แสดงอีกครั้ง, ไม่ผิด ปิดรายงาน. Key kept in sessionStorage only.
+- `FIREBASE-TH.md`: Thai step-by-step setup (project, Firestore, web app config, rules, indexes, admin password, API-key referrer restriction, quota estimate, test checklist, troubleshooting by console code, after the festival).
+
+## Pet
+- `SPECIAL = "loykrathong"` whenever `data-loy` is on (same window and `?loy=1`). Lines: `special.loykrathong` (2 greetings) and `loy.float` (2 cheers). New act `web.loy`: hop with squash, sparkles and hearts when a krathong is released (`lvc:krathong`); your own release always gets a line, other visitors' at most once a minute. Tapping during the festival adds sparkles. The theme switching into ลอยกระทง no longer triggers the "มืดแล้ว ง่วงเลย~" reaction.
+
+## Verified (headless Chromium + SwiftShader; Firestore Emulator)
+- `node --test tests/loy-filter.test.mjs`: 5/5 (21 normal wishes pass, 19 rude, 5 phone, 7 link blocked).
+- `firebase/test-rules.mjs` on the emulator: 36/36 (valid writes, each invalid field/type/length/time, report counting, admin wrong/right key, stale admin record, admin editing text, reading the key, deleting).
+- End to end with the emulator at 1440×900 and 390×844: load 37 of 50, count 50→51 after floating, card inside the river, report hides + queues, rude/phone errors, 30 s countdown, keyboard, another visitor's krathong appears on the next poll, admin page flow, Firebase unreachable → local mode survives reload.
+- Date switch at 6 instants (19 Nov 23:59:59 off, 20 Nov 00:00 on, 25 Nov 05:59:59 on, 25 Nov 06:00 off, 2027 off) with the saved "light" preference intact; menu opt-out survives reload.
+- Every page at both sizes with the theme on and off: no horizontal scroll, no element past the right edge, no console errors from the new code. Ribbon page change index → programs → contact → back keeps the theme; ribbon opening time on contact identical with the theme on/off (4.6–4.7 s headless). The 8-group scene still pins and its progress follows the scroll at both sizes. The home WebGL and the river canvas draw nothing while scrolled to the footer. Reduced Motion: no intro, river still, flame static. iPad (gen 7) emulation in Chromium, portrait and landscape: intro, scene, river, tap card.
+- Screenshots: 9 views × 2 sizes (intro moon rising, home, form, floated, card, local mode, programs, 404, admin).
+
+## Not done / known
+- No real Safari/WebKit here: iPad was emulated in Chromium only. Please run the existing iPad checklist (README-TH) once with `?loy=1`.
+- Existing behaviour, unchanged: `doc-links.js` HEAD-probes `documents/student-handbook-2569.pdf` (not bundled) when its link is hovered, which logs one 404 in the console.
+- The 30 s limit is per device in the browser; Firestore can't enforce it without accounts or App Check. Hidden krathongs stay readable through the API until deleted in the console (FIREBASE-TH.md §10).
+- `count()` is not real-time between polls (45 s).
+
+## Versions
+`?v=2026-11-20.1` for theme.js (5 pages), loy.css (4 pages), campus-gl.js, intro.js, loy.js (home), lvc-pet.js (5 pages; VERSION and its pet-lines/pet-reactions imports).
+
+---
+
 # Patch 2026-11-08.2 — pet bug fixes, journey header/stage fixes, pet personality
 
 Each cause below was measured before fixing (headless Chromium with simulated Safari behaviour where needed); Safari-only behaviour has an on-device checklist in README-TH.md and `?petdebug=1`.

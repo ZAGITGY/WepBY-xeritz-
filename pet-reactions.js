@@ -339,6 +339,16 @@ export default {
     cat: "web", dur: 1.2, clip: ["Happy", 0.1], face: HAPPY, say: "search.saved",
     steps: [{ at: 0.1, fx: ["heart", 3, "head"] }],
   },
+  // ลอยกระทงออนไลน์ (loy.js ส่ง lvc:krathong): กระโดดดีใจ ประกาย + หัวใจ
+  "web.loy": {
+    cat: "web", dur: 1.6, clip: ["Happy", 0.1], face: HAPPY,      // บทพูด loy.float สั่งจาก lvc-pet.js (ของเราเอง = พูดแน่ ๆ)
+    move: [
+      { t: 0, db: 0, sx: 1, sy: 1 }, { t: 0.12, sx: 1.08, sy: 0.9 }, { t: 0.22, sx: 1, sy: 1 },
+      { t: 0.2, db: 0 }, { t: 0.46, db: 0.32, e: "out" }, { t: 0.74, db: 0, e: "in" },
+      { t: 0.78, sx: 1.08, sy: 0.92 }, { t: 0.98, sx: 1, sy: 1 },
+    ],
+    steps: [{ at: 0.1, fx: ["spark", 4, "around"] }, { at: 0.5, fx: ["heart", 2, "head"] }],
+  },
   "web.noResult": {
     cat: "web", dur: 1.7, clip: ["Idle", 0.2], face: { browsUp: 0.8, smile: 0.2 },
     head: [{ roll: 0.32, from: 0.05, to: 1.5 }],
