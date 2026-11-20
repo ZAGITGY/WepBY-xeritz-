@@ -537,7 +537,7 @@ export function createRiver3D(stage, api) {
   /* ======================================================================
    *  แต่งกระทง (ชิ้นส่วนเป็น mesh ของตัวเอง แก้ไขทีละชิ้นได้ · ไม่เกิน 24 ชิ้น)
    * ====================================================================== */
-  const build = { group: new THREE.Group(), base: 0, parts: [], meshes: [], baseMesh: null, sel: -1, armed: -1, history: [], spin: 0, lit: new Set(), litAmp: 0 };
+  const build = { group: new THREE.Group(), base: 0, parts: [], meshes: [], baseMesh: null, sel: -1, armed: -1, history: [], spin: 0, lit: new Set(), litAmp: 0, lift: 0 };
   build.group.position.copy(BUILD_AT);
   build.group.visible = false;
   scene.add(build.group);
@@ -669,6 +669,44 @@ export function createRiver3D(stage, api) {
     tweenCamera(() => riverPose.pos, () => riverPose.target, 0, 1.2, () => { if (view.mode === "river") build.group.visible = false; });
   }
 
+  /* ---------- ปล่อยกระทงลงน้ำ → กล้องตาม → ส่งต่อให้ pool ของแม่น้ำ (สลับแบบไม่เห็นรอยต่อ) ---------- */
+  function handoff(k, x, z) {
+    if (!feed.some((r) => r.id === k.id)) feed.push(k);
+    let best = null, bestEdge = -Infinity;
+    for (let i = 0; i < activeN; i++) {
+      const s = pool[i];
+      if (s.held || s === cardSlot) continue;
+      const e = s.x - (riverPose.pos.x + halfWidthAt(s.z));
+      if (e > bestEdge) { bestEdge = e; best = s; }
+    }
+    if (!best) { updateActive(); return; }
+    assign(best, k, x);
+    best.z = z; best.scale = 1; best.fade = 1; best.speed = 0.16;
+    best.yaw = build.group.rotation.y - clock.elapsedTime * 0.03;
+  }
+  function release(k, done) {
+    select(-1); build.armed = -1;
+    const g = build.group, f = { x: g.position.x, y: g.position.y, z: g.position.z, cam: true };
+    view.follow = f; view.mode = "follow";
+    const finish = () => {
+      handoff(k, f.x, f.z);
+      g.visible = false; view.follow = null; build.lift = 0;
+      view.mode = "river";
+      tweenCamera(() => riverPose.pos, () => riverPose.target, 0, 1.6, done);
+    };
+    if (!gsap) { addRipple(f.x, f.z, 1.4); finish(); return; }
+    gsap.timeline({ onComplete: finish })
+      .to(f, { y: 0, duration: 0.55, ease: "bounce.out", onComplete: () => { addRipple(f.x, f.z, 1.5); setTimeout(() => addRipple(f.x, f.z, 0.9), 380); } })
+      .to(f, { z: f.z - 8, x: riverPose.pos.x + 0.6, duration: 5.2, ease: "power1.inOut" }, ">-0.05")   // จบกลางมุมแม่น้ำ (จอตั้งกล้องอยู่ x=6)
+      .to(view, { blend: 0, duration: 1, onUpdate: applyViewOffset }, "<")
+      .call(() => { f.cam = false; }, null, "<3.6");
+  }
+  function resetBuild() {
+    build.parts = M.defaultParts(); build.history = []; build.lit.clear(); build.litAmp = 0; build.spin = 0;
+    setBase(0); rebuildParts();
+    api.onHistory && api.onHistory(0);
+  }
+
   /* ---------- การแตะ / ลาก บนฉาก ---------- */
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
   function pick(e) {
@@ -679,6 +717,7 @@ export function createRiver3D(stage, api) {
   }
   let down = null;
   canvas.addEventListener("pointerdown", (e) => {
+    if (view.mode === "follow") return;
     down = { x: e.clientX, y: e.clientY, id: e.pointerId, drag: false, yaw: build.group.rotation.y, pitch: orbit.pitch };
   });
   canvas.addEventListener("pointermove", (e) => {
@@ -894,9 +933,18 @@ export function createRiver3D(stage, api) {
     waterU.uTime.value = glowU.uTime.value = t;
     mists.forEach((m) => { m.material.uniforms.uTime.value = t; });
     if (view.mode === "builder" && !view.tween) { camPos.copy(builderPose.pos); camTarget.copy(builderPose.target); }
+    const f = view.follow;
+    if (f) {
+      // ปล่อยกระทงแล้ว: กระทงลอยออกไป กล้องตามไปด้านหลังสักพัก
+      build.group.position.set(f.x, f.y + Math.sin(t * 1.3) * 0.01, f.z);
+      if (f.cam) {
+        const k = 1 - Math.exp(-dt * 2.4);
+        camTarget.lerp(v3.set(f.x, 0.25, f.z), k);
+        camPos.lerp(v3.set(f.x + 0.5, 1.4, f.z + 3.4), k);
+      }
+    } else if (build.group.visible) build.group.position.y = BUILD_AT.y + build.lift * 0.3 + Math.sin(t * 1.3) * 0.01;
     camera.position.copy(camPos); camera.lookAt(camTarget);
     camera.updateMatrixWorld();
-    if (build.group.visible) build.group.position.y = BUILD_AT.y + Math.sin(t * 1.3) * 0.01;
     if (api.tick) api.tick(t, dt);
     updateBoats(t, dt);
     placeButtons();
@@ -931,7 +979,7 @@ export function createRiver3D(stage, api) {
   return {
     renderer, scene, camera, clock, build, three: THREE,
     feed: feedRecord, drop: dropRecord, has: (id) => shown.has(id) || feed.some((k) => k.id === id), count: () => activeN, closeCard,
-    openBuilder, closeBuilder, setBase, addPart, undo, select, editSel, removeSel,
+    openBuilder, closeBuilder, setBase, addPart, undo, select, editSel, removeSel, release, resetBuild,
     arm(k) { build.armed = k; },
     selectStep(d) { if (build.parts.length) select(((build.sel < 0 ? (d > 0 ? -1 : 0) : build.sel) + d + build.parts.length) % build.parts.length); },
     spin(d) { build.spin += d; if (gsap) gsap.to(build.group.rotation, { y: build.spin, duration: 0.5, ease: "power2.out" }); else build.group.rotation.y = build.spin; },
