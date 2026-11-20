@@ -17,7 +17,7 @@ const L = window.__LVC || {};
 const gsap = L.gsap || null;
 const ST = L.ScrollTrigger || null;
 const reduceQ = matchMedia("(prefers-reduced-motion: reduce)");
-const MAX = 40, PAGE = 100, RATE_MS = 30000, POLL_MS = 45000;
+const MAX = 40, PAGE = 100, FEED_MAX = 600, RATE_MS = 30000, POLL_MS = 45000;   // FEED_MAX: ดึงไม่เกิน 6 หน้าต่อการเข้าชม (คุมโควตาอ่าน)
 const KEY = { last: "lvc.loy.last", mine: "lvc.loy.mine", local: "lvc.loy.local", hidden: "lvc.loy.hidden" };
 const STYLES = ["ใบตอง", "ดอกบัว", "ขนมปัง", "ดาวเรือง"];
 
@@ -536,7 +536,7 @@ function createData() {
       if (got.length < PAGE) exhausted = true;
       let n = 0;
       for (const k of got) if (!list.has(k.id) && !hidden.has(k.id)) { put(k, "page"); n++; }
-      if (list.size > 2000) for (const id of [...list.keys()].slice(0, list.size - 2000)) list.delete(id);
+      if (list.size >= FEED_MAX) exhausted = true;     // พอแล้ว: ฉากวนใช้ชุดเดิม (ใบใหม่ยังเข้ามาทาง poll)
       return n;
     } catch (e) { return 0; }
   };

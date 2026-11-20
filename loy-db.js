@@ -1,7 +1,7 @@
 /* loy-db.js — อ่าน/เขียนกระทงใน Cloud Firestore ผ่าน REST API (ไม่โหลด Firebase SDK ~300 KB)
  * ใช้โดย loy.js (แม่น้ำหน้าแรก) และ loy-admin.html (หน้าแอดมิน) · กติกาฝั่งเซิร์ฟเวอร์อยู่ที่ firebase/firestore.rules
  *
- * krathongs/{id}  name ≤20 · wish 1–80 · style 0–3 · at (เวลาเซิร์ฟเวอร์) · rnd 0–1 (ใช้สุ่ม) · hidden
+ * krathongs/{id}  name ≤20 · wish 1–80 · base 0–2 · parts (ข้อความ JSON ≤24 ชิ้น {k,x,y,z,r,s,c}) · at (เวลาเซิร์ฟเวอร์) · rnd 0–1 · hidden
  * reports/{id}    n (จำนวนครั้งที่ถูกแจ้ง) · at  — id เดียวกับกระทง
  * mod/{id}        บันทึกการกระทำของแอดมิน (มีรหัส อ่านไม่ได้) เขียนพร้อมกันในคำสั่งเดียวกับการซ่อน/แสดง
  */
@@ -41,6 +41,8 @@ function dec(doc) {
     out[k] = "stringValue" in v ? v.stringValue : "integerValue" in v ? Number(v.integerValue) : "doubleValue" in v ? v.doubleValue
       : "booleanValue" in v ? v.booleanValue : "timestampValue" in v ? Date.parse(v.timestampValue) : null;
   }
+  // ชิ้นส่วนเก็บเป็นข้อความ JSON → แปลงกลับ (เสีย = ไม่มีชิ้นส่วน ฉากจะใส่ชุดเริ่มต้นให้ และกรองค่าอีกชั้นด้วย cleanParts)
+  if (typeof out.parts === "string") { try { out.parts = JSON.parse(out.parts); } catch (e) { out.parts = []; } }
   return out;
 }
 const docName = (col, id) => `${ROOT}/${col}/${id}`;
@@ -90,15 +92,27 @@ export async function count() {
 const commit = (writes) => call(":commit", { writes });
 const serverTime = (field) => ({ fieldPath: field, setToServerValue: "REQUEST_TIME" });
 
+/** ชิ้นส่วน → ข้อความ JSON ตามรูปแบบที่ firestore.rules ตรวจ (ลำดับคีย์ k,x,y,z,r,s,c · ปัดทศนิยม · จำกัดช่วง) */
+const clamp = (v, lo, hi, d) => { const m = 10 ** d; return Math.round(Math.min(hi, Math.max(lo, Number(v) || 0)) * m) / m; };
+export const packParts = (parts) => JSON.stringify((Array.isArray(parts) ? parts : []).slice(0, 24).map((p) => ({
+  k: Math.min(5, Math.max(0, p.k | 0)),
+  x: clamp(p.x, -0.6, 0.6, 3), y: clamp(p.y, 0, 0.6, 3), z: clamp(p.z, -0.6, 0.6, 3),
+  r: ((Math.round(Number(p.r) || 0) + 540) % 360) - 180 || 0,
+  s: clamp(p.s, 0.6, 1.6, 2),
+  c: /^#[0-9a-f]{6}$/.test(p.c) ? p.c : "#ffffff",
+})));
+
 /** ลอยกระทงใบใหม่ → คืนข้อมูลกระทง (เวลาเป็นเวลาในเครื่องโดยประมาณ) */
 export async function add({ name, wish, base = 0, parts = [] }) {
   const id = newId(), rnd = Math.random();
+  base = Math.min(2, Math.max(0, base | 0));
+  const json = packParts(parts);
   await commit([{
-    update: { name: docName(KRATHONGS, id), fields: { name: enc(name), wish: enc(wish), style: enc(base | 0), rnd: { doubleValue: rnd }, hidden: enc(false) } },
+    update: { name: docName(KRATHONGS, id), fields: { name: enc(name), wish: enc(wish), base: enc(base), parts: enc(json), rnd: { doubleValue: rnd }, hidden: enc(false) } },
     updateTransforms: [serverTime("at")],
     currentDocument: { exists: false },
   }]);
-  return { id, name, wish, base, parts, rnd, hidden: false, at: Date.now() };
+  return { id, name, wish, base, parts: JSON.parse(json), rnd, hidden: false, at: Date.now() };
 }
 
 /** แจ้งซ่อน: นับจำนวนครั้งใน reports/{id} ให้แอดมินตรวจ */

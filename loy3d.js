@@ -353,7 +353,7 @@ export function createRiver3D(stage, api) {
   function shapeOf(k) {
     if (k.shape) return k.shape;
     let s = k.base != null && Array.isArray(k.parts) ? { base: Math.min(2, Math.max(0, k.base | 0)), parts: M.cleanParts(k.parts) } : M.fromLegacy(k);
-    if (!s.parts.length) s.parts = M.defaultParts();
+    if (!s.parts.length) s.parts = M.fromLegacy({ style: s.base }).parts;   // ลอยจากแบบ 2D (ไม่มีชิ้นส่วน) → ของแต่งชุดมาตรฐาน
     // เตรียมครั้งเดียวต่อข้อมูล: เมทริกซ์ของแต่ละชิ้นเทียบกับตัวกระทง สี และปลายไส้เทียน
     s.items = s.parts.map((p) => {
       tmpQ.setFromAxisAngle(UP, (p.r * Math.PI) / 180); tmpS.setScalar(p.s); tmpP.set(p.x, p.y, p.z);
@@ -413,10 +413,12 @@ export function createRiver3D(stage, api) {
   }
   function recycle(slot) {
     if (slot.k && !slot.k.decor) shown.delete(slot.k.id);     // ใบเดิมกลับเข้าคิวได้ (ข้อมูลน้อยกว่าช่องก็ยังวนได้)
+    const inPlace = slot.swap;
+    slot.swap = false;
     const k = fillRecord(feed.length < wantCount());
     if (!k) { slot.x = riverPose.pos.x - halfWidthAt(slot.z) - 1; slot.fade = 0; return; }
     assign(slot, k, null);
-    slot.x = riverPose.pos.x - halfWidthAt(slot.z) - 1;   // เข้าทางซ้าย
+    if (!inPlace) slot.x = riverPose.pos.x - halfWidthAt(slot.z) - 1;   // เข้าทางซ้าย (ใบที่สลับแทนกระทงประดับ = ผุดขึ้นกลางแม่น้ำ)
     if (wraps > 0) maybeMore();
   }
   // ข้อมูลเข้ามา: load/page = ต่อคิว · arrive (ใบใหม่ของคนอื่น) / own = แทรกให้ลอยออกมาเร็ว ๆ
@@ -424,6 +426,13 @@ export function createRiver3D(stage, api) {
     if (feed.some((x) => x.id === k.id)) return;
     feed.push(k);
     if (feed.length > 2000) { feed.splice(0, feed.length - 2000); ptr = 0; }
+    if (how === "load" || how === "page") {
+      // ฉากเติมกระทงประดับไว้ก่อนข้อมูลมาถึง → ใบจริงแต่ละใบมาแทนกระทงประดับ 1 ใบ (ใบเดิมจมหาย ใบจริงผุดขึ้น)
+      for (let i = 0; i < activeN; i++) {
+        const s = pool[i];
+        if (s.k && s.k.decor && !s.out) { s.out = true; s.swap = true; break; }
+      }
+    }
     if (how === "arrive" || how === "own") {
       // เปลี่ยนใบที่ใกล้หลุดขอบขวาที่สุดให้เป็นใบใหม่ทันที (ของคนอื่นเข้าจากซ้าย · ของเราลอยแถวหน้า)
       k.fresh = how === "own";
