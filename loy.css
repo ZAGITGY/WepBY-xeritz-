@@ -320,7 +320,7 @@ html[data-loy] .hero-note.is-loy .loy-countdown { font-variant-numeric: tabular-
 .loy3d .loy__status { pointer-events: auto; }
 .loy3d.is-building .loy3d__hud, .loy3d.is-building .loy3d__cta, .loy3d.is-building .loy3d__boats { opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
 .loy3d__cta {
-  position: absolute; z-index: 5; left: 50%; bottom: clamp(18px, 3.5vh, 36px); transform: translateX(-50%); width: min(560px, calc(100% - 32px));
+  position: absolute; z-index: 5; left: 50%; bottom: 68px;   /* พ้นปุ่มลอยของเว็บที่มุมล่าง (แจ้งปัญหา / กลับขึ้นบน) */ transform: translateX(-50%); width: min(560px, calc(100% - 32px));
   display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; transition: opacity .35s ease;
 }
 .loy3d__cta .loy__help { margin: 0; color: var(--ink); opacity: .82; font-size: 13px; text-shadow: 0 1px 10px rgba(5, 11, 22, .95); }
@@ -525,8 +525,6 @@ html.loy-building .lvc-top, html.loy-building .lvc-kit, html.loy-building .lvc-k
 
 @media (max-width: 700px) {
   .loy3d { height: min(calc(100svh - 64px), 860px); min-height: 560px; scroll-margin-top: 64px; }
-  /* ปุ่มลอยของเว็บ (แจ้งปัญหา / กลับขึ้นบน) อยู่มุมล่าง → ยกปุ่มแต่งกระทง + บรรทัดสถานะให้พ้น */
-  .loy3d__cta { bottom: 68px; }
   .loy3d.is-full { height: 100vh; height: 100dvh; min-height: 0; }
   .loy__head .loy__total { text-align: left; }
 }

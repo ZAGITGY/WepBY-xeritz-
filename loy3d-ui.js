@@ -344,7 +344,7 @@ export function mount(stage, data, S) {
     riteEl.classList.toggle("is-done", lit);
     lightBtn.disabled = lit;
     lightBtn.textContent = lit ? "จุดแล้ว" : "จุดเทียน";
-    riteText.textContent = lit ? "เทียนติดแล้ว กดค้างปุ่มด้านล่างเพื่ออธิษฐาน" : "แตะไส้เทียนบนกระทงเพื่อจุดไฟ";
+    riteText.textContent = lit ? "เทียนติดแล้ว อธิษฐานได้เลย" : "แตะไส้เทียนบนกระทงเพื่อจุดไฟ";
     syncPray();
   }
   // ปุ่มอธิษฐาน: ต้องจุดเทียนก่อน · ระหว่างรอ 30 วินาทีแสดงเวลานับถอยหลัง

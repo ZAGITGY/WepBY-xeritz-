@@ -1,3 +1,45 @@
+# Patch 2026-11-22.1 — Loy round 1 polish: GLB krathong kit, fullscreen krathong builder
+
+Follow-up to round 1 of the Loy Krathong 2569 theme (3D river, 3-step builder, Firestore): new model kit and a better-looking builder. Built for the live festival (everyone: students and the public, mostly on phones). Round 2 (lanterns, story image, camera angles) and the 100/300/600 speed runs are not part of this patch.
+
+## 1. New model kit (`assets/krathong`, `loy-models.js`, `loy3d.js`)
+- `assets/krathong` from the owner's zip: 3 bases (lotus, small = ใบตอง, bread), 9 decor pieces, 3 presets, thumbs, `manifest.json`, `krathong-kit.js`, `preview.html`. Tray thumbs also as 160 px webp (73 KB for all 15; the PNGs stay for `preview.html`).
+- `krathong-kit.js` gets a detail level. `export-lod.mjs` writes `lod/` (light models for the river): lotus 11,200 → 2,000 triangles, bread 13,200 → 2,200, marigold 3,850 → 600. Detail 1 reproduces the shipped GLBs byte for byte (checked), so the kit stays the single source.
+- Loading: `GLTFLoader` from `vendor/three/addons`, each file once (cache), then `clone()`; the tint mesh of each piece gets its own material, so `material.color` changes one piece only. Full models load when the builder is first opened (prefetched 2.5 s after the river is ready).
+- Placement: raycast down onto the base, clamped to `manifest.bases[x].place.radius`, y = the surface hit. Tapping a tray item drops the piece at the freest spot (golden-angle search; candle prefers the centre) and selects it; dragging the selected piece moves it on the base.
+- Flame: `decor/flame.glb` is a child of each candle at `manifest.flameY` with a swaying shader (tip moves more than the base) and an additive glow sprite; shown only after the wick is tapped. `incense_ember` glows with it (dark tip before).
+- River: near krathongs = one `InstancedMesh` per GLB mesh from `lod/` (tint via `instanceColor`, reflection = flipped instance), flames instanced with the same shader; far krathongs = point sprites from `thumbs/preset-*.webp`. Full-detail count adapts with the quality level (160 desktop / 70 phone at level 1). Still one loop, object pool and paging as in round 1.
+- Data: base numbers unchanged (0 ใบตอง, 1 ดอกบัว, 2 ขนมปัง). Piece type `k` grows to 0–7: 0–5 keep their meaning (marigold, jasmine, rose, lotus bud, candle, incense), 6 chrysanthemum, 7 orchid. Positions are now model units (≈ feet). Updated together: `loy-models.js`, `loy-db.js packParts`, `firebase/firestore.rules` (`"k":[0-7]`), `firebase/test-rules.mjs`, `FIREBASE-TH.md`. **If the rules were already published, publish them again.**
+
+## 2. Builder (`loy3d-ui.js`, `loy.css`, `loy.js`)
+- Fullscreen mode: the stage becomes `position: fixed` (a spacer holds its place in the page), scroll locked, pet and floating site buttons hidden, everything outside the stage `inert`. Enter/exit: 0.5 s GSAP clip-path from the in-page frame to full screen, sheet slides up/down; Reduced Motion = instant.
+- Top half: krathong on darkened water, drag to orbit. The camera fits the krathong to about 70% of the free area above the sheet (max 560 px) on every screen.
+- Bottom sheet: rounded top, fixed height (50% of the screen, 388–460 px) so the krathong never jumps between steps. Small 1-2-3 bar (line + label). Undo and close as icons.
+- Step 1: base cards with thumbs + "เริ่มจากไอเดีย" (loads `manifest.presets` for the chosen base and goes to step 2) + a one-line hint pointing to it.
+- Step 2: horizontally scrolling tray (thumbs, no emoji, edge fade). Tapping a placed piece shows only: one row of colour dots, size slider (60–160%), rotate slider (−180–180°), trash icon. Arrow and +/− buttons removed. Incense has no colours (shows its name instead). Sliders save one undo step per drag.
+- Step 3: wish, name, "tap the wick" row, hold-to-pray (unchanged flow).
+- Lighting while building: ACES tone mapping, blue hemisphere and one warm candle light (brighter and flickering once lit); bloom only on the flame (glow sprite, not a full-screen pass, cheaper on phones).
+- Keyboard: tray buttons place at once; the 3D view takes focus in step 2 (←/→ select piece, Delete remove), Esc closes.
+- River: the "แม่น้ำรวมยังไม่เปิด…" box is now one short line under the river button ("แม่น้ำรวมยังไม่เปิด ตอนนี้กระทงลอยในเครื่องนี้ก่อน"); other status texts shortened to fit one line. The count is hidden while it is 0. The river button sits 68 px above the bottom so the site's floating buttons don't cover it.
+
+## 3. Checked (headless Chromium + SwiftShader)
+- Builder with each base and a selected piece, step 3 lit, floating and back in the river, at 390×844 and 1024×1366 (2× screenshots): no horizontal scroll, fullscreen/scroll lock/spacer/inert all released afterwards.
+- Console: no errors on index, programs, news, contact, 404, loy-admin except the known `documents/student-handbook-2569.pdf` 404. Ribbon page change index → contact plays; the journey scene still pins (chapter counter shown); the pet shows on every page; 2D fallback (`?loy2d`) floats and counts.
+- `firebase/firestore.rules` regex checked against `packParts` output in Node (8 types, 24 pieces, preset values pass; k = 8 rejected). The emulator suite was not run here (no Java/firebase-tools).
+- Self-scores (1–5) after two fix rounds: beauty 4, readability 4, ease of use 4. Fixed on the way: hint showing together with the edit controls, ใบตอง krathong framed too large and too dark, step 3 overflowing the sheet, status line hidden under the site's floating buttons, a three.js "no image data" warning when the river drew before the large backdrop photo arrived (backdrop plane now waits for its image).
+
+## Not done / known
+- The pet's speech bubble can briefly cover the river button right after floating (the pet module is unchanged; when it can't find a free spot it dims itself, as before).
+- Round-1 test krathongs saved in this browser (`lvc.loy.local`) used the old units; their pieces get pulled to the rim of the base. Firestore had no data yet, so nothing online is affected.
+- The 2D fallback (no WebGL2 / Reduced Motion) still draws the SVG krathongs from `loy-art.js`.
+- `assets/krathong/preview.html` loads OrbitControls from jsDelivr (dev preview only, not linked from the site).
+- No real Safari/iPhone here; please try the builder once on a phone with `?loy=1`.
+
+## Versions
+`?v=2026-11-22.1` for loy.js and loy.css (index.html), loy-db.js (loy.js, loy-admin.html), loy3d-ui.js, loy3d.js, loy-models.js.
+
+---
+
 # Patch 2026-11-20.1 — Loy Krathong 2569 theme: night campus, online krathong river
 
 The draft `drafts/loykrathong-draft.html` was not in the repo or the uploaded zip; per the owner, the look was designed from the brief, reusing the site's fonts, tokens and existing scenes. Built for the college's live site.

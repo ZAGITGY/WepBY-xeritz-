@@ -252,7 +252,7 @@ export function createRiver3D(stage, api) {
   const clock = new THREE.Clock();
 
   /* ---------- แสง: แม่น้ำ (จันทร์ + ไฟริมน้ำ) ↔ หน้าแต่งกระทง (hemisphere น้ำเงิน + เทียน 1 ดวง) ผสมตาม view.blend ---------- */
-  const HEMI_SKY = [new THREE.Color(0x9fb2e0), new THREE.Color(0x6f8fe0)], HEMI_GROUND = [new THREE.Color(0x1a2236), new THREE.Color(0x0b1224)];
+  const HEMI_SKY = [new THREE.Color(0x9fb2e0), new THREE.Color(0x7d98e6)], HEMI_GROUND = [new THREE.Color(0x1a2236), new THREE.Color(0x182036)];
   const hemi = new THREE.HemisphereLight(0x9fb2e0, 0x1a2236, 2.0);
   scene.add(hemi);
   const amb = new THREE.AmbientLight(0xfff2dc, 0.55);
@@ -270,7 +270,7 @@ export function createRiver3D(stage, api) {
   const texURL = small ? "./images/campus-night@1x.webp" : "./images/campus-night.webp";
   let texDone;
   const texReady = new Promise((res) => { texDone = res; });
-  const tex = new THREE.TextureLoader().load(texURL, () => { backTex.needsUpdate = true; texDone(); }, undefined, () => texDone());
+  const tex = new THREE.TextureLoader().load(texURL, () => { backTex.needsUpdate = true; back.visible = true; texDone(); }, undefined, () => texDone());
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = THREE.MirroredRepeatWrapping;
   tex.anisotropy = 4;
@@ -278,6 +278,7 @@ export function createRiver3D(stage, api) {
   backTex.wrapS = THREE.MirroredRepeatWrapping;
   backTex.repeat.y = WATER_V; backTex.offset.y = 1 - WATER_V;
   const back = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: backTex, fog: false, toneMapped: false }));
+  back.visible = false;                         // clone() ตั้ง needsUpdate ไว้แล้ว: วาดก่อนภาพมาจะเตือน "no image data"
   scene.add(back);
   const B = { x0: -20, w: 40, h: 23 };
   const waterU = {
@@ -1084,7 +1085,7 @@ export function createRiver3D(stage, api) {
   function updateBuilder(t) {
     const b = view.blend, lit = Math.min(1, build.litAmp);
     hemi.color.lerpColors(HEMI_SKY[0], HEMI_SKY[1], b); hemi.groundColor.lerpColors(HEMI_GROUND[0], HEMI_GROUND[1], b);
-    hemi.intensity = 2.0 - 0.55 * b;
+    hemi.intensity = 2.0 - 0.2 * b;                 // แต่งกระทง: ยังสว่างพอเห็นสีใบตอง/ดอกไม้ชัด
     amb.intensity = 0.55 * (1 - b); moonLight.intensity = 1.4 * (1 - b); fill.intensity = 1.1 * (1 - b);
     waterU.uDim.value = 0.45 * b;
     back.material.color.setScalar(1 - 0.55 * b);
