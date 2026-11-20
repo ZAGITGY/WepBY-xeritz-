@@ -4,22 +4,23 @@
  * ฉาก: ภาพวิทยาลัยกลางคืน (มือถือใช้ @1x) เป็นฉากหลัง ครึ่งล่างเป็นผิวน้ำ: เงาสะท้อนคือภาพฉากหลังกลับหัวใน shader
  *   (ยิงรังสีสะท้อนจากผิวน้ำไปชนระนาบภาพ ไม่ใช้ Reflector ที่เรนเดอร์ฉากซ้ำ) คลื่นอ่อน ๆ ระลอกตอนแตะ หมอกบาง ๆ สองชั้น
  *
- * กระทงหลายร้อยใบ (ไม่มีเพดาน 40 ใบแล้ว):
- *   - ใบใกล้กล้อง: ครบทุกชิ้น วาดด้วย InstancedMesh แยกตามชนิดชิ้นส่วน (ฐาน 3 + ของแต่ง 6 × ส่วนเปลี่ยนสี/ส่วนสีคงที่)
- *     แต่ละชนิดรวม geometry ย่อยไว้ด้วย mergeGeometries + vertex colors ใช้ material เดียวทั้งหมด สีที่ผู้ใช้เลือก = instanceColor
- *     เงาใต้น้ำ = instance กลับหัวสีหม่นใน mesh เดียวกัน
- *   - ใบไกล: Points ชุดเดียว (sprite atlas ภาพกระทงจากไฟล์ร่างที่มีแสงเทียนในตัว)
- *   - แสงเทียน + แสงสะท้อนบนน้ำของทุกใบ: Points แบบ additive ชุดเดียวทั้งฉาก (ไม่มี PointLight) กระพริบใน shader
- *   - ทุกใบอัปเดตใน loop เดียว (ไม่มี tween แยกต่อใบ) · object pool: ใบที่ลอยพ้นขอบขวาวนกลับมาทางซ้ายพร้อมข้อมูลใบถัดไป
- *     ข้อมูลหมดคิว → ขอหน้าถัดไปจาก Firestore (api.more)
+ * โมเดลกระทง: assets/krathong (GLB · ดู loy-models.js) หน่วยโมเดล × KS = หน่วยฉาก
+ * กระทงหลายร้อยใบ:
+ *   - ใบใกล้กล้อง: โมเดลเบา (assets/krathong/lod) ครบทุกชิ้น วาดด้วย InstancedMesh ต่อ mesh ของแต่ละชนิด
+ *     ส่วนที่เปลี่ยนสีได้ใช้ instanceColor (material สีขาว) · เงาใต้น้ำ = instance กลับหัวสีหม่นใน mesh เดียวกัน
+ *     เปลวเทียนทุกใบ = InstancedMesh ของ decor/flame.glb กับ shader ไหว · ธูปมีถ่านแดง (incense_ember) เรืองแสงในตัว
+ *   - ใบไกล: Points ชุดเดียว (sprite จาก thumbs/preset-*.webp ภาพกระทงไอเดียของแต่ละฐาน)
+ *   - แสงเทียน + แสงสะท้อนบนน้ำของทุกใบ: Points แบบ additive ชุดเดียวทั้งฉาก (ไม่มี PointLight ในแม่น้ำ) กระพริบใน shader
+ *   - ทุกใบอัปเดตใน loop เดียว · object pool: ใบที่ลอยพ้นขอบขวาวนกลับมาทางซ้ายพร้อมข้อมูลใบถัดไป · ข้อมูลหมดคิว → api.more
  *   - ปุ่ม DOM 24 ปุ่มวางทับใบที่ใกล้ที่สุดให้ Tab/ลูกศร/screen reader ใช้ได้ · แตะที่ฉากเลือกใบไหนก็ได้ (คำนวณจากตำแหน่งบนจอ)
- *   - ปรับคุณภาพเอง: FPS < 50 ติดกัน 2 วินาที → ลดจำนวนใบและ DPR ทีละขั้น · ?debug=1 แสดง FPS/จำนวนใบ (?n=300 ล็อกจำนวน)
- * แต่งกระทง: ขั้น 1 เลือกฐาน → 2 แต่ง (แตะบนกระทงเพื่อวางของ · เลือกชิ้นแล้วเปลี่ยนสี/ขนาด/หมุน/ลบ · ย้อนกลับ · ลากเพื่อหมุนดูรอบตัว) → 3 ลอย
+ *   - ปรับคุณภาพเอง: FPS < 50 ติดกัน 2 วินาที → ลดจำนวนใบ ใบเต็มรายละเอียด และ DPR ทีละขั้น · ?debug=1 แสดง FPS (?n=300 ล็อกจำนวน)
+ * แต่งกระทง: โมเดลเต็ม (assets/krathong/bases, decor) โหลดเมื่อเปิดหน้าแต่งครั้งแรก
+ *   วางของ = raycast บนฐาน แล้ว clamp ไม่ให้เกิน manifest.bases[x].place.radius · เปลวเทียนเป็นลูกของเทียนที่ y = flameY
+ *   แสง: ACES + hemisphere โทนน้ำเงิน + แสงอุ่นจากเทียน 1 ดวง · เปลวไฟมี sprite เรืองแสง (bloom เฉพาะเปลว)
  * เรนเดอร์เฉพาะตอนฉากอยู่ในจอและแท็บแสดงอยู่ · DPR สูงสุด 1.5
  * ============================================================================ */
 import * as THREE from "./vendor/three/three.module.min.js";
-import * as M from "./loy-models.js?v=2026-11-21.1";
-import { krathongSVG } from "./loy-art.js?v=2026-11-21.1";
+import * as M from "./loy-models.js?v=2026-11-22.1";
 
 const L = window.__LVC || {};
 const gsap = L.gsap || null;
@@ -28,15 +29,20 @@ const IMG_ASPECT = 1536 / 1024;
 const WATER_V = 0.86;                 // แนวน้ำในภาพ (ใต้นี้คือลานอิฐ ไม่แสดง)
 const CROP_ASPECT = IMG_ASPECT / WATER_V;
 const MOON_UV = [0.8835, 0.1353];     // พระจันทร์ในภาพ (ใช้ทำทางแสงจันทร์บนน้ำ)
+const KS = 1.45;                      // หน่วยโมเดล (≈ ฟุต) → หน่วยฉาก (ดอกบัวกว้าง ~1.4 · ขนาดใกล้กระทงรุ่นก่อน)
 const BUILD_AT = new THREE.Vector3(0, 0, 3.2);
 const Z_FAR = -36, Z_NEAR = 1;        // ช่วงลำน้ำที่กระทงลอย (หลังจุดแต่งกระทงที่ z = 3.2 จึงไม่ลอยชนกระทงของเรา)
 const NEAR_DIST = 15;                 // ใกล้กว่านี้ = แสดงครบทุกชิ้น
-const NEAR_MAX = 180;                 // ใบเต็มรายละเอียดพร้อมกันสูงสุด
-const PART_CAP = 3072;                // instance ต่อชนิดชิ้นส่วน (รวมเงาใต้น้ำ)
+const NEAR_CAP = 160;                 // ใบเต็มรายละเอียดพร้อมกันสูงสุด (จอเล็กเริ่มที่ 70 · ลดตามระดับคุณภาพ)
+const PART_CAP = 2048;                // instance ต่อชนิดชิ้น (รวมเงาใต้น้ำ)
 const POOL_MAX = 900;
-const GLOW_MAX = POOL_MAX * 2 + NEAR_MAX * 6 + 64;
+const GLOW_MAX = POOL_MAX * 2 + NEAR_CAP * 6 + 64;
 const AMBIENCE = 80;                  // ข้อมูลน้อยกว่านี้ เติมกระทงประดับ (ไม่มีข้อความ กดไม่ได้) ให้ลำน้ำไม่โล่ง
 const BUTTONS = 24;
+// ฐาน 0 ใบตอง · 1 ดอกบัว · 2 ขนมปัง: ความกว้างโมเดล (หน่วยโมเดล) · ภาพไกลกินกรอบ 0.88 ของความกว้าง (วัดจาก thumbs)
+const BASE_W = [0.47, 0.95, 0.77];
+const FAR_W = BASE_W.map((w) => (w / 0.88) * KS);
+const FAR_FLAME = [0.62, 0.66, 0.58];  // ความสูงเปลวเทียนในภาพไกล (สัดส่วนของ FAR_W)
 const Q = new URLSearchParams(location.search);
 const DEBUG = Q.get("debug") === "1";
 const TEST_N = DEBUG && Q.get("n") ? Math.min(POOL_MAX, Math.max(10, +Q.get("n") | 0)) : 0;
@@ -50,7 +56,7 @@ void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position
 const WATER_FS = `
 uniform sampler2D uTex;
 uniform vec4 uB;            // x ซ้ายของภาพ, กว้าง, สูง, z ของระนาบภาพ
-uniform float uTime;
+uniform float uTime, uDim;  // uDim: หน้าแต่งกระทงทำน้ำให้มืดลง กระทงเด่นขึ้น
 uniform vec4 uRip[8];       // x, z, เวลาเริ่ม, แรง
 uniform vec3 uMoon;         // พระจันทร์ (โลก) สำหรับทางแสงบนน้ำ
 uniform vec3 uSky, uDeep, uFog;
@@ -64,14 +70,12 @@ void main(){
   vec3 toP = P - cameraPosition;
   float dist = length(toP);
   vec3 V = toP / dist;
-  // คลื่นอ่อน ๆ: เกรเดียนต์ของผิวน้ำจากคลื่นไซน์ + noise (ไกลแล้วเบาลง กันลายระยิบเกิน)
   float far = 1.0 / (1.0 + dist * 0.05);
   vec2 g = vec2(0.0);
   g += vec2(0.20, 0.55) * cos(dot(P.xz, vec2(0.6, 1.5)) - uTime * 1.1) * 0.05;
   g += vec2(-0.45, 0.30) * cos(dot(P.xz, vec2(-1.3, 0.9)) - uTime * 0.8) * 0.04;
   g += (vec2(vn(P.xz * vec2(2.4, 5.0) + uTime * vec2(0.1, 0.35)), vn(P.xz * vec2(2.4, 5.0) * 1.3 - uTime * 0.2)) - 0.5) * 0.12;
   g *= far;
-  // ระลอกจากการแตะ / กระทงลงน้ำ
   float ring = 0.0;
   for (int i = 0; i < 8; i++) {
     vec4 r = uRip[i];
@@ -97,10 +101,10 @@ void main(){
     }
   }
   float fres = 0.2 + 0.8 * pow(1.0 - max(dot(-V, N), 0.0), 3.0);
-  vec3 col = mix(uDeep, refl * 1.12, fres);
+  vec3 col = mix(uDeep, refl * 1.12 * (1.0 - uDim * 0.7), fres);
   vec3 Lm = normalize(uMoon - P);
   float m = max(dot(R, Lm), 0.0);
-  col += vec3(1.0, 0.92, 0.78) * (pow(m, 500.0) * 2.4 + pow(m, 30.0) * 0.06);
+  col += vec3(1.0, 0.92, 0.78) * (pow(m, 500.0) * 2.4 + pow(m, 30.0) * 0.06) * (1.0 - uDim * 0.6);
   col += vec3(0.95, 0.92, 0.85) * ring * 0.18;
   float f = 1.0 - exp(-pow(dist * uFogK, 2.0));
   col = mix(col, uFog, f * 0.75);
@@ -119,7 +123,7 @@ void main(){
   gl_FragColor = vec4(uColor, n * band * uAlpha);
 }`;
 const MIST_VS = "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }";
-/* ---------- กระทงไกล: Points + sprite atlas (3 ภาพฐานจากไฟล์ร่าง) ---------- */
+/* ---------- กระทงไกล: Points + sprite atlas (ภาพกระทงไอเดียของ 3 ฐาน) ---------- */
 const FAR_VS = `
 attribute float aBase, aFade, aSize;
 uniform float uScale, uFogK;
@@ -131,13 +135,15 @@ void main(){
   vBase = aBase; vFade = aFade;
   float d = -mv.z * uFogK; vFog = 1.0 - exp(-d * d);
 }`;
+// ภาพ sRGB → เขียนค่า sRGB ตรง ๆ (ผิวน้ำ/หมอกก็เขียนค่าดิบแบบเดียวกัน สีจึงเข้ากัน)
 const FAR_FS = `
 uniform sampler2D uAtlas; uniform vec3 uFog;
 varying float vBase, vFade, vFog;
 void main(){
   vec4 c = texture2D(uAtlas, vec2((vBase + gl_PointCoord.x) / 3.0, 1.0 - gl_PointCoord.y));
   if (c.a * vFade < 0.45) discard;
-  gl_FragColor = vec4(mix(c.rgb * 0.92, uFog, vFog * 0.7), 1.0);
+  vec3 s = pow(c.rgb, vec3(0.4545)) * 0.78;
+  gl_FragColor = vec4(mix(s, uFog, vFog * 0.7), 1.0);
 }`;
 /* ---------- แสงเทียน (kind 0) + แสงสะท้อนบนน้ำ (kind 1): Points additive ชุดเดียว ---------- */
 const GLOW_VS = `
@@ -169,20 +175,58 @@ void main(){
   }
   gl_FragColor = vec4(c * vAmp, 1.0);
 }`;
+/* ---------- เปลวเทียน (decor/flame.glb): ไหวตามเวลา ยอดไหวมากกว่าโคน · ใช้ได้ทั้ง mesh เดี่ยวและ InstancedMesh ---------- */
+const FLAME_VS = `
+uniform float uTime;
+varying float vH; varying vec3 vN, vV;
+void main(){
+  vec3 p = position;
+  float h = clamp(p.y / 0.056, 0.0, 1.0);
+  mat4 im = mat4(1.0);
+  #ifdef USE_INSTANCING
+    im = instanceMatrix;
+  #endif
+  float ph = im[3].x * 13.0 + im[3].z * 7.0 + modelMatrix[3].x * 5.0;
+  float s = sin(uTime * 7.3 + ph) * 0.6 + sin(uTime * 12.1 + ph * 1.7) * 0.4;
+  p.x += s * 0.0045 * h * h;
+  p.z += cos(uTime * 9.1 + ph) * 0.003 * h * h;
+  p.y *= 1.0 + 0.07 * sin(uTime * 10.7 + ph * 0.6);
+  vH = h;
+  vec4 mv = modelViewMatrix * im * vec4(p, 1.0);
+  vN = normalize(normalMatrix * mat3(im) * normal);
+  vV = normalize(-mv.xyz);
+  gl_Position = projectionMatrix * mv;
+}`;
+const FLAME_FS = `
+uniform vec3 uColor; uniform float uAmp, uRim;
+varying float vH; varying vec3 vN, vV;
+void main(){
+  float f = abs(dot(normalize(vN), normalize(vV)));
+  float a = mix(1.0, pow(f, 1.4), uRim) * (1.0 - smoothstep(0.75, 1.0, vH) * 0.6);
+  gl_FragColor = vec4(uColor * (1.3 - vH * 0.5) * a * uAmp, 1.0);
+}`;
 
-/** atlas ภาพกระทงไกล: SVG จากไฟล์ร่าง 3 แบบ วาดลง canvas ครั้งเดียว */
-function farAtlas(onReady) {
-  const c = document.createElement("canvas"); c.width = 384; c.height = 128;
+/** atlas ภาพกระทงไกล: thumbs/preset-{small,lotus,bread}.webp วาดลง canvas ครั้งเดียว (ลำดับเดียวกับเลขฐาน) */
+function farAtlas() {
+  const c = document.createElement("canvas"); c.width = 480; c.height = 160;
   const x = c.getContext("2d");
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
-  let left = 3;
-  for (let i = 0; i < 3; i++) {
+  M.BASES.forEach((b, i) => {
     const img = new Image();
-    img.onload = () => { x.drawImage(img, i * 128 + 4, 14, 120, 100); tex.needsUpdate = true; if (--left === 0 && onReady) onReady(); };
-    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(krathongSVG(i).replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" '));
-  }
+    img.onload = () => { x.drawImage(img, i * 160, 0, 160, 160); tex.needsUpdate = true; };
+    img.src = M.thumb("preset-" + b.id);
+  });
   return tex;
+}
+/** วงแสงเรืองรอบเปลวเทียน (sprite additive) */
+function glowTexture() {
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const x = c.getContext("2d"), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,236,190,1)"); g.addColorStop(0.18, "rgba(255,190,100,.55)"); g.addColorStop(0.5, "rgba(255,150,60,.14)"); g.addColorStop(1, "rgba(255,140,50,0)");
+  x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
 }
 
 /* ======================================================================
@@ -198,25 +242,34 @@ export function createRiver3D(stage, api) {
   } catch (e) { return null; }
   renderer.setClearColor(0x050b16, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;          // มีผลกับโมเดลกระทงเท่านั้น (shader น้ำ/ฉากหลังไม่ใช้ tone mapping)
+  renderer.toneMappingExposure = 1.1;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x070d1c);
   scene.fog = new THREE.FogExp2(0x0d1830, 0.016);
   const camera = new THREE.PerspectiveCamera(46, 1, 0.05, 260);
   const clock = new THREE.Clock();
 
-  /* ---------- แสง (ไม่มี PointLight: แสงเทียนเป็น Points additive) ---------- */
-  scene.add(new THREE.HemisphereLight(0x9fb2e0, 0x1a2236, 2.0));
-  scene.add(new THREE.AmbientLight(0xfff2dc, 0.55));
+  /* ---------- แสง: แม่น้ำ (จันทร์ + ไฟริมน้ำ) ↔ หน้าแต่งกระทง (hemisphere น้ำเงิน + เทียน 1 ดวง) ผสมตาม view.blend ---------- */
+  const HEMI_SKY = [new THREE.Color(0x9fb2e0), new THREE.Color(0x6f8fe0)], HEMI_GROUND = [new THREE.Color(0x1a2236), new THREE.Color(0x0b1224)];
+  const hemi = new THREE.HemisphereLight(0x9fb2e0, 0x1a2236, 2.0);
+  scene.add(hemi);
+  const amb = new THREE.AmbientLight(0xfff2dc, 0.55);
+  scene.add(amb);
   const moonLight = new THREE.DirectionalLight(0xdfe6ff, 1.4);
   moonLight.position.set(18, 30, -30);
   scene.add(moonLight);
   const fill = new THREE.DirectionalLight(0xffe6c4, 1.1);       // แสงไฟริมน้ำส่องด้านหน้ากระทง (สีของดอกไม้ไม่หม่น)
   fill.position.set(-4, 6, 14);
   scene.add(fill);
+  const candleLight = new THREE.PointLight(0xffa04a, 0, 4, 2);   // อยู่ในฉากตลอด (เปลี่ยนแค่ความแรง → shader ไม่คอมไพล์ใหม่)
+  scene.add(candleLight);
 
   /* ---------- ฉากหลัง + ผิวน้ำ ---------- */
   const texURL = small ? "./images/campus-night@1x.webp" : "./images/campus-night.webp";
-  const tex = new THREE.TextureLoader().load(texURL, () => { backTex.needsUpdate = true; api.onReady && api.onReady(); });
+  let texDone;
+  const texReady = new Promise((res) => { texDone = res; });
+  const tex = new THREE.TextureLoader().load(texURL, () => { backTex.needsUpdate = true; texDone(); }, undefined, () => texDone());
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = THREE.MirroredRepeatWrapping;
   tex.anisotropy = 4;
@@ -227,7 +280,7 @@ export function createRiver3D(stage, api) {
   scene.add(back);
   const B = { x0: -20, w: 40, h: 23 };
   const waterU = {
-    uTex: { value: tex }, uB: { value: new THREE.Vector4() }, uTime: { value: 0 },
+    uTex: { value: tex }, uB: { value: new THREE.Vector4() }, uTime: { value: 0 }, uDim: { value: 0 },
     uRip: { value: Array.from({ length: 8 }, () => new THREE.Vector4()) },
     uMoon: { value: new THREE.Vector3() }, uSky: { value: new THREE.Color(0x0a1426) }, uDeep: { value: new THREE.Color(0x040914) },
     uFog: { value: new THREE.Color(0x0d1830) }, uFogK: { value: 0.012 },
@@ -239,15 +292,26 @@ export function createRiver3D(stage, api) {
   const mists = [[ZB + 4, 7, 0.32], [-14, 3.2, 0.2]].map(([z, h, a]) => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShaderMaterial({ vertexShader: MIST_VS, fragmentShader: MIST_FS, transparent: true, depthWrite: false, fog: false,
       uniforms: { uTime: { value: 0 }, uAlpha: { value: a }, uColor: { value: new THREE.Color(0x9fb0d6) } } }));
-    m.position.set(0, h * 0.42, z); m.scale.set(140, h, 1); m.renderOrder = 2;
+    m.position.set(0, h * 0.42, z); m.scale.set(140, h, 1); m.renderOrder = 2; m.userData.a = a;
     scene.add(m); return m;
   });
 
-  /* ---------- กระทงใกล้: InstancedMesh ต่อชนิดชิ้นส่วน (material เดียว) ---------- */
-  const kraMat = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide });
+  /* ---------- เปลวเทียน: material ใช้ร่วม (เวลาเดียวกันทั้งฉาก) ---------- */
+  const timeU = { value: 0 };
+  function flameMat(name, amp) {
+    const outer = name === "flame_outer";
+    return new THREE.ShaderMaterial({
+      vertexShader: FLAME_VS, fragmentShader: FLAME_FS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false,
+      uniforms: { uTime: timeU, uAmp: amp, uColor: { value: new THREE.Color(outer ? 0xff9a2e : 0xfff1c0) }, uRim: { value: outer ? 1 : 0.5 } },
+    });
+  }
+  const glowSpriteMat = new THREE.SpriteMaterial({ map: glowTexture(), color: 0xffb35c, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: 0, fog: false });
+
+  /* ---------- กระทงใกล้: InstancedMesh ต่อ mesh ของแต่ละชนิด (สร้างเมื่อโหลดโมเดลเบาเสร็จ) ---------- */
   const WHITE = new THREE.Color(1, 1, 1), DARK = new THREE.Color(0.3, 0.32, 0.42);
-  function instanced(geo, cap) {
-    const m = new THREE.InstancedMesh(geo, kraMat, cap);
+  const RI = { bases: [], items: [], flame: [] };
+  function instanced(geo, mat, cap) {
+    const m = new THREE.InstancedMesh(geo, mat, cap);
     m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     m.setColorAt(0, WHITE);
     m.instanceColor.setUsage(THREE.DynamicDrawUsage);
@@ -255,8 +319,31 @@ export function createRiver3D(stage, api) {
     scene.add(m);
     return m;
   }
-  const baseInst = [0, 1, 2].map((b) => instanced(M.baseGeometry(b), NEAR_MAX * 2 + 8));
-  const itemInst = M.ITEMS.map((_, k) => { const g = M.itemInstanceGeometries(k); return { tint: instanced(g.tint, PART_CAP), fixed: g.fixed ? instanced(g.fixed, PART_CAP) : null }; });
+  function instSet(src, cap, tintName) {
+    const out = [];
+    src.traverse((o) => {
+      if (!o.isMesh) return;
+      const tint = o.name === tintName, mat = o.material.clone();
+      mat.side = THREE.DoubleSide;               // เงาใต้น้ำกลับหัวอยู่ใน mesh เดียวกัน (ด้านหน้า/หลังสลับ)
+      if (tint) mat.color.set(0xffffff);         // สีจริงมาจาก instanceColor
+      out.push({ m: instanced(o.geometry, mat, cap), tint });
+    });
+    return out;
+  }
+  let man = null, kitReady = false, FLAME_T = new THREE.Matrix4();
+  const riverKitP = M.loadKit(true).then((kit) => {
+    man = kit.man;
+    FLAME_T = new THREE.Matrix4().makeTranslation(0, man.flameY, 0);
+    RI.bases = kit.bases.map((b) => instSet(b, NEAR_CAP * 2 + 8, null));
+    RI.items = kit.items.map((it, k) => instSet(it, PART_CAP, kit.tint[k]));
+    const fa = { value: 1 };
+    kit.flame.traverse((o) => { if (o.isMesh) RI.flame.push(instanced(o.geometry, flameMat(o.name, fa), PART_CAP / 2)); });
+    kitReady = true;
+    updateActive();
+  });
+  let fullKit = null, fullKitP = null;
+  const builderKit = () => (fullKitP ||= M.loadKit(false).then((k) => { fullKit = k; return k; }));
+  const ready = Promise.all([texReady, riverKitP]);
 
   /* ---------- กระทงไกล + แสงเทียน: Points ---------- */
   function pointsGeo(n, attrs) {
@@ -284,12 +371,14 @@ export function createRiver3D(stage, api) {
   const target0 = TEST_N || (small ? 280 : 500);          // จำนวนใบที่ตั้งใจไว้ ก่อนปรับตามเครื่อง
   const pixelRatio = () => Math.min(window.devicePixelRatio || 1, LOCK_N ? 1.5 : LEVELS[view.level].pr);
   const targetCount = () => (LOCK_N ? LOCK_N : Math.round(target0 * LEVELS[view.level].f));
+  const nearCap = () => Math.round((small ? 70 : NEAR_CAP) * (LOCK_N ? 1 : LEVELS[view.level].f));
   const camPos = new THREE.Vector3(), camTarget = new THREE.Vector3();
   const riverPose = { pos: new THREE.Vector3(), target: new THREE.Vector3() };
   const builderPose = { pos: new THREE.Vector3(), target: new THREE.Vector3() };
-  const orbit = { yaw: 0, pitch: 0.34, dist: 2.6 };
+  const orbit = { yaw: 0, pitch: 0.62, dist: 2.6 };
+  let portrait = false;
   function computePoses() {
-    const portrait = view.w / view.h < 0.9;
+    portrait = view.w / view.h < 0.9;
     camera.fov = portrait ? 54 : 44;
     camera.aspect = view.w / view.h;
     const cx = portrait ? 6 : 0;
@@ -312,13 +401,15 @@ export function createRiver3D(stage, api) {
     // ทางแสงจันทร์: จันทร์จริงอยู่สูงเกินขอบภาพ เงาสะท้อนจะตกนอกจอ → ใช้จันทร์สมมติที่ตำแหน่งเดียวกันแต่ต่ำลง ทางแสงจึงอยู่กลางผิวน้ำ
     waterU.uMoon.value.set(B.x0 + MOON_UV[0] * BW, BH * 0.16, ZB);
     mists.forEach((m) => { m.position.x = cx; });
-    orbit.dist = portrait ? 3.1 : 2.6;
     updateBuilderPose();
   }
+  // ระยะกล้องตอนแต่ง: ให้กระทงเต็มพื้นที่ครึ่งบนพอดี (ฐานใหญ่ถอยไกลกว่า) · จอตั้งแคบกว่า → ถอยเพิ่ม
+  const buildDist = () => BASE_W[build.base] * KS * (portrait ? 2.05 : 1.7) + 0.7;
   function updateBuilderPose() {
-    const t = BUILD_AT;
-    builderPose.target.set(t.x, 0.2, t.z);
-    builderPose.pos.set(t.x + Math.sin(orbit.yaw) * Math.cos(orbit.pitch) * orbit.dist, 0.2 + Math.sin(orbit.pitch) * orbit.dist, t.z + Math.cos(orbit.yaw) * Math.cos(orbit.pitch) * orbit.dist);
+    const t = BUILD_AT, ty = (man ? M.placeOf(man, build.base).y : 0.15) * KS * 0.75;
+    orbit.dist = buildDist();
+    builderPose.target.set(t.x, ty, t.z);
+    builderPose.pos.set(t.x + Math.sin(orbit.yaw) * Math.cos(orbit.pitch) * orbit.dist, ty + Math.sin(orbit.pitch) * orbit.dist, t.z + Math.cos(orbit.yaw) * Math.cos(orbit.pitch) * orbit.dist);
   }
   // ระหว่างแต่งกระทง แผงควบคุมบังจอส่วนหนึ่ง → เลื่อนภาพให้กระทงอยู่กลางพื้นที่ที่เหลือ
   function applyViewOffset() {
@@ -338,7 +429,7 @@ export function createRiver3D(stage, api) {
     computePoses();
     setPixelRatio();
     if (view.mode === "river") { camPos.copy(riverPose.pos); camTarget.copy(riverPose.target); }
-    else if (!view.tween) { camPos.copy(builderPose.pos); camTarget.copy(builderPose.target); }
+    else if (!view.tween && view.mode === "builder") { camPos.copy(builderPose.pos); camTarget.copy(builderPose.target); }
     applyViewOffset();
   }
 
@@ -349,17 +440,20 @@ export function createRiver3D(stage, api) {
   const shown = new Map();          // id → slot ที่กำลังแสดง
   let ptr = 0, wraps = 0, moreBusy = false;
   const halfWidthAt = (z) => Math.max(2, riverPose.pos.z - z) * Math.tan((camera.fov * Math.PI) / 360) * camera.aspect + 1.4;
-  const tmpM = new THREE.Matrix4(), tmpQ = new THREE.Quaternion(), tmpS = new THREE.Vector3(), tmpP = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
+  const tmpQ = new THREE.Quaternion(), tmpS = new THREE.Vector3(), tmpP = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
   function shapeOf(k) {
     if (k.shape) return k.shape;
-    let s = k.base != null && Array.isArray(k.parts) ? { base: Math.min(2, Math.max(0, k.base | 0)), parts: M.cleanParts(k.parts) } : M.fromLegacy(k);
-    if (!s.parts.length) s.parts = M.fromLegacy({ style: s.base }).parts;   // ลอยจากแบบ 2D (ไม่มีชิ้นส่วน) → ของแต่งชุดมาตรฐาน
+    const s = k.base != null && Array.isArray(k.parts) ? { base: Math.min(2, Math.max(0, k.base | 0)), parts: M.cleanParts(k.parts) } : M.fromLegacy(man, k);
+    if (!s.parts.length) s.parts = M.presetParts(man, s.base);   // ลอยจากแบบ 2D (ไม่มีชิ้นส่วน) → ไอเดียของฐานนั้น
+    const place = M.placeOf(man, s.base);
     // เตรียมครั้งเดียวต่อข้อมูล: เมทริกซ์ของแต่ละชิ้นเทียบกับตัวกระทง สี และปลายไส้เทียน
     s.items = s.parts.map((p) => {
+      M.fitPart(place, p);
       tmpQ.setFromAxisAngle(UP, (p.r * Math.PI) / 180); tmpS.setScalar(p.s); tmpP.set(p.x, p.y, p.z);
-      return { k: p.k, m: new THREE.Matrix4().compose(tmpP, tmpQ, tmpS), c: new THREE.Color(p.c) };
+      const c = new THREE.Color(p.c);
+      return { k: p.k, m: new THREE.Matrix4().compose(tmpP, tmpQ, tmpS), c, cd: c.clone().multiply(DARK) };
     });
-    s.wicks = s.parts.filter((p) => p.k === M.CANDLE).map((p) => new THREE.Vector3(p.x, p.y + M.WICK_Y * p.s + 0.035, p.z));
+    s.wicks = s.parts.filter((p) => p.k === M.CANDLE).map((p) => new THREE.Vector3(p.x, p.y + (man.flameY + 0.03) * p.s, p.z));
     k.shape = s;
     return s;
   }
@@ -395,8 +489,8 @@ export function createRiver3D(stage, api) {
     k.fresh = false;
   }
   const fillRecord = (decorOk) => nextRecord() || (decorOk ? DECOR[(Math.random() * DECOR.length) | 0] : null);
-  // จำนวนใบที่ลอยอยู่ = เป้าตามคุณภาพ แต่ไม่เกินข้อมูลที่มี (เติมกระทงประดับให้ถึงขั้นต่ำ)
-  const wantCount = () => Math.min(targetCount(), Math.max(LOCK_N || AMBIENCE, feed.length));
+  // จำนวนใบที่ลอยอยู่ = เป้าตามคุณภาพ แต่ไม่เกินข้อมูลที่มี (เติมกระทงประดับให้ถึงขั้นต่ำ) · ยังโหลดโมเดลไม่เสร็จ = ยังไม่ลอย
+  const wantCount = () => (kitReady ? Math.min(targetCount(), Math.max(LOCK_N || AMBIENCE, feed.length)) : 0);
   function updateActive() {
     const want = wantCount();
     while (activeN < want) {
@@ -426,6 +520,7 @@ export function createRiver3D(stage, api) {
     if (feed.some((x) => x.id === k.id)) return;
     feed.push(k);
     if (feed.length > 2000) { feed.splice(0, feed.length - 2000); ptr = 0; }
+    if (!kitReady) return;                       // โหลดโมเดลเสร็จแล้ว updateActive จะหยิบจากคิวเอง
     if (how === "load" || how === "page") {
       // ฉากเติมกระทงประดับไว้ก่อนข้อมูลมาถึง → ใบจริงแต่ละใบมาแทนกระทงประดับ 1 ใบ (ใบเดิมจมหาย ใบจริงผุดขึ้น)
       for (let i = 0; i < activeN; i++) {
@@ -544,47 +639,75 @@ export function createRiver3D(stage, api) {
   }
 
   /* ======================================================================
-   *  แต่งกระทง (ชิ้นส่วนเป็น mesh ของตัวเอง แก้ไขทีละชิ้นได้ · ไม่เกิน 24 ชิ้น)
+   *  แต่งกระทง: โมเดลเต็ม แยกชิ้นเป็น Object3D ของตัวเอง (≤ 24 ชิ้น) · ตำแหน่งชิ้นอยู่ในหน่วยโมเดล (กลุ่มย่อขยายด้วย KS)
    * ====================================================================== */
-  const build = { group: new THREE.Group(), base: 0, parts: [], meshes: [], baseMesh: null, sel: -1, armed: -1, history: [], spin: 0, lit: new Set(), litAmp: 0, lift: 0 };
+  const build = { group: new THREE.Group(), base: 1, parts: [], objs: [], baseObj: null, baseRefl: null, sel: -1, history: [], spin: 0,
+    lit: new Set(), litAmp: 0, lift: 0, flameAmp: { value: 0 } };
   build.group.position.copy(BUILD_AT);
+  build.group.scale.setScalar(KS);
   build.group.visible = false;
   scene.add(build.group);
-  const disk = new THREE.Mesh(new THREE.CircleGeometry(M.RADIUS + 0.06, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ visible: false }));
-  disk.position.y = M.TOP + 0.003;
-  build.group.add(disk);
-  const selRing = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.008, 6, 28).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xf5c518, fog: false, toneMapped: false }));
-  selRing.visible = false;
-  build.group.add(selRing);
   const buildReflect = new THREE.Group();          // เงาใต้น้ำของกระทงที่กำลังแต่ง
   buildReflect.scale.y = -1;
   build.group.add(buildReflect);
-  const reflMat = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide, color: 0x4a5a80, transparent: true, opacity: 0.55 });
+  const selRing = new THREE.Mesh(new THREE.RingGeometry(0.86, 1, 48).rotateX(-Math.PI / 2),
+    new THREE.MeshBasicMaterial({ color: 0xf5c518, transparent: true, opacity: 0.95, depthTest: false, depthWrite: false, fog: false, toneMapped: false }));
+  selRing.renderOrder = 10; selRing.visible = false;
+  build.group.add(selRing);
+  const place = () => M.placeOf(man, build.base);
+  const itemR = (k) => man.decor[M.ITEMS[k].id].radius;
 
-  function setBase(kind) {
-    build.base = kind;
-    if (build.baseMesh) { build.group.remove(build.baseMesh); build.baseMesh.geometry.dispose(); buildReflect.remove(build.baseRefl); }
-    const g = M.baseGeometry(kind);
-    build.baseMesh = new THREE.Mesh(g, kraMat);
-    build.baseRefl = new THREE.Mesh(g, reflMat);
-    build.group.add(build.baseMesh);
-    buildReflect.add(build.baseRefl);
+  // เงาใต้น้ำ: สำเนาที่ใช้ geometry ร่วม · material มืดลงและโปร่งแสง (เปลวไฟไม่สะท้อนแบบ mesh: มีแสงบนน้ำจาก Points อยู่แล้ว)
+  function reflOf(obj) {
+    const r = obj.clone(true);
+    r.traverse((m) => {
+      if (!m.isMesh) return;
+      const mt = m.material.clone();
+      mt.transparent = true; mt.opacity = 0.42; mt.depthWrite = false;
+      mt.color.multiplyScalar(0.55);
+      if (mt.emissive) mt.emissiveIntensity = 0;
+      m.material = mt;
+    });
+    return r;
   }
-  function partMesh(p) {
-    const g = M.itemGeometry(p.k, p.c);
-    const mesh = new THREE.Mesh(g, kraMat), refl = new THREE.Mesh(g, reflMat);
-    mesh.userData.refl = refl;
-    return mesh;
+  function setBase(kind, refit) {
+    build.base = kind;
+    if (build.baseObj) { build.group.remove(build.baseObj); buildReflect.remove(build.baseRefl); }
+    build.baseObj = fullKit.bases[kind].clone(true);
+    build.baseRefl = reflOf(build.baseObj);
+    build.group.add(build.baseObj); buildReflect.add(build.baseRefl);
+    build.group.updateMatrixWorld(true);
+    if (refit) { for (const p of build.parts) setXZ(p, p.x, p.z); rebuildParts(); }
+    updateBuilderPose();
+  }
+  function addFlame(obj) {
+    const f = fullKit.flame.clone(true);
+    f.traverse((m) => { if (m.isMesh) m.material = flameMat(m.name, build.flameAmp); });
+    f.position.y = man.flameY;
+    const glow = new THREE.Sprite(glowSpriteMat);
+    glow.scale.setScalar(0.17); glow.position.y = 0.026;
+    glow.raycast = () => {};
+    f.add(glow);
+    f.visible = false;
+    obj.add(f);
+    obj.userData.flame = f;
+  }
+  function partObj(p) {
+    const o = M.cloneItem(fullKit, p.k, p.c);
+    o.userData.refl = reflOf(o);
+    if (p.k === M.CANDLE) addFlame(o);
+    if (p.k === M.INCENSE) o.traverse((m) => { if (m.isMesh && m.name === "incense_ember") { o.userData.ember = m.material; m.material.userData.col = m.material.color.clone(); } });
+    return o;
   }
   function syncPart(i) {
-    const p = build.parts[i], mesh = build.meshes[i];
-    mesh.position.set(p.x, p.y, p.z); mesh.rotation.y = (p.r * Math.PI) / 180; mesh.scale.setScalar(p.s);
-    mesh.userData.refl.position.copy(mesh.position); mesh.userData.refl.rotation.copy(mesh.rotation); mesh.userData.refl.scale.copy(mesh.scale);
+    const p = build.parts[i], o = build.objs[i], r = o.userData.refl;
+    o.position.set(p.x, p.y, p.z); o.rotation.y = (p.r * Math.PI) / 180; o.scale.setScalar(p.s);
+    r.position.copy(o.position); r.rotation.copy(o.rotation); r.scale.copy(o.scale);
   }
   function rebuildParts() {
-    for (const m of build.meshes) { build.group.remove(m); buildReflect.remove(m.userData.refl); m.geometry.dispose(); }
-    build.meshes = build.parts.map((p) => partMesh(p));
-    build.meshes.forEach((m, i) => { build.group.add(m); buildReflect.add(m.userData.refl); syncPart(i); });
+    for (const o of build.objs) { build.group.remove(o); buildReflect.remove(o.userData.refl); }
+    build.objs = build.parts.map((p) => partObj(p));
+    build.objs.forEach((o, i) => { build.group.add(o); buildReflect.add(o.userData.refl); syncPart(i); });
     select(Math.min(build.sel, build.parts.length - 1));
     api.onParts && api.onParts(build.parts.length);
   }
@@ -601,56 +724,102 @@ export function createRiver3D(stage, api) {
   }
   function select(i) {
     build.sel = i;
-    const m = build.meshes[i];
-    selRing.visible = !!m;
-    if (m) { selRing.position.set(m.position.x, m.position.y + 0.004, m.position.z); selRing.scale.setScalar(Math.max(0.8, m.scale.x)); }
-    api.onSelect && api.onSelect(i >= 0 ? { index: i, part: build.parts[i], count: build.parts.length } : null);
-  }
-  // ช่องว่างถัดไปบนกระทง (ใช้ตอนวางด้วยคีย์บอร์ด): เกลียวมุมทองคำ หลบชิ้นที่มีอยู่
-  function autoSlot() {
-    for (let n = 1; n < 80; n++) {
-      const a = n * 2.39996, r = Math.min(M.RADIUS - 0.04, 0.07 + 0.035 * Math.sqrt(n) * 2.4);
-      const x = Math.cos(a) * r, z = Math.sin(a) * r;
-      if (build.parts.every((p) => Math.hypot(p.x - x, p.z - z) > 0.085)) return [x, z];
+    const o = build.objs[i];
+    selRing.visible = !!o;
+    if (o) {
+      const p = build.parts[i];
+      selRing.position.set(p.x, p.y + 0.003, p.z);
+      selRing.scale.setScalar(itemR(p.k) * p.s + 0.012);
     }
-    return [(Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4];
+    api.onSelect && api.onSelect(i >= 0 && o ? { index: i, part: build.parts[i], count: build.parts.length } : null);
+  }
+
+  /* ---------- วางบนผิวฐาน: ยิงรังสีลงตรง ๆ หาความสูงผิว · ไม่เกินวงวางของฐาน ---------- */
+  const vray = new THREE.Raycaster(), vo = new THREE.Vector3(), DOWN = new THREE.Vector3(0, -1, 0), lv = new THREE.Vector3();
+  function surfaceY(x, z) {
+    build.group.updateMatrixWorld(true);
+    build.group.localToWorld(vo.set(x, 1.2, z));
+    vray.set(vo, DOWN);
+    const h = vray.intersectObject(build.baseObj, true)[0];
+    return h ? build.group.worldToLocal(lv.copy(h.point)).y : place().y;
+  }
+  function setXZ(p, x, z) {
+    const R = place().radius, r = Math.hypot(x, z);
+    if (r > R) { x *= R / r; z *= R / r; }
+    p.x = x; p.z = z; p.y = surfaceY(x, z);
+  }
+  // จุดว่างถัดไปบนฐาน (กดปุ่มของแต่ง = วางทันที): ลองจุดเกลียวมุมทองคำในวงวาง เลือกจุดที่ห่างชิ้นอื่นที่สุด · เทียนชอบตรงกลาง
+  function autoSlot(k) {
+    const R = place().radius, rk = itemR(k);
+    let best = [0, 0], bestScore = -Infinity;
+    for (let n = 0; n < 64; n++) {
+      const a = n * 2.39996, r = n ? R * Math.sqrt(n / 63) : 0;
+      const x = Math.cos(a) * r, z = Math.sin(a) * r;
+      let gap = Infinity;
+      for (const p of build.parts) gap = Math.min(gap, Math.hypot(p.x - x, p.z - z) - (itemR(p.k) * p.s + rk) * 0.7);
+      const score = Math.min(gap, 1) - (k === M.CANDLE ? r * 0.5 : r * 0.05);
+      if (score > bestScore) { bestScore = score; best = [x, z]; }
+    }
+    return best;
   }
   function addPart(k, x, z) {
     if (build.parts.length >= M.MAX_PARTS) { api.onLimit && api.onLimit(); return false; }
-    if (x == null) [x, z] = autoSlot();
-    const r = Math.hypot(x, z), lim = M.RADIUS;
-    if (r > lim) { x *= lim / r; z *= lim / r; }
+    if (x == null) [x, z] = autoSlot(k);
     snapshot();
-    const p = { k, x, y: M.TOP, z, r: Math.round((Math.random() * 2 - 1) * 40), s: 1, c: M.ITEMS[k].colors[0] };
+    const p = { k, x: 0, y: 0, z: 0, r: k === M.CANDLE || k === M.INCENSE ? 0 : Math.round((Math.random() * 2 - 1) * 40), s: 1, c: M.ITEMS[k].colors[0] || "#ffffff" };
+    setXZ(p, x, z);
     build.parts.push(p);
-    const mesh = partMesh(p);
-    build.meshes.push(mesh); build.group.add(mesh); buildReflect.add(mesh.userData.refl);
+    const o = partObj(p);
+    build.objs.push(o); build.group.add(o); buildReflect.add(o.userData.refl);
     syncPart(build.parts.length - 1);
     select(build.parts.length - 1);
-    if (gsap) gsap.from(mesh.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.45, ease: "back.out(2)", onUpdate: () => { mesh.userData.refl.scale.copy(mesh.scale); } });
+    if (gsap) {
+      const s = p.s;
+      gsap.fromTo(o.position, { y: p.y + 0.12 }, { y: p.y, duration: 0.45, ease: "bounce.out", onUpdate: () => { o.userData.refl.position.y = o.position.y; } });
+      gsap.from(o.scale, { x: s * 0.6, y: s * 0.6, z: s * 0.6, duration: 0.35, ease: "back.out(2)", onUpdate: () => { o.userData.refl.scale.copy(o.scale); } });
+    }
     api.onParts && api.onParts(build.parts.length);
     return true;
   }
-  function editSel(fn) {
+  /** แก้ชิ้นที่เลือก: fn(part) · snap = เก็บประวัติก่อนแก้ (slider เก็บครั้งเดียวตอนเริ่มลาก) */
+  function editSel(fn, snap = true) {
     const i = build.sel;
     if (i < 0) return;
-    snapshot();
-    fn(build.parts[i]);
+    if (snap) snapshot();
     const p = build.parts[i];
+    fn(p);
     p.s = Math.min(M.SIZE[1], Math.max(M.SIZE[0], Math.round(p.s * 100) / 100));
-    p.r = ((((p.r + 180) % 360) + 360) % 360) - 180;
-    if (fn.recolor) { const old = build.meshes[i]; build.group.remove(old); buildReflect.remove(old.userData.refl); old.geometry.dispose(); build.meshes[i] = partMesh(p); build.group.add(build.meshes[i]); buildReflect.add(build.meshes[i].userData.refl); }
+    p.r = ((((Math.round(p.r) + 180) % 360) + 360) % 360) - 180;
     syncPart(i); select(i);
+  }
+  function setSelColor(hex) {
+    const i = build.sel;
+    if (i < 0 || build.parts[i].c === hex) return;
+    snapshot();
+    const p = build.parts[i], o = build.objs[i];
+    p.c = hex;
+    M.setItemColor(fullKit, o, p.k, hex);
+    M.setItemColor(fullKit, o.userData.refl, p.k, hex);
+    const name = fullKit.tint[p.k];
+    o.userData.refl.traverse((m) => { if (m.isMesh && m.name === name) m.material.color.multiplyScalar(0.55); });
+    select(i);
   }
   function removeSel() {
     const i = build.sel;
     if (i < 0) return;
     snapshot();
     build.parts.splice(i, 1);
-    const m = build.meshes.splice(i, 1)[0];
-    build.group.remove(m); buildReflect.remove(m.userData.refl); m.geometry.dispose();
-    select(build.parts.length ? Math.min(i, build.parts.length - 1) : -1);
+    const o = build.objs.splice(i, 1)[0];
+    build.group.remove(o); buildReflect.remove(o.userData.refl);
+    build.lit.delete(i);
+    select(-1);
     api.onParts && api.onParts(build.parts.length);
+  }
+  function loadPreset() {
+    snapshot();
+    build.parts = M.presetParts(man, build.base);
+    rebuildParts();
+    select(-1);
   }
 
   /* ---------- โหมด: แม่น้ำ ↔ แต่งกระทง (กล้องเคลื่อนนุ่ม ๆ ด้วย GSAP · tween เดียวต่อการเปลี่ยนโหมด) ---------- */
@@ -661,21 +830,25 @@ export function createRiver3D(stage, api) {
     if (!gsap) { o.k = 1; step(); view.tween = false; done && done(); return; }
     gsap.to(o, { k: 1, duration: dur, ease: "power3.inOut", onUpdate: step, onComplete: () => { view.tween = false; done && done(); } });
   }
-  function openBuilder(state) {
-    if (state) { build.parts = M.cleanParts(state.parts); setBase(state.base | 0); }
-    else if (!build.baseMesh) { setBase(0); build.parts = M.defaultParts(); }
+  /** เตรียมหน้าแต่ง (โหลดโมเดลเต็มครั้งแรก) → resolve เมื่อพร้อม */
+  async function prepare() {
+    await Promise.all([builderKit(), riverKitP]);
+    if (!build.baseObj) { setBase(1); build.parts = M.defaultParts(man, 1); rebuildParts(); }
+  }
+  function openBuilder() {
     rebuildParts();
     build.group.visible = true;
     build.group.position.copy(BUILD_AT);
     build.group.rotation.set(0, build.spin, 0);
+    updateBuilderPose();
     view.mode = "builder";
     closeCard(false);
-    tweenCamera(() => builderPose.pos, () => builderPose.target, 1, 1.4);
+    tweenCamera(() => builderPose.pos, () => builderPose.target, 1, 1.2);
   }
   function closeBuilder() {
     view.mode = "river";
     select(-1);
-    tweenCamera(() => riverPose.pos, () => riverPose.target, 0, 1.2, () => { if (view.mode === "river") build.group.visible = false; });
+    tweenCamera(() => riverPose.pos, () => riverPose.target, 0, 1.1, () => { if (view.mode === "river") build.group.visible = false; });
   }
 
   /* ---------- ปล่อยกระทงลงน้ำ → กล้องตาม → ส่งต่อให้ pool ของแม่น้ำ (สลับแบบไม่เห็นรอยต่อ) ---------- */
@@ -694,7 +867,7 @@ export function createRiver3D(stage, api) {
     best.yaw = build.group.rotation.y - clock.elapsedTime * 0.03;
   }
   function release(k, done) {
-    select(-1); build.armed = -1;
+    select(-1);
     const g = build.group, f = { x: g.position.x, y: g.position.y, z: g.position.z, cam: true };
     view.follow = f; view.mode = "follow";
     const finish = () => {
@@ -711,8 +884,8 @@ export function createRiver3D(stage, api) {
       .call(() => { f.cam = false; }, null, "<3.6");
   }
   function resetBuild() {
-    build.parts = M.defaultParts(); build.history = []; build.lit.clear(); build.litAmp = 0; build.spin = 0;
-    setBase(0); rebuildParts();
+    build.parts = M.defaultParts(man, 1); build.history = []; build.lit.clear(); build.litAmp = 0; build.spin = 0; build.sel = -1;
+    setBase(1); rebuildParts();
     api.onHistory && api.onHistory(0);
   }
 
@@ -724,26 +897,46 @@ export function createRiver3D(stage, api) {
     ray.setFromCamera(ndc, camera);
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   }
+  // ชิ้นที่รังสีโดนก่อน (เดินขึ้นหา Object3D ของชิ้น)
+  function hitPiece() {
+    const h = ray.intersectObjects(build.objs, true)[0];
+    if (!h) return -1;
+    for (let o = h.object; o; o = o.parent) { const i = build.objs.indexOf(o); if (i >= 0) return i; }
+    return -1;
+  }
+  function movePiece() {
+    const h = ray.intersectObject(build.baseObj, true)[0];
+    if (!h) return;
+    const p = build.parts[build.sel], lp = build.group.worldToLocal(h.point.clone());
+    setXZ(p, lp.x, lp.z);
+    syncPart(build.sel); select(build.sel);
+  }
   let down = null;
   canvas.addEventListener("pointerdown", (e) => {
-    if (view.mode === "follow") return;
-    down = { x: e.clientX, y: e.clientY, id: e.pointerId, drag: false, yaw: build.group.rotation.y, pitch: orbit.pitch };
+    if (view.mode === "follow" || (e.pointerType === "mouse" && e.button)) return;
+    let piece = -1;
+    if (view.mode === "builder" && build.group.visible && api.canMove && api.canMove()) { pick(e); piece = hitPiece(); }
+    down = { x: e.clientX, y: e.clientY, id: e.pointerId, drag: false, move: piece >= 0 && piece === build.sel, yaw: build.group.rotation.y, pitch: orbit.pitch };
   });
   canvas.addEventListener("pointermove", (e) => {
     if (!down || e.pointerId !== down.id) return;
     const dx = e.clientX - down.x, dy = e.clientY - down.y;
-    if (!down.drag && Math.hypot(dx, dy) > 7 && view.mode === "builder") { down.drag = true; canvas.setPointerCapture(e.pointerId); stage.classList.add("is-dragging"); }
-    if (down.drag) {
-      build.spin = down.yaw + dx * 0.012;
-      build.group.rotation.y = build.spin;
-      orbit.pitch = Math.min(1.15, Math.max(0.12, down.pitch + dy * 0.004));
-      updateBuilderPose();
+    if (!down.drag && Math.hypot(dx, dy) > 7 && view.mode === "builder") {
+      down.drag = true; canvas.setPointerCapture(e.pointerId);
+      if (down.move) snapshot();
+      stage.classList.add(down.move ? "is-moving" : "is-dragging");
     }
+    if (!down.drag) return;
+    if (down.move) { pick(e); movePiece(); return; }
+    build.spin = down.yaw + dx * 0.012;
+    build.group.rotation.y = build.spin;
+    orbit.pitch = Math.min(1.2, Math.max(0.15, down.pitch + dy * 0.004));
+    updateBuilderPose();
   });
   const endDrag = (e) => {
     if (!down || (e && e.pointerId !== down.id)) return;
     const wasDrag = down.drag;
-    down = null; stage.classList.remove("is-dragging");
+    down = null; stage.classList.remove("is-dragging", "is-moving");
     if (wasDrag || !e || e.type === "pointercancel") return;
     tap(e);
   };
@@ -752,19 +945,11 @@ export function createRiver3D(stage, api) {
   function tap(e) {
     const at = pick(e);
     if (view.mode === "builder" && build.group.visible) {
-      if (api.onWickTap && build.parts.some((p) => p.k === M.CANDLE)) {
-        const wi = wickHit();
-        if (wi >= 0) { api.onWickTap(wi); return; }
-      }
-      const hits = ray.intersectObjects(build.meshes, false);
-      if (hits.length) { select(build.meshes.indexOf(hits[0].object)); return; }
-      const d = ray.intersectObject(disk);
-      if (d.length && build.armed >= 0) {
-        const lp = build.group.worldToLocal(d[0].point.clone());
-        addPart(build.armed, lp.x, lp.z);
-        return;
-      }
-      if (d.length) { select(-1); return; }
+      if (api.onWickTap && wickHit() >= 0) { api.onWickTap(); return; }
+      const i = hitPiece();
+      if (i >= 0) { select(i); return; }
+      if (ray.intersectObject(build.baseObj, true).length) { select(-1); return; }
+      select(-1);
     } else if (view.mode === "river") {
       // เลือกกระทงจากตำแหน่งบนจอ (ใบใกล้กล้องที่สุดที่แตะโดน) — ไม่ต้องมีปุ่ม DOM ครบทุกใบ
       let best = null;
@@ -780,13 +965,14 @@ export function createRiver3D(stage, api) {
     if (cardSlot) closeCard(false);
   }
   // ไส้เทียน: ทรงกลมรอบปลายไส้ใหญ่พอให้นิ้วแตะโดน
+  const wv = new THREE.Vector3();
+  function wickWorld(i) { return build.objs[i].localToWorld(wv.set(0, man.flameY + 0.01, 0)); }
   function wickHit() {
     let best = -1, bestD = Infinity;
-    build.meshes.forEach((m, i) => {
-      if (build.parts[i].k !== M.CANDLE) return;
-      const w = m.localToWorld(new THREE.Vector3(0, M.WICK_Y, 0));
-      const d = ray.ray.distanceToPoint(w);
-      if (d < 0.09 * Math.max(1, build.parts[i].s) && d < bestD) { bestD = d; best = i; }
+    build.parts.forEach((p, i) => {
+      if (p.k !== M.CANDLE) return;
+      const d = ray.ray.distanceToPoint(wickWorld(i));
+      if (d < 0.16 * Math.max(1, p.s) && d < bestD) { bestD = d; best = i; }
     });
     return best;
   }
@@ -794,8 +980,8 @@ export function createRiver3D(stage, api) {
   /* ======================================================================
    *  loop เดียว: ขยับทุกใบ → เขียน instance/Points → เรนเดอร์
    * ====================================================================== */
-  const W = new THREE.Matrix4(), WM = new THREE.Matrix4(), PM = new THREE.Matrix4(), FLIP = new THREE.Matrix4().makeScale(1, -1, 1);
-  const e3 = new THREE.Euler(), v3 = new THREE.Vector3(), cTint = new THREE.Color(), cDark = new THREE.Color();
+  const W = new THREE.Matrix4(), WM = new THREE.Matrix4(), PM = new THREE.Matrix4(), FM = new THREE.Matrix4(), FLIP = new THREE.Matrix4().makeScale(1, -1, 1);
+  const e3 = new THREE.Euler(), v3 = new THREE.Vector3();
   const farPos = farGeo.attributes.position.array, farBase = farGeo.attributes.aBase.array, farFade = farGeo.attributes.aFade.array, farSize = farGeo.attributes.aSize.array;
   const gPos = glowGeo.attributes.position.array, gSize = glowGeo.attributes.aSize.array, gPh = glowGeo.attributes.aPh.array, gKind = glowGeo.attributes.aKind.array, gAmp = glowGeo.attributes.aAmp.array;
   const stats = { fps: 0, n: 0, near: 0, far: 0, calls: 0, tris: 0, js: 0, level: 0, pr: 1, glows: 0 };
@@ -805,13 +991,14 @@ export function createRiver3D(stage, api) {
     gPos[gi * 3] = x; gPos[gi * 3 + 1] = y; gPos[gi * 3 + 2] = z;
     gSize[gi] = size; gPh[gi] = ph; gKind[gi] = kind; gAmp[gi] = amp; gi++;
   }
-  function putInst(mesh, idx, m, c) { if (idx >= mesh.instanceMatrix.count) return; mesh.setMatrixAt(idx, m); mesh.setColorAt(idx, c); }
-  const counts = new Int32Array(3), tc = new Int32Array(6), fc = new Int32Array(6);
+  function putInst(mesh, idx, m, c) { if (idx >= mesh.instanceMatrix.count) return; mesh.setMatrixAt(idx, m); if (c) mesh.setColorAt(idx, c); }
+  const bc = new Int32Array(3), ic = new Int32Array(M.ITEMS.length);
+  let fc = 0;
   function updateBoats(t, dt) {
-    counts.fill(0); tc.fill(0); fc.fill(0);
+    bc.fill(0); ic.fill(0); fc = 0;
     let farN = 0, nearN = 0;
     gi = 0;
-    const cx = riverPose.pos.x, river = view.mode === "river";
+    const cx = riverPose.pos.x, river = view.mode === "river", cap = nearCap();
     for (let i = 0; i < activeN; i++) {
       const s = pool[i];
       // ขยับ + วนกลับ (object pool)
@@ -828,70 +1015,92 @@ export function createRiver3D(stage, api) {
       tmpQ.setFromEuler(e3);
       const sc = s.scale * (0.4 + 0.6 * fade);
       tmpP.set(s.x, bob, s.z);
-      W.compose(tmpP, tmpQ, tmpS.setScalar(sc));
+      W.compose(tmpP, tmpQ, tmpS.setScalar(sc * KS));
       const dx = s.x - camPos.x, dz = s.z - camPos.z;
       s.dist = Math.sqrt(dx * dx + dz * dz + camPos.y * camPos.y);
       const wantNear = s.dist < NEAR_DIST + (s.near ? 1.5 : 0);
-      s.near = wantNear && nearN < NEAR_MAX && fade > 0.02;
+      s.near = wantNear && nearN < cap && fade > 0.02;
       const ph = s.i * 1.7;
       if (s.near) {
         nearN++;
         WM.multiplyMatrices(FLIP, W);
-        putInst(baseInst[sh.base], counts[sh.base]++, W, WHITE);
-        putInst(baseInst[sh.base], counts[sh.base]++, WM, DARK);
+        const bi = bc[sh.base];
+        for (const e of RI.bases[sh.base]) { putInst(e.m, bi, W, WHITE); putInst(e.m, bi + 1, WM, DARK); }
+        bc[sh.base] += 2;
         for (const it of sh.items) {
-          const T = itemInst[it.k];
+          const set = RI.items[it.k], ii = ic[it.k];
           PM.multiplyMatrices(W, it.m);
-          cDark.copy(it.c).multiply(DARK);
-          putInst(T.tint, tc[it.k]++, PM, it.c);
-          if (T.fixed) putInst(T.fixed, fc[it.k]++, PM, WHITE);
+          for (const e of set) putInst(e.m, ii, PM, e.tint ? it.c : WHITE);
+          if (it.k === M.CANDLE) { FM.multiplyMatrices(PM, FLAME_T); for (const f of RI.flame) putInst(f, fc, FM, null); fc++; }
           PM.multiplyMatrices(WM, it.m);
-          putInst(T.tint, tc[it.k]++, PM, cDark);
-          if (T.fixed) putInst(T.fixed, fc[it.k]++, PM, DARK);
+          for (const e of set) putInst(e.m, ii + 1, PM, e.tint ? it.cd : DARK);
+          ic[it.k] += 2;
         }
         for (const w of sh.wicks) {
           v3.copy(w).applyMatrix4(W);
-          glow(v3.x, v3.y, v3.z, 0.55 * sc, ph + v3.x * 3, 0, fade);
+          glow(v3.x, v3.y, v3.z, 0.42 * sc, ph + v3.x * 3, 0, fade);
         }
         if (sh.wicks.length) glow(s.x, -0.42 * sc, s.z, 2.2 * sc, ph, 1, fade);
       } else if (fade > 0.02 && farN < POOL_MAX) {
-        const o = farN * 3;
-        farPos[o] = s.x; farPos[o + 1] = bob + 0.28 * sc; farPos[o + 2] = s.z;
-        farBase[farN] = sh.base; farFade[farN] = fade; farSize[farN] = 1.45 * sc;
+        const o = farN * 3, fw = FAR_W[sh.base] * sc;
+        farPos[o] = s.x; farPos[o + 1] = bob + fw * 0.42; farPos[o + 2] = s.z;
+        farBase[farN] = sh.base; farFade[farN] = fade; farSize[farN] = fw;
         farN++;
-        glow(s.x, bob + 0.62 * sc, s.z, 0.75 * sc, ph, 0, fade * 0.9);
+        glow(s.x, bob + fw * FAR_FLAME[sh.base], s.z, 0.6 * sc, ph, 0, fade * 0.9);
         glow(s.x, -0.4 * sc, s.z, 2.0 * sc, ph, 1, fade * 0.8);
       }
       // ตำแหน่งบนจอ (ใช้กับปุ่ม DOM และการแตะเลือก)
       if (river) {
-        v3.set(s.x, 0.25 * sc, s.z).project(camera);
+        v3.set(s.x, 0.2 * sc * KS, s.z).project(camera);
         if (v3.z < 1 && Math.abs(v3.x) < 1.05 && Math.abs(v3.y) < 1.05) {
           s.sx = (v3.x * 0.5 + 0.5) * view.w; s.sy = (-v3.y * 0.5 + 0.5) * view.h;
-          s.sr = Math.max(8, Math.min(80, (sc * 0.62 * farU.uScale.value) / renderer.getPixelRatio() / s.dist));
+          s.sr = Math.max(8, Math.min(80, (sc * BASE_W[sh.base] * KS * 0.6 * farU.uScale.value) / renderer.getPixelRatio() / s.dist));
         } else s.sx = null;
       } else s.sx = null;
     }
-    // ไฟเทียนของกระทงที่กำลังแต่ง (จุดแล้วเท่านั้น)
-    if (build.group.visible && build.lit.size) {
-      build.meshes.forEach((m, i) => {
-        if (!build.lit.has(i)) return;
-        v3.set(0, M.WICK_Y + 0.035, 0); m.localToWorld(v3);
-        glow(v3.x, v3.y, v3.z, 0.5 * build.parts[i].s * build.litAmp, i * 2.1, 0, Math.min(1, build.litAmp));
-      });
-      if (build.litAmp > 0.1) glow(build.group.position.x, -0.45, build.group.position.z, 2.4 * Math.min(1.2, build.litAmp), 3, 1, Math.min(1, build.litAmp));
+    // ไฟเทียนของกระทงที่กำลังแต่ง: แสงสะท้อนบนน้ำ (เปลวไฟ + วงเรืองเป็น mesh/sprite ของกระทงเอง)
+    if (build.group.visible && build.lit.size && build.litAmp > 0.1) {
+      const a = Math.min(1, build.litAmp);
+      glow(build.group.position.x, -0.45, build.group.position.z, 2.4 * Math.min(1.2, build.litAmp), 3, 1, a);
     }
-    for (let b = 0; b < 3; b++) { baseInst[b].count = Math.min(counts[b], baseInst[b].instanceMatrix.count); baseInst[b].instanceMatrix.needsUpdate = true; baseInst[b].instanceColor.needsUpdate = true; }
-    for (let k = 0; k < 6; k++) {
-      // shortcut: เกิน PART_CAP ชิ้นต่อชนิด ชิ้นที่เกินจะไม่ถูกวาด (ต้องมีใบใกล้ ~180 ใบที่แต่ง 8+ ชิ้นชนิดเดียวกันพร้อมกัน), ถ้าเจอบ่อยให้เพิ่ม PART_CAP
-      const T = itemInst[k];
-      T.tint.count = Math.min(tc[k], PART_CAP); T.tint.instanceMatrix.needsUpdate = T.tint.instanceColor.needsUpdate = true;
-      if (T.fixed) { T.fixed.count = Math.min(fc[k], PART_CAP); T.fixed.instanceMatrix.needsUpdate = T.fixed.instanceColor.needsUpdate = true; }
-    }
+    const flag = (m, n) => { n = Math.min(n, m.instanceMatrix.count); if (n || m.count) { m.count = n; m.instanceMatrix.needsUpdate = true; m.instanceColor.needsUpdate = true; } };
+    RI.bases.forEach((set, b) => { for (const e of set) flag(e.m, bc[b]); });
+    // shortcut: เกิน PART_CAP ชิ้นต่อชนิด ชิ้นที่เกินจะไม่ถูกวาด (ต้องมีใบใกล้ ~160 ใบที่แต่งชนิดเดียวกัน 6+ ชิ้นพร้อมกัน), ถ้าเจอบ่อยให้เพิ่ม PART_CAP
+    RI.items.forEach((set, k) => { for (const e of set) flag(e.m, ic[k]); });
+    for (const f of RI.flame) { const n = Math.min(fc, f.instanceMatrix.count); if (n || f.count) { f.count = n; f.instanceMatrix.needsUpdate = true; } }
     farGeo.setDrawRange(0, farN);
     for (const a of ["position", "aBase", "aFade", "aSize"]) farGeo.attributes[a].needsUpdate = true;
     glowGeo.setDrawRange(0, gi);
     for (const a of ["position", "aSize", "aPh", "aKind", "aAmp"]) glowGeo.attributes[a].needsUpdate = true;
     stats.near = nearN; stats.far = farN; stats.glows = gi;
+  }
+  // หน้าแต่ง: แสง + เปลวไฟ + ถ่านธูป ตามการจุดเทียน
+  const flick = (t) => 0.88 + 0.12 * Math.sin(t * 11.3) * Math.sin(t * 7.1 + 1.3);
+  const EMBER_OFF = new THREE.Color(0x3a2418);
+  function updateBuilder(t) {
+    const b = view.blend, lit = Math.min(1, build.litAmp);
+    hemi.color.lerpColors(HEMI_SKY[0], HEMI_SKY[1], b); hemi.groundColor.lerpColors(HEMI_GROUND[0], HEMI_GROUND[1], b);
+    hemi.intensity = 2.0 - 0.55 * b;
+    amb.intensity = 0.55 * (1 - b); moonLight.intensity = 1.4 * (1 - b); fill.intensity = 1.1 * (1 - b);
+    waterU.uDim.value = 0.6 * b;
+    back.material.color.setScalar(1 - 0.55 * b);
+    mists.forEach((m) => { m.material.uniforms.uAlpha.value = m.userData.a * (1 - 0.7 * b); });
+    if (!build.group.visible) { candleLight.intensity = 0; return; }
+    // แสงอุ่นจากเทียน 1 ดวง: อยู่ที่ไส้เทียนเล่มแรก (ไม่มีเทียน = เหนือกลางกระทง) · ยังไม่จุด = แสงอุ่นอ่อน ๆ ให้เห็นสีดอกไม้
+    // ยกเหนือไส้เทียนเล็กน้อย: แสงจุดใกล้ผิวมากจะสว่างจ้าเฉพาะจุด (ธูปข้าง ๆ ขาวโพลน)
+    const ci = build.parts.findIndex((p) => p.k === M.CANDLE);
+    if (ci >= 0 && build.objs[ci]) candleLight.position.copy(wickWorld(ci));
+    else build.group.localToWorld(candleLight.position.set(0, place().y + 0.3, 0));
+    candleLight.position.y += 0.4;
+    candleLight.intensity = b * (0.9 + 2.6 * lit * flick(t)) * (1 + build.lift * 0.5);
+    build.flameAmp.value = lit * (1 + build.lift * 0.4);
+    glowSpriteMat.opacity = lit * 0.85 * flick(t + 0.4);
+    build.objs.forEach((o, i) => {
+      const f = o.userData.flame;
+      if (f) { f.visible = build.lit.has(i) && build.litAmp > 0.01; if (f.visible) f.scale.setScalar(0.35 + 0.65 * lit); }
+      const em = o.userData.ember;
+      if (em) { em.emissiveIntensity = (build.lit.size ? lit : 0) * 4.5 * flick(t * 0.5 + i); em.color.lerpColors(EMBER_OFF, em.userData.col, build.lit.size ? lit : 0); }
+    });
   }
   function placeButtons() {
     if (view.mode !== "river") { for (const b of btns) if (!b.el.hidden) b.el.hidden = true; return; }
@@ -909,7 +1118,7 @@ export function createRiver3D(stage, api) {
     if (cur && cur.el.hidden) { const vis = btns.find((b) => !b.el.hidden); if (vis) roving(vis); }
   }
 
-  /* ---------- ปรับคุณภาพตามเครื่อง: FPS < 50 ติดกัน 2 วินาที → ลดขั้น (จำนวนใบ + DPR) ---------- */
+  /* ---------- ปรับคุณภาพตามเครื่อง: FPS < 50 ติดกัน 2 วินาที → ลดขั้น (จำนวนใบ + ใบเต็มรายละเอียด + DPR) ---------- */
   const fpsWin = { t0: 0, n: 0, low: 0, settle: 0 };
   function watchFps(now) {
     if (!fpsWin.t0) { fpsWin.t0 = now; fpsWin.n = 0; return; }
@@ -939,7 +1148,7 @@ export function createRiver3D(stage, api) {
   function frame() {
     const t0 = performance.now();
     const dt = Math.min(0.05, clock.getDelta()), t = clock.elapsedTime;
-    waterU.uTime.value = glowU.uTime.value = t;
+    waterU.uTime.value = glowU.uTime.value = timeU.value = t;
     mists.forEach((m) => { m.material.uniforms.uTime.value = t; });
     if (view.mode === "builder" && !view.tween) { camPos.copy(builderPose.pos); camTarget.copy(builderPose.target); }
     const f = view.follow;
@@ -956,6 +1165,7 @@ export function createRiver3D(stage, api) {
     camera.updateMatrixWorld();
     if (api.tick) api.tick(t, dt);
     updateBoats(t, dt);
+    updateBuilder(t);
     placeButtons();
     if (cardSlot) placeCard();
     stats.js = stats.js * 0.9 + (performance.now() - t0) * 0.1;
@@ -964,7 +1174,7 @@ export function createRiver3D(stage, api) {
     if (dbg && t - dbgT > 0.5) {
       dbgT = t;
       stats.n = activeN; stats.calls = renderer.info.render.calls; stats.tris = renderer.info.render.triangles; stats.level = view.level; stats.pr = renderer.getPixelRatio();
-      dbg.textContent = `FPS ${stats.fps} · กระทง ${activeN} (ใกล้ ${stats.near} · ไกล ${stats.far}) · ระดับ ${view.level + 1}/${LEVELS.length}${LOCK_N ? " ล็อก" : ""} · DPR ${stats.pr.toFixed(2)} · draw ${stats.calls} · JS ${stats.js.toFixed(1)} ms`;
+      dbg.textContent = `FPS ${stats.fps} · กระทง ${activeN} (ใกล้ ${stats.near} · ไกล ${stats.far}) · ระดับ ${view.level + 1}/${LEVELS.length}${LOCK_N ? " ล็อก" : ""} · DPR ${stats.pr.toFixed(2)} · draw ${stats.calls} · ${(stats.tris / 1000).toFixed(0)}k tri · JS ${stats.js.toFixed(1)} ms`;
     }
   }
   let active = false;
@@ -983,19 +1193,23 @@ export function createRiver3D(stage, api) {
   new IntersectionObserver((en) => { visible = en[0].isIntersecting; setActive(visible && !document.hidden); }, { rootMargin: "80px 0px" }).observe(stage);
   document.addEventListener("visibilitychange", () => setActive(visible && !document.hidden));
   canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); setActive(false); api.onLost && api.onLost(); });
-  updateActive();
 
   return {
-    renderer, scene, camera, clock, build, three: THREE,
+    renderer, scene, camera, clock, build, three: THREE, ready,
     feed: feedRecord, drop: dropRecord, has: (id) => shown.has(id) || feed.some((k) => k.id === id), count: () => activeN, closeCard,
-    openBuilder, closeBuilder, setBase, addPart, undo, select, editSel, removeSel, release, resetBuild,
-    arm(k) { build.armed = k; },
+    prepare, openBuilder, closeBuilder, setBase, addPart, undo, select, editSel, setSelColor, removeSel, release, resetBuild, loadPreset, snapshot,
     selectStep(d) { if (build.parts.length) select(((build.sel < 0 ? (d > 0 ? -1 : 0) : build.sel) + d + build.parts.length) % build.parts.length); },
-    spin(d) { build.spin += d; if (gsap) gsap.to(build.group.rotation, { y: build.spin, duration: 0.5, ease: "power2.out" }); else build.group.rotation.y = build.spin; },
     state: () => ({ base: build.base, parts: build.parts.map(M.packPart) }),
     setPanel(x, y) { view.panel.x = x; view.panel.y = y; applyViewOffset(); },
+    /** ปลายไส้เทียนเล่มแรกบนจอ (px) หรือ null */
+    wickOnScreen() {
+      const i = build.parts.findIndex((p) => p.k === M.CANDLE);
+      if (i < 0 || !build.objs[i]) return null;
+      const p = wickWorld(i).project(camera);
+      return { x: (p.x * 0.5 + 0.5) * view.w, y: (-p.y * 0.5 + 0.5) * view.h };
+    },
+    get man() { return man; },
     addRipple, tweenCamera, camPos, camTarget, riverPose, builderPose, view, stats,
-    project(vec) { const p = vec.clone().project(camera); return { x: (p.x * 0.5 + 0.5) * view.w, y: (-p.y * 0.5 + 0.5) * view.h }; },
     setActive, get active() { return active; },
     dispose() { setActive(false); renderer.dispose(); },
   };

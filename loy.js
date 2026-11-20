@@ -9,7 +9,7 @@
  * - ผิวน้ำวาดด้วย canvas 2D ~30 ภาพ/วิ ผ่าน gsap.ticker (ตัวเดียวกับ window.__LVC) · นอกจอ/สลับแท็บ = หยุดวาด
  * - Reduced Motion: กระทงอยู่นิ่ง ผิวน้ำวาดครั้งเดียว ไม่มีการเคลื่อนไหว
  * ============================================================================ */
-import * as db from "./loy-db.js?v=2026-11-21.1";
+import * as db from "./loy-db.js?v=2026-11-22.1";
 import { tidy, problem, MESSAGES } from "./loy-filter.js?v=2026-11-20.1";
 import { krathongSVG } from "./loy-art.js?v=2026-11-21.1";
 
@@ -20,8 +20,8 @@ const ST = L.ScrollTrigger || null;
 const reduceQ = matchMedia("(prefers-reduced-motion: reduce)");
 const MAX = 40, PAGE = 100, FEED_MAX = 600, RATE_MS = 30000, POLL_MS = 45000;   // FEED_MAX: ดึงไม่เกิน 6 หน้าต่อการเข้าชม (คุมโควตาอ่าน)
 const KEY = { last: "lvc.loy.last", mine: "lvc.loy.mine", local: "lvc.loy.local", hidden: "lvc.loy.hidden" };
-// ตัวเลือกแบบ 2D ตามไฟล์ร่าง (เลข = ฐานเดียวกับแบบ 3D: 0 ใบตอง · 1 กลีบบัว · 2 ขนมปัง)
-const CHOICES = [[0, "ใบตอง", "พับกลีบซ้อนเป็นชั้น แบบดั้งเดิม"], [2, "ขนมปัง", "ปั้นเป็นกลีบดอกไม้"], [1, "กลีบบัว", "พับจากกลีบดอกบัว"]];
+// ตัวเลือกแบบ 2D ตามไฟล์ร่าง (เลข = ฐานเดียวกับแบบ 3D: 0 ใบตอง · 1 ดอกบัว · 2 ขนมปัง)
+const CHOICES = [[0, "ใบตอง", "พับกลีบซ้อนเป็นชั้น แบบดั้งเดิม"], [2, "ขนมปัง", "ปั้นเป็นกลีบดอกไม้"], [1, "ดอกบัว", "พับจากกลีบดอกบัว"]];
 const baseOf = (k) => (k.base != null ? Math.min(2, Math.max(0, k.base | 0)) : [0, 1, 2, 0][k.style | 0] || 0);
 
 const store = {
@@ -738,7 +738,7 @@ function mount3D(sec, data, fallback) {
   const start = () => {
     if (started) return;
     started = true;
-    import("./loy3d-ui.js?v=2026-11-21.1").then((m) => {
+    import("./loy3d-ui.js?v=2026-11-22.1").then((m) => {
       ui = m.mount(stage, data, shared);
       if (!ui) throw new Error("WebGL");
       for (const [t, d] of queue.splice(0)) ui.event(t, d);

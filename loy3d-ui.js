@@ -4,9 +4,8 @@
  *   แผงแต่งกระทง 3 ขั้น: 1 เลือกฐาน → 2 แต่ง (วางของ/สี/ขนาด/หมุน/ลบ/ย้อนกลับ/หมุนดู) → 3 ลอย
  *   ทุกอย่างทำได้ด้วยคีย์บอร์ด: ปุ่มของแต่งกด Enter = วางลงช่องว่างบนกระทงทันที · ปุ่มเลือกชิ้นก่อน/ถัดไป · ปุ่มหมุนดู
  * ============================================================================ */
-import { createRiver3D } from "./loy3d.js?v=2026-11-21.1";
-import * as M from "./loy-models.js?v=2026-11-21.1";
-import { krathongSVG } from "./loy-art.js?v=2026-11-21.1";
+import { createRiver3D } from "./loy3d.js?v=2026-11-22.1";
+import * as M from "./loy-models.js?v=2026-11-22.1";
 
 const L = window.__LVC || {};
 const gsap = L.gsap || null;
@@ -52,14 +51,14 @@ export function mount(stage, data, S) {
     <section class="lb__step" data-step="1" aria-labelledby="lb-h1">
       <h3 class="lb__h" id="lb-h1">เลือกฐานกระทง</h3>
       <div class="lb__bases" role="radiogroup" aria-labelledby="lb-h1">
-        ${M.BASES.map((b, i) => `<button type="button" role="radio" aria-checked="${i ? "false" : "true"}" data-base="${i}"><span class="lb__base-art">${krathongSVG(i, { flame: false })}</span><b>${b.name}</b><small>${b.note}</small></button>`).join("")}
+        ${M.BASES.map((b, i) => `<button type="button" role="radio" aria-checked="${i === 1}" data-base="${i}"><img class="lb__base-art" src="${M.thumb("base-" + b.id)}" alt="" width="80" height="80"><b>${b.name}</b><small>${b.note}</small></button>`).join("")}
       </div>
     </section>
     <section class="lb__step" data-step="2" aria-labelledby="lb-h2" hidden>
       <h3 class="lb__h" id="lb-h2">แต่งกระทง <span class="lb__count"></span></h3>
-      <p class="lb__hint">เลือกของ แล้วแตะบนกระทงเพื่อวาง · ลากที่ฉากเพื่อหมุนดูรอบ ๆ</p>
+      <p class="lb__hint">แตะของแต่งเพื่อวาง · ลากชิ้นที่เลือกเพื่อย้าย · ลากพื้นที่ว่างเพื่อหมุนดู</p>
       <div class="lb__items" role="group" aria-label="ของแต่ง">
-        ${M.ITEMS.map((it, k) => `<button type="button" aria-pressed="false" data-item="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${M.ITEM_ICONS[k]}</svg><span>${it.name}</span></button>`).join("")}
+        ${M.ITEMS.map((it, k) => `<button type="button" data-item="${k}"><img src="${M.thumb(it.id)}" alt="" width="40" height="40"><span>${it.name}</span></button>`).join("")}
       </div>
       <div class="lb__sel" hidden>
         <div class="lb__sel-head">
@@ -72,8 +71,6 @@ export function mount(stage, data, S) {
       </div>
       <div class="lb__row lb__tools">
         <button type="button" data-act="undo" disabled>ย้อนกลับ</button>
-        <button type="button" data-act="spinl" aria-label="หมุนกระทงดูทางซ้าย">↺ หมุนดู</button>
-        <button type="button" data-act="spinr" aria-label="หมุนกระทงดูทางขวา">หมุนดู ↻</button>
       </div>
     </section>
     <section class="lb__step" data-step="3" aria-labelledby="lb-h3" hidden>
@@ -117,10 +114,7 @@ export function mount(stage, data, S) {
   const say = (t) => { msgEl.textContent = t; clearTimeout(msgT); if (t) msgT = setTimeout(() => { msgEl.textContent = ""; }, 4200); };
 
   const api = {
-    onReady() {
-      startBtn.disabled = false; startLabel.textContent = "แต่งกระทงของคุณ";
-      if (gsap) gsap.to(poster, { autoAlpha: 0, duration: 0.8, delay: 0.2 }); else poster.hidden = true;
-    },
+    canMove: () => step === 2,
     fillCard, bindCard,
     onParts(n) {
       countEl.textContent = `${n}/${M.MAX_PARTS} ชิ้น`;
@@ -134,6 +128,7 @@ export function mount(stage, data, S) {
       const it = M.ITEMS[info.part.k];
       $(".lb__sel-name", panel).textContent = `${it.name} · ชิ้นที่ ${info.index + 1}/${info.count}`;
       swatches.innerHTML = it.colors.map((c, i) => `<button type="button" role="radio" aria-checked="${c === info.part.c}" aria-label="สีที่ ${i + 1}" data-color="${c}" style="--c:${c}"></button>`).join("");
+      swatches.hidden = !it.colors.length;
       $(".lb__size", panel).textContent = Math.round(info.part.s * 100) + "%";
     },
     onLost() { if (ui.onLost) ui.onLost(); },
@@ -141,16 +136,20 @@ export function mount(stage, data, S) {
   };
   const R = createRiver3D(stage, api);
   if (!R) return null;
-  // ?debug=1&n=300: กระทงทดสอบ n ใบ (สุ่มฐาน + 6–14 ชิ้น อยู่ในเครื่องนี้เท่านั้น ไม่บันทึก) ใช้วัดความลื่น
-  const q = new URLSearchParams(location.search), testN = q.get("debug") === "1" ? +q.get("n") | 0 : 0;
-  for (let i = 0; i < testN; i++) {
-    const parts = M.defaultParts();
-    for (let j = 0, m = 4 + ((i * 7) % 9); j < m; j++) {
-      const k = (i + j * 3) % 4, a = j * 2.4 + i, r = 0.08 + (j % 4) * 0.07;
-      parts.push({ k, x: Math.cos(a) * r, y: M.TOP, z: Math.sin(a) * r, r: (i * 37 + j * 53) % 360 - 180, s: 0.8 + (j % 3) * 0.2, c: M.ITEMS[k].colors[(i + j) % M.ITEMS[k].colors.length] });
+  R.ready.then(() => {
+    startBtn.disabled = false; startLabel.textContent = "แต่งกระทงของคุณ";
+    if (gsap) gsap.to(poster, { autoAlpha: 0, duration: 0.8, delay: 0.2 }); else poster.hidden = true;
+    // ?debug=1&n=300: กระทงทดสอบ n ใบ (ไอเดียของแต่ละฐาน + ดอกไม้สุ่ม อยู่ในเครื่องนี้เท่านั้น ไม่บันทึก) ใช้วัดความลื่น
+    const q = new URLSearchParams(location.search), testN = q.get("debug") === "1" ? +q.get("n") | 0 : 0;
+    for (let i = 0; i < testN; i++) {
+      const base = i % 3, parts = M.presetParts(R.man, base), pl = M.placeOf(R.man, base);
+      for (let j = 0, m = (i * 7) % 6; j < m; j++) {
+        const k = [0, 1, 2, 3, 6, 7][(i + j) % 6], a = j * 2.4 + i, r = pl.radius * (0.3 + (j % 3) * 0.3), it = M.ITEMS[k];
+        parts.push({ k, x: Math.cos(a) * r, y: pl.y, z: Math.sin(a) * r, r: (i * 37 + j * 53) % 360 - 180, s: 0.8 + (j % 3) * 0.2, c: it.colors[(i + j) % it.colors.length] });
+      }
+      R.feed({ id: "test" + i, name: "ทดสอบ", wish: `กระทงทดสอบใบที่ ${i + 1}`, base, parts, at: Date.now() - i * 1000, test: true }, "page");
     }
-    R.feed({ id: "test" + i, name: "ทดสอบ", wish: `กระทงทดสอบใบที่ ${i + 1}`, base: i % 3, parts, at: Date.now() - i * 1000, test: true }, "page");
-  }
+  }).catch((e) => { if (window.console) console.warn("[loy] โหลดโมเดลกระทงไม่สำเร็จ:", e.message); if (ui.onLost) ui.onLost(); });
 
   /* ---------- เปิด/ปิด/ขั้นตอน ---------- */
   function layoutPanel() {
@@ -172,8 +171,6 @@ export function mount(stage, data, S) {
     $('[data-act="back"]', panel).hidden = n === 1;
     $(".lb__next", panel).hidden = n === 3;
     $(".lb__pray", panel).hidden = n !== 3;
-    R.arm(-1);
-    panel.querySelectorAll("[data-item]").forEach((b) => b.setAttribute("aria-pressed", "false"));
     if (n !== 2) R.select(-1);
     enterRite(n === 3);
     if (ui.onStep) ui.onStep(n);
@@ -181,7 +178,10 @@ export function mount(stage, data, S) {
     const h = panel.querySelector(`.lb__step[data-step="${n}"] .lb__h`);
     if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
   }
-  function openBuilder() {
+  async function openBuilder() {
+    startBtn.setAttribute("aria-busy", "true"); startLabel.textContent = "กำลังเตรียมกระทง…";
+    try { await R.prepare(); } catch (e) { startBtn.removeAttribute("aria-busy"); startLabel.textContent = "ลองอีกครั้ง"; return; }
+    startBtn.removeAttribute("aria-busy"); startLabel.textContent = "แต่งกระทงของคุณ";
     panel.hidden = false;
     stage.classList.add("is-building");
     document.documentElement.classList.add("loy-building");
@@ -203,31 +203,22 @@ export function mount(stage, data, S) {
     if (gsap) gsap.to(panel, { autoAlpha: 0, duration: 0.3, onComplete: () => { done(); gsap.set(panel, { clearProps: "opacity,visibility" }); } }); else done();
     if (focus) startBtn.focus({ preventScroll: true });
   }
-  startBtn.addEventListener("click", () => { if (!releasing) openBuilder(); });
+  startBtn.addEventListener("click", () => { if (!releasing && !startBtn.hasAttribute("aria-busy")) openBuilder(); });
 
   panel.addEventListener("click", (e) => {
     const t = e.target.closest("button");
     if (!t || t.disabled) return;
     if (t.dataset.base != null) {
       panel.querySelectorAll("[data-base]").forEach((b) => b.setAttribute("aria-checked", String(b === t)));
-      R.setBase(+t.dataset.base);
+      R.setBase(+t.dataset.base, true);
       return;
     }
     if (t.dataset.item != null) {
-      const k = +t.dataset.item, armed = t.getAttribute("aria-pressed") === "true";
-      // คีย์บอร์ด (click ที่ detail = 0): วางลงช่องว่างบนกระทงทันที · เมาส์/นิ้ว: เลือกไว้แล้วแตะบนกระทง
-      if (e.detail === 0) { if (R.addPart(k)) say(`วาง${M.ITEMS[k].name}แล้ว`); return; }
-      panel.querySelectorAll("[data-item]").forEach((b) => b.setAttribute("aria-pressed", String(b === t && !armed)));
-      R.arm(armed ? -1 : k);
-      say(armed ? "" : `แตะบนกระทงเพื่อวาง${M.ITEMS[k].name}`);
+      const k = +t.dataset.item;
+      if (R.addPart(k)) say(`วาง${M.ITEMS[k].name}แล้ว`);
       return;
     }
-    if (t.dataset.color) {
-      const c = t.dataset.color, f = (p) => { p.c = c; };
-      f.recolor = true;
-      R.editSel(f);
-      return;
-    }
+    if (t.dataset.color) { R.setSelColor(t.dataset.color); return; }
     switch (t.dataset.act) {
       case "close-builder": closeBuilder(); break;
       case "next-step": if (step < 3) showStep(step + 1); break;
@@ -240,8 +231,6 @@ export function mount(stage, data, S) {
       case "rotr": R.editSel((p) => { p.r += 30; }); break;
       case "delete": R.removeSel(); say("ลบแล้ว"); break;
       case "undo": if (R.undo()) say("ย้อนกลับแล้ว"); break;
-      case "spinl": R.spin(-0.7); break;
-      case "spinr": R.spin(0.7); break;
       case "light": light(); (wishEl.value.trim() ? prayBtn : wishEl).focus({ preventScroll: true }); break;   // ปุ่มถูกปิดหลังจุด → ย้ายโฟกัสไปขั้นถัดไป
     }
   });
@@ -301,21 +290,16 @@ export function mount(stage, data, S) {
     B.lit.clear(); B.litAmp = 0; B.lift = 0;
   }
   // จุดชี้ไส้เทียน (ให้รู้ว่าแตะตรงไหน) ตามตำแหน่งเทียนบนจอ
-  const wv = new R.three.Vector3();
   function wickTick() {
-    const i = candles()[0], m = B.meshes[i];
-    const show = step === 3 && !B.lit.size && !releasing && !panel.hidden && m;
-    wick.hidden = !show;
-    if (!show) return;
-    m.localToWorld(wv.set(0, M.WICK_Y, 0));
-    const at = R.project(wv);
-    wick.style.translate = `${at.x.toFixed(1)}px ${at.y.toFixed(1)}px`;   // translate แยกจาก scale ของแอนิเมชันกะพริบ
+    const at = step === 3 && !B.lit.size && !releasing && !panel.hidden ? R.wickOnScreen() : null;
+    wick.hidden = !at;
+    if (at) wick.style.translate = `${at.x.toFixed(1)}px ${at.y.toFixed(1)}px`;   // translate แยกจาก scale ของแอนิเมชันกะพริบ
   }
   let ticking = false;
   function enterRite(on) {
     api.onWickTap = on ? light : null;          // นอกขั้น 3 การแตะเทียน = เลือกชิ้นตามปกติ
     if (on) {
-      if (!candles().length && R.addPart(M.CANDLE, 0, 0)) { R.select(-1); say("เพิ่มเทียนให้ 1 เล่ม แตะไส้เทียนเพื่อจุดไฟ"); }
+      if (!candles().length && R.addPart(M.CANDLE)) { R.select(-1); say("เพิ่มเทียนให้ 1 เล่ม แตะไส้เทียนเพื่อจุดไฟ"); }
       syncRite();
     } else if (!releasing) { unlight(); resetHold(); }
     if (on !== ticking) {
@@ -410,7 +394,7 @@ export function mount(stage, data, S) {
       R.resetBuild();
       wishEl.value = ""; wishEl.dispatchEvent(new Event("input"));
       resetHold();
-      panel.querySelectorAll("[data-base]").forEach((b, i) => b.setAttribute("aria-checked", String(!i)));
+      panel.querySelectorAll("[data-base]").forEach((b, i) => b.setAttribute("aria-checked", String(i === 1)));
       step = 1;
       enterRite(false);
       startBtn.disabled = false;

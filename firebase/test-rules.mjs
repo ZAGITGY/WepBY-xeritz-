@@ -34,10 +34,11 @@ await owner(`/admin?documentId=config`, { fields: { key: S(KEY) } });
 console.log("ลอยกระทง");
 let k1, k2;
 const P = (k = 4, o = {}) => ({ k, x: 0.1, y: 0.2, z: -0.05, r: 30, s: 1, c: "#f29b26", ...o });
-const PARTS = [P(4, { x: 0, z: 0, r: 0 }), P(5, { x: -0.05, z: -0.09 }), P(0, { x: -0.18, s: 1.25 }), P(1, { c: "#ffffff", r: -180 })];
+// ชนิด 0–7 ตาม loy-models.js ITEMS (6 เบญจมาศ · 7 กล้วยไม้ เพิ่มในรอบโมเดลชุดใหม่)
+const PARTS = [P(4, { x: 0, z: 0, r: 0 }), P(5, { x: -0.05, z: -0.09 }), P(0, { x: -0.12, s: 1.25 }), P(1, { c: "#ffffff", r: -180 }), P(6, { c: "#9b6fd6" }), P(7, { x: 0.095, y: 0.235, c: "#c03fa8" })];
 await check("กระทงถูกรูปแบบ (ฐาน + 4 ชิ้น)", async () => { k1 = await db.add({ name: "มะลิ", wish: "ขอให้สอบผ่านทุกวิชา", base: 1, parts: PARTS }); });
 await check("ไม่ใส่ชื่อ (ชื่อว่าง) + ไม่มีชิ้นส่วน", async () => { k2 = await db.add({ name: "", wish: "ขอให้ครอบครัวมีความสุข", base: 0, parts: [] }); });
-await check("คำอธิษฐาน 80 ตัวพอดี + 24 ชิ้นพอดี", () => db.add({ name: "ก".repeat(20), wish: "ข".repeat(80), base: 2, parts: Array.from({ length: 24 }, (_, i) => P(i % 6, { x: -0.6 + i * 0.05, s: 0.6 + (i % 3) * 0.5 })) }));
+await check("คำอธิษฐาน 80 ตัวพอดี + 24 ชิ้นพอดี", () => db.add({ name: "ก".repeat(20), wish: "ข".repeat(80), base: 2, parts: Array.from({ length: 24 }, (_, i) => P(i % 8, { x: -0.6 + i * 0.05, s: 0.6 + (i % 3) * 0.5 })) }));
 await denied("คำอธิษฐาน 81 ตัว", () => db.add({ name: "", wish: "ข".repeat(81) }));
 await denied("ชื่อ 21 ตัว", () => db.add({ name: "ก".repeat(21), wish: "สวัสดี" }));
 await denied("คำอธิษฐานว่าง", () => db.add({ name: "", wish: "" }));
@@ -56,7 +57,7 @@ await rawShouldFail("แบบเก่า style แทน base/parts", { name: 
 await rawShouldFail("ขาดฟิลด์ parts", { name: good.name, wish: good.wish, base: good.base, rnd: good.rnd, hidden: good.hidden });
 await rawShouldFail("parts เป็น list แทนข้อความ JSON", { ...good, parts: { arrayValue: { values: [] } } });
 await rawShouldFail("25 ชิ้น", { ...good, parts: J(...Array.from({ length: 25 }, () => P())) });
-await rawShouldFail("ชิ้นชนิด 6", { ...good, parts: J(P(), P(6)) });
+await rawShouldFail("ชิ้นชนิด 8 (มีแค่ 0–7)", { ...good, parts: J(P(), P(8)) });
 await rawShouldFail("ชนิดเป็นทศนิยม", { ...good, parts: J(P(1.5)) });
 await rawShouldFail("สีไม่ใช่ #rrggbb", { ...good, parts: J(P(0, { c: "red" })) });
 await rawShouldFail("ตำแหน่งนอกกระทง (x = 2)", { ...good, parts: J(P(0, { x: 2 })) });
