@@ -5,7 +5,7 @@
  * reports/{id}    n (จำนวนครั้งที่ถูกแจ้ง) · at  — id เดียวกับกระทง
  * mod/{id}        บันทึกการกระทำของแอดมิน (มีรหัส อ่านไม่ได้) เขียนพร้อมกันในคำสั่งเดียวกับการซ่อน/แสดง
  */
-import FILE_CONFIG from "./loy-config.js?v=2026-11-20.1";
+import FILE_CONFIG from "./loy-config.js?v=2026-11-20.2";
 
 // window.__LVC_LOY_CONFIG: ใช้ตอนทดสอบกับ Firebase Emulator เท่านั้น (สคริปต์ทดสอบใส่ให้)
 const CONFIG = (typeof window !== "undefined" && window.__LVC_LOY_CONFIG) || FILE_CONFIG || {};

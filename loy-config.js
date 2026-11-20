@@ -5,6 +5,6 @@
  * ยังว่างอยู่ = แม่น้ำรวมยังไม่เปิด กระทงลอยได้เฉพาะในเครื่องของแต่ละคน และหน้าเว็บบอกผู้ใช้ตามนั้น
  */
 export default {
-  apiKey: "",
-  projectId: "",
+  apiKey: "AIzaSyANyLyRedOWtKSgd4xSl07w4Dl8uY916T0",
+  projectId: "loyyyy-d02ff",
 };

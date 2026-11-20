@@ -9,7 +9,7 @@
  * - ผิวน้ำวาดด้วย canvas 2D ~30 ภาพ/วิ ผ่าน gsap.ticker (ตัวเดียวกับ window.__LVC) · นอกจอ/สลับแท็บ = หยุดวาด
  * - Reduced Motion: กระทงอยู่นิ่ง ผิวน้ำวาดครั้งเดียว ไม่มีการเคลื่อนไหว
  * ============================================================================ */
-import * as db from "./loy-db.js?v=2026-11-22.1";
+import * as db from "./loy-db.js?v=2026-11-22.2";
 import { tidy, problem, MESSAGES } from "./loy-filter.js?v=2026-11-20.1";
 import { krathongSVG } from "./loy-art.js?v=2026-11-21.1";
 
