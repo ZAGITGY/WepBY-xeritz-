@@ -274,3 +274,147 @@ html[data-loy] .hero-note.is-loy .loy-countdown { font-variant-numeric: tabular-
 .loy-eco__list h3 { margin: 16px 0 0; font-family: var(--f-display, serif); font-weight: 500; font-size: 22px; line-height: 1.4; }
 .loy-eco__list p { margin: 8px 0 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
 @media (max-width: 860px) { .loy-eco__list { grid-template-columns: minmax(0, 1fr); } }
+
+/* ============================================================================
+ * แม่น้ำ 3D + แต่งกระทง (loy3d.js / loy3d-ui.js)
+ * ============================================================================ */
+.loy--3d { padding-top: clamp(72px, 9vw, 120px); background: linear-gradient(180deg, var(--paper) 0%, var(--water-0) 100%); }
+.loy__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px 32px; }
+.loy__head .loy__title { font-size: clamp(32px, 3.6vw, 50px); font-weight: 500; }
+.loy__head .loy__total b { display: block; font-size: clamp(40px, 4vw, 60px); line-height: 1.1; }
+.loy__head .loy__lead { margin-top: 16px; font-size: 16px; }
+.loy3d {
+  position: relative; margin-top: clamp(32px, 4vw, 48px); height: min(calc(100svh - 76px), 940px); min-height: 600px; overflow: hidden; isolation: isolate;
+  scroll-margin-top: 76px;
+  background: var(--water-0); color: var(--ink); touch-action: pan-y; -webkit-user-select: none; user-select: none;
+}
+.loy3d__gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.loy3d.is-building .loy3d__gl { touch-action: none; cursor: grab; }
+.loy3d.is-dragging .loy3d__gl { cursor: grabbing; }
+.loy3d__poster {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(5, 11, 22, 0) 40%, var(--water-1) 56%, var(--water-0) 100%), url(./images/campus-night@1x.webp) 64% 32% / cover no-repeat;
+}
+.loy3d__boats { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.loy3d__boat {
+  position: absolute; left: 0; top: 0; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent;
+  pointer-events: auto; cursor: pointer; will-change: transform; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.loy3d__boat:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; box-shadow: 0 0 0 6px rgba(245, 197, 24, .18); }
+.loy3d__tag {
+  position: absolute; left: 50%; bottom: 100%; transform: translate(-50%, -2px); padding: 2px 10px; border-radius: 999px;
+  background: var(--gold); color: var(--ink-dark); font-size: 12px; font-weight: 500; line-height: 1.6; white-space: nowrap; pointer-events: none;
+}
+.loy3d__hud {
+  position: absolute; z-index: 5; left: var(--gutter, 24px); right: var(--gutter, 24px); top: 20px;
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 6px 24px; pointer-events: none;
+  transition: opacity .35s ease;
+}
+.loy3d__hud-text { max-width: 560px; text-shadow: 0 1px 12px rgba(5, 11, 22, .9); }
+.loy3d__title { margin: 10px 0 0; font-family: var(--f-display, serif); font-weight: 500; font-size: clamp(24px, 2.6vw, 36px); line-height: 1.3; }
+.loy3d .loy__total { text-shadow: 0 1px 12px rgba(5, 11, 22, .9); }
+.loy3d .loy__total b { font-size: clamp(36px, 3.6vw, 56px); line-height: 1.1; }
+.loy3d .loy__status { pointer-events: auto; }
+.loy3d.is-building .loy3d__hud, .loy3d.is-building .loy3d__cta, .loy3d.is-building .loy3d__boats { opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
+.loy3d__cta {
+  position: absolute; z-index: 5; left: 50%; bottom: clamp(18px, 3.5vh, 36px); transform: translateX(-50%); width: min(560px, calc(100% - 32px));
+  display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; transition: opacity .35s ease;
+}
+.loy3d__cta .loy__help { margin: 0; color: var(--ink); opacity: .82; font-size: 13px; text-shadow: 0 1px 10px rgba(5, 11, 22, .95); }
+.loy3d__cta .loy__send { width: auto; min-width: 240px; padding: 0 28px; margin: 0; }
+.loy3d > .loy__status { position: absolute; z-index: 6; left: 50%; top: 16px; transform: translateX(-50%); max-width: calc(100% - 32px); }
+
+/* ---------- แผงแต่งกระทง ---------- */
+.loy3d__panel {
+  position: absolute; z-index: 8; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box; overflow: auto; overscroll-behavior: contain;
+  left: 0; right: 0; bottom: 0; max-height: 58%; padding: 16px 18px calc(16px + env(safe-area-inset-bottom));
+  border: 1px solid var(--line); border-bottom: 0; border-radius: 20px 20px 0 0; background: rgba(8, 16, 29, .9);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: var(--ink); -webkit-user-select: text; user-select: text;
+}
+.loy3d__panel[hidden] { display: none; }
+.loy3d.is-wide .loy3d__panel { left: 24px; right: auto; top: 24px; bottom: 24px; width: 380px; max-height: none; border-radius: 20px; border-bottom: 1px solid var(--line); padding: 20px 22px; }
+.lb__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.lb__steps { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
+.lb__steps li { display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px; border: 1px solid var(--line); }
+.lb__steps b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(243, 238, 231, .1); font-weight: 500; }
+.lb__steps [aria-current] { color: var(--ink); border-color: var(--gold); }
+.lb__steps [aria-current] b { background: var(--gold); color: var(--ink-dark); }
+.lb__steps .is-done b { background: rgba(245, 197, 24, .35); color: var(--ink); }
+.lb__close { display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--ink); cursor: pointer; }
+.lb__close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.lb__body { display: grid; gap: 12px; }
+.lb__step[hidden] { display: none; }
+.lb__h { margin: 0; font-family: var(--f-display, serif); font-weight: 500; font-size: 22px; line-height: 1.4; outline: none; }
+.lb__count { margin-left: 6px; font-family: var(--f-text, sans-serif); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.lb__hint { margin: 4px 0 10px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.lb__bases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.lb__bases button, .lb__items button {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 44px; padding: 10px 6px; border: 1px solid var(--line); border-radius: 12px;
+  background: rgba(23, 39, 65, .55); color: var(--ink); font: 500 14px/1.4 var(--f-text, sans-serif); cursor: pointer; text-align: center;
+  transition: border-color .18s, background-color .18s;
+}
+.lb__bases button:hover, .lb__items button:hover { border-color: rgba(245, 197, 24, .5); }
+.lb__bases [aria-checked="true"], .lb__items [aria-pressed="true"] { border-color: var(--gold); background: rgba(245, 197, 24, .1); }
+.lb__bases small { font-weight: 400; font-size: 12px; color: var(--muted); line-height: 1.45; }
+.lb__base-art { display: block; width: 100%; max-width: 92px; }
+.lb__base-art svg { display: block; width: 100%; height: auto; }
+.lb__items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.lb__items svg { width: 28px; height: 28px; }
+.lb__items button:disabled { opacity: .45; cursor: not-allowed; }
+.lb__sel { display: grid; gap: 10px; margin-top: 12px; padding: 12px; border: 1px solid rgba(245, 197, 24, .3); border-radius: 14px; background: rgba(245, 197, 24, .05); }
+.lb__sel[hidden] { display: none; }
+.lb__sel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 15px; }
+.lb__pair { display: flex; gap: 6px; }
+.lb__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lb__lbl { min-width: 40px; font-size: 14px; color: var(--muted); }
+.lb__row button, .lb__pair button, .lb__back {
+  min-width: 44px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(23, 39, 65, .6);
+  color: var(--ink); font: 500 15px/1.2 var(--f-text, sans-serif); cursor: pointer;
+}
+.lb__row button:hover, .lb__pair button:hover, .lb__back:hover { border-color: rgba(245, 197, 24, .5); }
+.lb__row button:disabled { opacity: .45; cursor: not-allowed; }
+.lb__size { min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+.lb__del { margin-left: auto; color: var(--red-soft) !important; }
+.lb__tools { margin-top: 12px; }
+.lb__swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.lb__swatches button { width: 44px; height: 44px; padding: 0; border-radius: 50%; border: 2px solid rgba(243, 238, 231, .25); background: var(--c); cursor: pointer; }
+.lb__swatches [aria-checked="true"] { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245, 197, 24, .35); }
+.lb__msg { min-height: 1.5em; margin: 0; color: var(--moon); font-size: 14px; }
+.lb__nav { display: flex; gap: 10px; margin-top: auto; }
+.lb__nav .loy__send { flex: 1; margin: 0; }
+.lb__nav [hidden] { display: none; }
+.lb__close:focus-visible, .lb__bases button:focus-visible, .lb__items button:focus-visible, .lb__row button:focus-visible, .lb__pair button:focus-visible, .lb__back:focus-visible, .lb__swatches button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- การ์ดคำอธิษฐาน (กล่องสีแสงจันทร์ตามไฟล์ร่าง) ---------- */
+.loy__card--moon { width: min(280px, calc(100% - 20px)); padding: 14px 16px; border: 0; border-radius: 12px; background: var(--moon); color: var(--ink-dark); box-shadow: 0 18px 50px -24px rgba(0, 0, 0, .7); }
+.loy__card--moon::after { content: ""; position: absolute; left: calc(50% + var(--ax, 0px)); bottom: -6px; width: 12px; height: 12px; background: var(--moon); transform: translateX(-50%) rotate(45deg); }
+.loy__card--moon .loy__card-wish { margin: 0 !important; font-family: var(--f-display, serif); font-size: 17px; line-height: 1.6; }
+.loy__card--moon .loy__card-name { margin-top: 4px !important; color: #5f5852; font-weight: 400; font-size: 13px; }
+.loy__card--moon .loy__card-time { color: #5f5852; }
+.loy__card--moon .loy__card-mine { background: var(--ink-dark); color: var(--moon); }
+.loy__card--moon .loy__btn { background: rgba(35, 30, 32, .06); border-color: rgba(35, 30, 32, .2); color: var(--ink-dark); }
+.loy__card--moon .loy__btn--ghost { background: transparent; color: #5f5852; }
+.loy__card--moon .loy__btn--warn { background: #9b182a; border-color: #9b182a; color: #fff; }
+.loy__card--moon .loy__card-confirm p { color: var(--ink-dark); }
+.loy__card--moon .loy__btn:focus-visible { outline: 2px solid #9b182a; outline-offset: 2px; }
+
+/* ระหว่างแต่งกระทง: ปุ่มลอยของเว็บ (กลับขึ้นบน / แจ้งปัญหา) ไม่บังแผง */
+html.loy-building .lvc-top, html.loy-building .lvc-kit, html.loy-building .lvc-kit-pill { visibility: hidden !important; }
+@media (max-width: 700px) {
+  .loy3d { height: min(calc(100svh - 64px), 860px); min-height: 560px; scroll-margin-top: 64px; }
+  .loy__head .loy__total { text-align: left; }
+  .loy3d__panel { max-height: 54%; gap: 10px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); }
+  .lb__bases button small { display: none; }
+  .lb__items { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+  .lb__items button { padding: 6px 2px; font-size: 11px; gap: 2px; }
+  .lb__items svg { width: 24px; height: 24px; }
+  .lb__hint { margin: 0 0 6px; font-size: 13px; }
+  .lb__sel { margin-top: 8px; padding: 10px; gap: 8px; }
+  .lb__sel .lb__row:last-child .lb__lbl { display: none; }
+  .lb__lbl { min-width: 0; }
+  .lb__tools { margin-top: 8px; }
+  .lb__row button, .lb__pair button, .lb__back { padding: 6px 10px; font-size: 14px; }
+  .lb__h { font-size: 19px; }
+  .lb__steps li { padding-right: 8px; }
+}
+.loy3d__debug { position: absolute; z-index: 9; left: 8px; bottom: 8px; margin: 0; padding: 6px 10px; border-radius: 8px; background: rgba(0, 0, 0, .7); color: #9effa8; font: 12px/1.5 ui-monospace, Menlo, monospace; pointer-events: none; white-space: nowrap; }

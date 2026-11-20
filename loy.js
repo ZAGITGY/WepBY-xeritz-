@@ -9,7 +9,7 @@
  * - ผิวน้ำวาดด้วย canvas 2D ~30 ภาพ/วิ ผ่าน gsap.ticker (ตัวเดียวกับ window.__LVC) · นอกจอ/สลับแท็บ = หยุดวาด
  * - Reduced Motion: กระทงอยู่นิ่ง ผิวน้ำวาดครั้งเดียว ไม่มีการเคลื่อนไหว
  * ============================================================================ */
-import * as db from "./loy-db.js?v=2026-11-20.1";
+import * as db from "./loy-db.js?v=2026-11-21.1";
 import { tidy, problem, MESSAGES } from "./loy-filter.js?v=2026-11-20.1";
 
 const root = document.documentElement;
@@ -17,7 +17,7 @@ const L = window.__LVC || {};
 const gsap = L.gsap || null;
 const ST = L.ScrollTrigger || null;
 const reduceQ = matchMedia("(prefers-reduced-motion: reduce)");
-const MAX = 40, RATE_MS = 30000, POLL_MS = 45000;
+const MAX = 40, PAGE = 100, RATE_MS = 30000, POLL_MS = 45000;
 const KEY = { last: "lvc.loy.last", mine: "lvc.loy.mine", local: "lvc.loy.local", hidden: "lvc.loy.hidden" };
 const STYLES = ["ใบตอง", "ดอกบัว", "ขนมปัง", "ดาวเรือง"];
 
@@ -224,7 +224,7 @@ class River {
     el.tabIndex = -1;
     if (k.decor) { el.setAttribute("aria-hidden", "true"); el.disabled = true; }
     else el.setAttribute("aria-label", `กระทง${k.mine ? "ของคุณ" : ""} ${k.name || "ไม่ระบุชื่อ"}: ${k.wish}`);
-    el.innerHTML = `<span class="loy-boat__body" style="--s:${(0.66 + 0.5 * (opts.lane != null ? opts.lane : 0.5)).toFixed(3)}">${art(k.style | 0)}</span>`;
+    el.innerHTML = `<span class="loy-boat__body" style="--s:${(0.66 + 0.5 * (opts.lane != null ? opts.lane : 0.5)).toFixed(3)}">${art(k.style != null ? k.style | 0 : k.base | 0)}</span>`;
     const b = { k, el, body: el.firstChild, lane: opts.lane != null ? opts.lane : Math.random(), x: opts.x != null ? opts.x : Math.random() * this.w,
       dir: 1, f: 1.1 + Math.random() * 0.8, p: Math.random() * 6.28, held: false };
     this.lane(b);
@@ -463,110 +463,166 @@ function ecoSection() {
 }
 
 /* ======================================================================
- *  ข้อมูล: ออนไลน์ (Firestore) / ในเครื่อง
+ *  ข้อมูล: ออนไลน์ (Firestore) / ในเครื่อง — ใช้ร่วมกันทั้งแม่น้ำ 3D และแม่น้ำ 2D
+ *  เหตุการณ์: add {k, how: load|arrive|own} · remove {id} · total n · mode · status {text, ms} · decor / undecor
  * ====================================================================== */
-function init() {
-  if (!root.hasAttribute("data-loy") || document.getElementById("loy")) return;
-  const main = document.querySelector("main");
-  if (!main) return;
-  const restoreHero = festivalHero();
-  const sec = build();
-  // ต่อจากฉาก 8 กลุ่มสาขา ก่อน "บริการที่ใช้บ่อย" (ไม่แทรกก่อนฉากที่ตรึงไว้ ตำแหน่งฉากเดิมจึงไม่เปลี่ยน)
-  const services = main.querySelector(":scope > #services");
-  if (services) services.before(sec); else main.append(sec);
-  const eco = ecoSection();
-  sec.after(eco);
-
-  const $ = (s) => sec.querySelector(s);
-  const form = $(".loy__form"), nameEl = $("#loy-name"), wishEl = $("#loy-wish"), errEl = $("#loy-error");
-  const sendBtn = $(".loy__send"), sendLabel = $(".loy__send-label"), statusEl = $(".loy__status"), totalEl = $(".loy__total b");
-  const river = new River($(".loy__river"));
-  const mine = new Set(store.get(KEY.mine, []));
-  const hidden = new Set(store.get(KEY.hidden, []));
-  let mode = "loading", total = 0, lastErr = 0, newest = 0;   // newest = เวลาเซิร์ฟเวอร์ของใบล่าสุดที่เห็นแล้ว
-
-  /* ---------- ตัวเลขรวม ---------- */
-  const shown = { n: 0 };
-  function setTotal(n) {
-    total = Math.max(0, n);
-    if (gsap && !reduceQ.matches) gsap.to(shown, { n: total, duration: 1.2, ease: "power2.out", overwrite: true, onUpdate: () => { totalEl.textContent = fmt(Math.round(shown.n)); } });
-    else totalEl.textContent = fmt(total);
-    $(".loy__total span").textContent = mode === "online" ? "ใบที่ลอยอยู่บนแม่น้ำ" : "ใบในเครื่องนี้";
-  }
-  function status(text, ms) {
-    statusEl.textContent = text || ""; statusEl.hidden = !text;
-    if (ms) setTimeout(() => { if (statusEl.textContent === text && mode === "online") status(""); }, ms);
-  }
-
+function createData() {
+  const T = new EventTarget(), emit = (t, d) => T.dispatchEvent(new CustomEvent(t, { detail: d }));
+  const mine = new Set(store.get(KEY.mine, [])), hidden = new Set(store.get(KEY.hidden, []));
+  const list = new Map();
+  let mode = "loading", total = 0, lastErr = 0, newest = 0, oldest = Infinity, exhausted = false;   // newest/oldest = เวลาเซิร์ฟเวอร์ของใบใหม่สุด/เก่าสุดที่โหลดแล้ว
+  const D = {
+    get mode() { return mode; }, get total() { return total; }, list, mine,
+    on(type, fn) { T.addEventListener(type, (e) => fn(e.detail)); },
+    status(text, ms) { emit("status", { text, ms }); },
+  };
   const tag = (k) => Object.assign(k, { mine: !!k.mine || mine.has(k.id) });
-  function fill(list) {
-    for (const k of list) {
-      if (!k.local && k.at > newest) newest = k.at;
-      if (!hidden.has(k.id) && !river.boats.has(k.id)) river.add(tag(k), { arrive: mode === "online" && river.boats.size > 0 });
-    }
+  function put(k, how) {
+    if (!k.local && k.at > newest) newest = k.at;
+    if (!k.local && k.at < oldest) oldest = k.at;
+    if (hidden.has(k.id) || list.has(k.id)) return;
+    list.set(k.id, tag(k));
+    emit("add", { k, how });
   }
+  function setTotal(n) { total = Math.max(0, n); emit("total", total); }
 
-  /* ---------- ในเครื่อง ---------- */
   function goLocal(why) {
     const was = mode;
-    mode = "local";
-    status(why === "config"
+    mode = "local"; emit("mode", mode);
+    D.status(why === "config"
       ? "แม่น้ำรวมยังไม่เปิดให้ใช้งาน กระทงของคุณจะลอยอยู่ในเครื่องนี้ก่อน"
       : "ตอนนี้เชื่อมต่อแม่น้ำรวมไม่ได้ กระทงของคุณจะลอยอยู่ในเครื่องนี้ก่อน แล้วระบบจะลองเชื่อมต่อใหม่เอง");
     if (was === "online") return;
     const local = store.get(KEY.local, []);
-    fill(local.map((k) => Object.assign(k, { local: true, mine: true })));
-    // ให้ลำน้ำไม่ว่าง: กระทงประดับ (ไม่มีข้อความ กดไม่ได้)
-    for (let i = 0; i < 7; i++) river.add({ id: "decor" + i, decor: true, style: i % 4 }, { lane: (i * 0.37) % 1, x: ((i * 0.29 + 0.05) % 1) * river.w });
+    for (const k of local) put(Object.assign(k, { local: true, mine: true }), "load");
+    emit("decor");                                   // ให้ลำน้ำไม่ว่าง: กระทงประดับ (ไม่มีข้อความ กดไม่ได้)
     setTotal(local.length);
   }
-
-  /* ---------- ออนไลน์ ---------- */
-  async function load() {
+  D.load = async () => {
     if (!db.configured) { goLocal("config"); return; }
     try {
-      const [late, rnd, n] = await Promise.all([db.latest(20), db.random(26), db.count()]);
-      if (mode === "local") for (const id of [...river.boats.keys()]) if (/^decor/.test(id)) river.remove(id);   // กระทงในเครื่องยังลอยอยู่ต่อ
-      mode = "online";
-      status("");
-      const seen = new Set();
-      fill(late.concat(rnd).filter((k) => !seen.has(k.id) && seen.add(k.id)).slice(0, MAX));
+      // หน้าแรก 100 ใบล่าสุด · ฉาก 3D ขอหน้าถัดไปเองเมื่อแสดงครบรอบ (D.more) · แม่น้ำ 2D ใช้ไม่เกิน 40 ใบ
+      const [late, n] = await Promise.all([db.latest(PAGE), db.count()]);
+      if (mode === "local") emit("undecor");          // กระทงในเครื่องยังลอยอยู่ต่อ
+      mode = "online"; emit("mode", mode);
+      D.status("");
+      exhausted = late.length < PAGE;
+      for (const k of late) put(k, "load");
       setTotal(n);
     } catch (e) {
       if (window.console) console.warn("[loy] ใช้แม่น้ำในเครื่องแทน:", e.code || "", e.message);
       lastErr = Date.now();
-      if (mode !== "local") { river.clear(); goLocal("error"); }
+      if (mode !== "local") goLocal("error");
     }
-  }
+  };
   // ทุก 45 วิ เฉพาะตอนเห็นแม่น้ำ: ใบใหม่ของคนอื่น + ตัวเลขรวม · โหมดในเครื่อง = ลองเชื่อมต่อใหม่
-  async function poll() {
-    if (!river.visible || document.hidden || !db.configured) return;
-    if (mode === "local") { if (Date.now() - lastErr > 50000) load(); return; }
+  D.poll = async (visible) => {
+    if (!visible || document.hidden || !db.configured) return;
+    if (mode === "local") { if (Date.now() - lastErr > 50000) D.load(); return; }
     try {
       const [late, n] = await Promise.all([newest ? db.since(newest, 8) : db.latest(8), db.count()]);
+      const fresh = late.filter((k) => !list.has(k.id) && !hidden.has(k.id) && !mine.has(k.id));
+      for (const k of fresh.reverse()) put(k, "arrive");
       for (const k of late) if (k.at > newest) newest = k.at;
-      const fresh = late.filter((k) => !river.boats.has(k.id) && !hidden.has(k.id) && !mine.has(k.id));
-      for (const k of fresh.reverse()) river.add(tag(k), { arrive: true, x: -40, lane: Math.random() });
       if (fresh.length) window.dispatchEvent(new CustomEvent("lvc:krathong", { detail: { own: false, n: fresh.length } }));
       if (n !== total) setTotal(n);
     } catch (e) { /* ครั้งหน้าลองใหม่ */ }
-  }
-  setInterval(poll, POLL_MS);
-
-  /* ---------- แจ้งซ่อน ---------- */
-  river.onReport = async (b) => {
-    const id = b.k.id;
+  };
+  /** หน้าถัดไป (เก่ากว่าที่โหลดแล้ว) → คืนจำนวนใบที่ได้เพิ่ม */
+  D.more = async () => {
+    if (mode !== "online" || exhausted || !isFinite(oldest)) return 0;
+    try {
+      const got = await db.page(oldest, PAGE);
+      if (got.length < PAGE) exhausted = true;
+      let n = 0;
+      for (const k of got) if (!list.has(k.id) && !hidden.has(k.id)) { put(k, "page"); n++; }
+      if (list.size > 2000) for (const id of [...list.keys()].slice(0, list.size - 2000)) list.delete(id);
+      return n;
+    } catch (e) { return 0; }
+  };
+  /* ---------- แจ้งซ่อน: ซ่อนในเครื่องทันที + ส่งให้ผู้ดูแลตรวจ ---------- */
+  D.report = async (id) => {
     hidden.add(id);
     store.set(KEY.hidden, [...hidden].slice(-300));
-    river.remove(id, true);
+    list.delete(id);
+    emit("remove", { id });
     let ok = mode === "online";
     if (ok) { try { await db.report(id); } catch (e) { ok = false; } }
-    status(ok ? "ซ่อนกระทงใบนั้นแล้ว และแจ้งผู้ดูแลให้ตรวจสอบ" : "ซ่อนกระทงใบนั้นในเครื่องนี้แล้ว", 6000);
-    const first = [...river.boats.values()].find((x) => !x.k.decor);
-    if (first) first.el.focus({ preventScroll: true });
+    D.status(ok ? "ซ่อนกระทงใบนั้นแล้ว และแจ้งผู้ดูแลให้ตรวจสอบ" : "ซ่อนกระทงใบนั้นในเครื่องนี้แล้ว", 6000);
   };
+  /* ---------- ตรวจข้อความ / จำกัดเวลา ---------- */
+  D.waitLeft = () => Math.max(0, RATE_MS - (Date.now() - (store.get(KEY.last, 0) || 0)));
+  D.check = (nameRaw, wishRaw) => {
+    const name = tidy(nameRaw), wish = tidy(wishRaw);
+    if (!wish) return { field: "wish", msg: "เขียนคำอธิษฐานก่อนนะ" };
+    if (wish.length > 80) return { field: "wish", msg: "คำอธิษฐานยาวเกิน 80 ตัวอักษร" };
+    if (name.length > 20) return { field: "name", msg: "ชื่อยาวเกิน 20 ตัวอักษร" };
+    if (problem(name)) return { field: "name", msg: MESSAGES[problem(name)] };
+    if (problem(wish)) return { field: "wish", msg: MESSAGES[problem(wish)] };
+    if (D.waitLeft()) return { field: null, msg: `ลอยได้ 1 ใบทุก 30 วินาที อีก ${Math.ceil(D.waitLeft() / 1000)} วินาทีนะ` };
+    return null;
+  };
+  /** ลอยกระทง → คืน { k } หรือ { error } (ข้อความที่ระบบไม่รับ) · Firebase ล่ม = ลอยในเครื่องแทน */
+  D.add = async ({ name, wish, base = 0, parts = [] }) => {
+    name = tidy(name); wish = tidy(wish);
+    let k = null;
+    if (mode === "online") {
+      try { k = await db.add({ name, wish, base, parts }); }
+      catch (err) {
+        if (err.status === 403 || err.status === 400) return { error: "ระบบไม่รับข้อความนี้ ลองแก้ข้อความแล้วลอยอีกครั้ง" };
+        lastErr = Date.now();
+        goLocal("error");
+        D.status("ส่งกระทงขึ้นแม่น้ำรวมไม่สำเร็จ กระทงของคุณจึงลอยอยู่ในเครื่องนี้แทน (ระบบจะลองเชื่อมต่อใหม่เอง)");
+      }
+    }
+    if (!k) {
+      k = { id: "local-" + db.newId(), name, wish, base, parts, at: Date.now(), local: true };
+      store.set(KEY.local, store.get(KEY.local, []).concat(k).slice(-20));
+    } else {
+      mine.add(k.id);
+      store.set(KEY.mine, [...mine].slice(-50));
+    }
+    k.mine = true;
+    store.set(KEY.last, Date.now());
+    list.set(k.id, k);
+    setTotal(total + 1);
+    if (mode === "online") D.status("กระทงของคุณลอยบนแม่น้ำของเราแล้ว ทุกคนเห็นได้เลย", 8000);
+    emit("add", { k, how: "own" });
+    window.dispatchEvent(new CustomEvent("lvc:krathong", { detail: { own: true } }));
+    return { k };
+  };
+  return D;
+}
 
-  /* ---------- ฟอร์ม ---------- */
+/* ======================================================================
+ *  แม่น้ำ 2D + ฟอร์ม (ใช้เมื่อไม่มี WebGL2 หรือเปิด Reduced Motion)
+ * ====================================================================== */
+function mount2D(sec, data) {
+  const $ = (s) => sec.querySelector(s);
+  const form = $(".loy__form"), nameEl = $("#loy-name"), wishEl = $("#loy-wish"), errEl = $("#loy-error");
+  const sendBtn = $(".loy__send"), sendLabel = $(".loy__send-label"), statusEl = $(".loy__status"), totalEl = $(".loy__total b");
+  const river = new River($(".loy__river"));
+  bindStatus(statusEl, data);
+  bindTotal(totalEl, $(".loy__total span"), data);
+  data.on("add", ({ k, how }) => {
+    if (how === "page") return;                     // แม่น้ำ 2D ไม่โหลดหน้าเพิ่ม
+    if (how === "own") {
+      const r = river.el.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > innerHeight) river.el.scrollIntoView({ behavior: reduceQ.matches ? "auto" : "smooth", block: "center" });
+      river.add(k, { launch: true, lane: 0.72, x: Math.max(60, river.w * 0.14) });
+    } else if (how === "arrive") river.add(k, { arrive: true, x: -40, lane: Math.random() });
+    else river.add(k, { arrive: data.mode === "online" && river.boats.size > 0 });
+  });
+  data.on("remove", ({ id }) => {
+    river.remove(id, true);
+    const first = [...river.boats.values()].find((x) => !x.k.decor);
+    if (first && sec.contains(document.activeElement)) first.el.focus({ preventScroll: true });
+  });
+  data.on("decor", () => { for (let i = 0; i < 7; i++) river.add({ id: "decor" + i, decor: true, style: i % 4 }, { lane: (i * 0.37) % 1, x: ((i * 0.29 + 0.05) % 1) * river.w }); });
+  data.on("undecor", () => { for (const id of [...river.boats.keys()]) if (/^decor/.test(id)) river.remove(id); });
+  river.onReport = (b) => data.report(b.k.id);
+  setInterval(() => data.poll(river.visible), POLL_MS);
+
   const counter = (el, out, max) => { const f = () => { out.textContent = `${el.value.length}/${max}`; }; el.addEventListener("input", f); f(); };
   counter(nameEl, $("#loy-name-n"), 20);
   counter(wishEl, $("#loy-wish-n"), 80);
@@ -577,73 +633,162 @@ function init() {
   }
   [nameEl, wishEl].forEach((el) => el.addEventListener("input", () => { if (errEl.textContent) { errEl.textContent = ""; el.removeAttribute("aria-invalid"); } }));
   wishEl.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit ? form.requestSubmit() : sendBtn.click(); } });
-
-  // นับถอยหลังบนปุ่มระหว่างรอ 30 วินาที
-  let waitT = 0;
-  function waitLeft() { return Math.max(0, RATE_MS - (Date.now() - (store.get(KEY.last, 0) || 0))); }
-  function showWait() {
-    clearTimeout(waitT);
-    const left = waitLeft();
-    if (!left) { sendBtn.disabled = false; sendLabel.textContent = "ลอยกระทง"; return; }
-    sendBtn.disabled = true;
-    sendLabel.textContent = `ลอยใบต่อไปได้ใน ${Math.ceil(left / 1000)} วินาที`;
-    waitT = setTimeout(showWait, 1000 - (left % 1000) + 20);
-  }
-  showWait();
+  const showWait = waitButton(sendBtn, sendLabel, "ลอยกระทง", data);
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (sendBtn.getAttribute("aria-busy") === "true") return;
-    const name = tidy(nameEl.value), wish = tidy(wishEl.value);
-    const style = Number(form.elements.kt.value) | 0;   // ชื่อ "kt" ไม่ใช่ "style" (form.style จะกลายเป็นปุ่มเลือกแทน CSS)
-    if (!wish) return fail("เขียนคำอธิษฐานก่อนนะ", wishEl);
-    if (wish.length > 80) return fail("คำอธิษฐานยาวเกิน 80 ตัวอักษร", wishEl);
-    if (name.length > 20) return fail("ชื่อยาวเกิน 20 ตัวอักษร", nameEl);
-    const bad = problem(name) ? ["name", problem(name)] : problem(wish) ? ["wish", problem(wish)] : null;
-    if (bad) return fail(MESSAGES[bad[1]], bad[0] === "name" ? nameEl : wishEl);
-    if (waitLeft()) { showWait(); return fail(`ลอยได้ 1 ใบทุก 30 วินาที อีก ${Math.ceil(waitLeft() / 1000)} วินาทีนะ`, null); }
-
+    const bad = data.check(nameEl.value, wishEl.value);
+    if (bad) { if (!bad.field) showWait(); return fail(bad.msg, bad.field === "name" ? nameEl : bad.field === "wish" ? wishEl : null); }
     errEl.textContent = "";
     sendBtn.setAttribute("aria-busy", "true"); sendBtn.disabled = true; sendLabel.textContent = "กำลังปล่อยกระทง…";
-    let k = null;
-    if (mode === "online") {
-      try { k = await db.add({ name, wish, style }); }
-      catch (err) {
-        if (err.status === 403 || err.status === 400) {
-          sendBtn.removeAttribute("aria-busy"); showWait();
-          return fail("ระบบไม่รับข้อความนี้ ลองแก้ข้อความแล้วลอยอีกครั้ง", wishEl);
-        }
-        lastErr = Date.now();
-        goLocal("error");
-        status("ส่งกระทงขึ้นแม่น้ำรวมไม่สำเร็จ กระทงของคุณจึงลอยอยู่ในเครื่องนี้แทน (ระบบจะลองเชื่อมต่อใหม่เอง)");
-      }
-    }
-    if (!k) {
-      k = { id: "local-" + db.newId(), name, wish, style, at: Date.now(), local: true };
-      store.set(KEY.local, store.get(KEY.local, []).concat(k).slice(-20));
-    } else {
-      mine.add(k.id);
-      store.set(KEY.mine, [...mine].slice(-50));
-    }
-    k.mine = true;
-    store.set(KEY.last, Date.now());
+    const base = [0, 1, 2, 0][Number(form.elements.kt.value) | 0];   // ชื่อ "kt" ไม่ใช่ "style" (form.style จะกลายเป็นปุ่มเลือกแทน CSS)
+    const res = await data.add({ name: nameEl.value, wish: wishEl.value, base });
     sendBtn.removeAttribute("aria-busy");
-    wishEl.value = ""; wishEl.dispatchEvent(new Event("input"));
     showWait();
-
-    // ปล่อยลงน้ำทางซ้าย แล้วเลื่อนให้เห็นแม่น้ำ
-    const riverEl = river.el, r = riverEl.getBoundingClientRect();
-    if (r.top < 0 || r.bottom > innerHeight) riverEl.scrollIntoView({ behavior: reduceQ.matches ? "auto" : "smooth", block: "center" });
-    river.add(k, { launch: true, lane: 0.72, x: Math.max(60, river.w * 0.14) });
-    setTotal(total + 1);
-    if (mode === "online") status("กระทงของคุณลอยบนแม่น้ำของเราแล้ว ทุกคนเห็นได้เลย", 8000);
-    else if (!statusEl.textContent) status("กระทงของคุณลอยอยู่ในเครื่องนี้แล้ว");
-    window.dispatchEvent(new CustomEvent("lvc:krathong", { detail: { own: true } }));
+    if (res.error) return fail(res.error, wishEl);
+    wishEl.value = ""; wishEl.dispatchEvent(new Event("input"));
+    if (data.mode !== "online" && statusEl.hidden) data.status("กระทงของคุณลอยอยู่ในเครื่องนี้แล้ว");
   });
+  return { visible: () => river.visible };
+}
+
+/* ---------- ส่วนที่ใช้ร่วมกันทั้ง 2D/3D ---------- */
+function bindStatus(el, data) {
+  data.on("status", ({ text, ms }) => {
+    el.textContent = text || ""; el.hidden = !text;
+    if (ms) setTimeout(() => { if (el.textContent === text && data.mode === "online") { el.textContent = ""; el.hidden = true; } }, ms);
+  });
+}
+function bindTotal(numEl, labelEl, data) {
+  const shown = { n: 0 };
+  data.on("total", (n) => {
+    if (gsap && !reduceQ.matches) gsap.to(shown, { n, duration: 1.2, ease: "power2.out", overwrite: true, onUpdate: () => { numEl.textContent = fmt(Math.round(shown.n)); } });
+    else numEl.textContent = fmt(n);
+    labelEl.textContent = data.mode === "online" ? "ใบที่ลอยแล้ว" : "ใบในเครื่องนี้";
+  });
+}
+// ปุ่มลอยกระทง: นับถอยหลังระหว่างรอ 30 วินาที
+function waitButton(btn, label, text, data) {
+  let t = 0;
+  const show = () => {
+    clearTimeout(t);
+    const left = data.waitLeft();
+    if (!left) { btn.disabled = false; label.textContent = text; return; }
+    btn.disabled = true;
+    label.textContent = `ลอยใบต่อไปได้ใน ${Math.ceil(left / 1000)} วินาที`;
+    t = setTimeout(show, 1000 - (left % 1000) + 20);
+  };
+  show();
+  return show;
+}
+export const shared = { bindStatus, bindTotal, waitButton, ago, fmt, reduceQ, POLL_MS };
+
+/* ======================================================================
+ *  แม่น้ำ 3D (loy3d-ui.js โหลดเมื่อเลื่อนใกล้ section เท่านั้น)
+ * ====================================================================== */
+function webgl2() {
+  try { return !!document.createElement("canvas").getContext("webgl2"); } catch (e) { return false; }
+}
+function build3D() {
+  const sec = document.createElement("section");
+  sec.id = "loy";
+  sec.className = "loy loy--3d";
+  sec.setAttribute("aria-labelledby", "loy-title");
+  sec.innerHTML = `
+  <div class="wrap loy__head">
+    <div>
+      <p class="loy__eyebrow"><i aria-hidden="true"></i>ลอยกระทงออนไลน์ · แม่น้ำของเรา</p>
+      <h2 id="loy-title" class="loy__title">เลือกกระทง แล้วฝากคำอธิษฐาน</h2>
+      <p class="loy__lead">กระทงในเว็บไม่มีขยะลงแม่น้ำจริง ลอยได้ทั้งคืนโดยไม่ต้องห่วงสายน้ำ</p>
+    </div>
+    <p class="loy__total" aria-live="polite"><b>–</b> <span>ใบที่ลอยแล้ว</span></p>
+  </div>
+  <div class="loy3d" id="loy-river" role="region" aria-label="แม่น้ำของเรา: กระทงที่ลอยอยู่ตอนนี้">
+    <div class="loy3d__poster" aria-hidden="true"></div>
+    <canvas class="loy3d__gl" aria-hidden="true" data-pet-avoid="off"></canvas>
+    <div class="loy3d__boats" role="group" aria-label="กระทงในแม่น้ำ" aria-describedby="loy-river-help"></div>
+    <p class="loy__status" role="status" hidden></p>
+    <div class="loy3d__cta">
+      <p class="loy__help" id="loy-river-help">แตะกระทงเพื่ออ่านคำอธิษฐาน · แตะผิวน้ำแล้วจะเห็นระลอกน้ำ<span class="loy__help-keys"> · กด Tab แล้วใช้ลูกศรซ้าย/ขวาเลือกกระทง</span></p>
+      <button class="loy__send loy3d__start" type="button" disabled><span class="loy__send-label">กำลังเตรียมแม่น้ำ…</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></button>
+    </div>
+    <div class="loy3d__panel" hidden></div>
+    <div class="loy__card loy__card--moon" role="dialog" aria-modal="false" aria-labelledby="loy-card-name" hidden>
+      <p class="loy__card-mine" hidden>กระทงของคุณ</p>
+      <p class="loy__card-wish"></p>
+      <p class="loy__card-name" id="loy-card-name"></p>
+      <p class="loy__card-time"></p>
+      <div class="loy__card-confirm" hidden>
+        <p>ซ่อนกระทงใบนี้จากหน้าจอของคุณ และแจ้งผู้ดูแลให้ตรวจสอบ?</p>
+        <div class="loy__card-actions">
+          <button type="button" class="loy__btn loy__btn--warn" data-act="report-yes">ซ่อนและแจ้ง</button>
+          <button type="button" class="loy__btn" data-act="report-no">ยกเลิก</button>
+        </div>
+      </div>
+      <div class="loy__card-actions loy__card-main">
+        <button type="button" class="loy__btn loy__btn--ghost" data-act="report">แจ้งซ่อนกระทง</button>
+        <button type="button" class="loy__btn" data-act="close">ปิด</button>
+      </div>
+    </div>
+  </div>`;
+  return sec;
+}
+function mount3D(sec, data, fallback) {
+  const stage = sec.querySelector(".loy3d");
+  let ui = null, started = false;
+  bindStatus(sec.querySelector(".loy__status"), data);
+  bindTotal(sec.querySelector(".loy__total b"), sec.querySelector(".loy__total span"), data);
+  // ระหว่างรอโหลดฉาก เก็บเหตุการณ์ไว้ก่อน
+  const queue = [];
+  for (const t of ["add", "remove", "decor", "undecor"]) data.on(t, (d) => { if (ui) ui.event(t, d); else queue.push([t, d]); });
+  const start = () => {
+    if (started) return;
+    started = true;
+    import("./loy3d-ui.js?v=2026-11-21.1").then((m) => {
+      ui = m.mount(stage, data, shared);
+      if (!ui) throw new Error("WebGL");
+      for (const [t, d] of queue.splice(0)) ui.event(t, d);
+      ui.onLost = () => fallback();
+    }).catch((e) => { if (window.console) console.warn("[loy] ใช้แม่น้ำ 2D แทน:", e.message); fallback(); });
+  };
+  // โหลดฉาก 3D เมื่อเลื่อนเข้าใกล้ (ไม่แย่งโหลดกับหน้าแรก)
+  new IntersectionObserver((en, io) => { if (en[0].isIntersecting) { io.disconnect(); start(); } }, { rootMargin: "900px 0px" }).observe(stage);
+  setInterval(() => data.poll(!!(ui && ui.visible())), POLL_MS);
+  return { dispose: () => ui && ui.dispose() };
+}
+
+function init() {
+  if (!root.hasAttribute("data-loy") || document.getElementById("loy")) return;
+  const main = document.querySelector("main");
+  if (!main) return;
+  const restoreHero = festivalHero();
+  const data = createData();
+  // 3D เมื่อมี WebGL2 และไม่ได้เปิด Reduced Motion · ?loy2d บังคับแบบ 2D (ใช้ทดสอบ)
+  const use3D = webgl2() && !reduceQ.matches && !/[?&]loy2d(=|&|$)/.test(location.search);
+  let sec = use3D ? build3D() : build();
+  // ต่อจากฉาก 8 กลุ่มสาขา ก่อน "บริการที่ใช้บ่อย" (ไม่แทรกก่อนฉากที่ตรึงไว้ ตำแหน่งฉากเดิมจึงไม่เปลี่ยน)
+  const services = main.querySelector(":scope > #services");
+  if (services) services.before(sec); else main.append(sec);
+  const eco = ecoSection();
+  sec.after(eco);
+  // ฉาก 3D ใช้ไม่ได้ (โหลดไม่สำเร็จ / WebGL หลุด) → สลับเป็นแบบ 2D ที่จุดเดิม พร้อมกระทงชุดเดิม
+  const to2D = () => {
+    if (!sec.classList.contains("loy--3d") || !sec.isConnected) return;
+    const flat = build();
+    sec.replaceWith(flat);
+    sec = flat;
+    mount2D(sec, data);
+    data.list.clear();
+    data.load();
+    if (ST) ST.refresh();
+  };
+  if (use3D) mount3D(sec, data, to2D); else mount2D(sec, data);
 
   /* ---------- เปิดตัว section ตอนเลื่อนถึง (GSAP + ScrollTrigger ตัวเดียวกับหน้าแรก) ---------- */
   if (gsap && ST && !reduceQ.matches) {
-    const parts = sec.querySelectorAll(".loy__eyebrow, .loy__title, .loy__lead, .loy__rules, .loy__form, .loy__river-head");
+    const parts = sec.querySelectorAll(".loy__head > *, .loy__eyebrow:not(.loy3d .loy__eyebrow), .loy__title, .loy__lead, .loy__rules, .loy__form, .loy__river-head");
     gsap.set(eco.querySelectorAll(".loy__eyebrow, .loy-eco__title, li"), { autoAlpha: 0, y: 24 });
     ST.batch(eco.querySelectorAll(".loy__eyebrow, .loy-eco__title, li"), { start: "top 88%", once: true,
       onEnter: (b) => gsap.to(b, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08, ease: "power3.out", overwrite: true, clearProps: "opacity,visibility,transform" }) });
@@ -658,10 +803,10 @@ function init() {
 
   // หมดเทศกาลระหว่างเปิดหน้า (theme.js) → เอา section ออก
   addEventListener("lvc:themechange", (e) => {
-    if (e.detail && e.detail.loy === false && sec.isConnected) { river.visible = false; river.sync(); sec.remove(); eco.remove(); restoreHero(); if (ST) ST.refresh(); }
+    if (e.detail && e.detail.loy === false && sec.isConnected) { sec.remove(); eco.remove(); restoreHero(); if (ST) ST.refresh(); }
   });
 
-  load();
+  data.load();
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });

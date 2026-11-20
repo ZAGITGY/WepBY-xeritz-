@@ -63,6 +63,11 @@ export const since = (ms, n) => query({
   where: { compositeFilter: { op: "AND", filters: [eq("hidden", false), { fieldFilter: { field: { fieldPath: "at" }, op: "GREATER_THAN", value: { timestampValue: new Date(ms).toISOString() } } }] } },
   orderBy: [{ field: { fieldPath: "at" }, direction: "DESCENDING" }], limit: n,
 });
+/** หน้าถัดไป: กระทงที่เก่ากว่าเวลา ms เรียงใหม่ → เก่า (ฉาก 3D ขอเพิ่มเมื่อแสดงครบรอบแล้ว) */
+export const page = (beforeMs, n) => query({
+  where: { compositeFilter: { op: "AND", filters: [eq("hidden", false), { fieldFilter: { field: { fieldPath: "at" }, op: "LESS_THAN", value: { timestampValue: new Date(beforeMs).toISOString() } } }] } },
+  orderBy: [{ field: { fieldPath: "at" }, direction: "DESCENDING" }], limit: n,
+});
 /** สุ่มกระทง n ใบ: เริ่มจากจุดสุ่มบนแกน rnd วนกลับต้นแกนถ้าได้ไม่ครบ (ใช้ดัชนี hidden + rnd) */
 export async function random(n) {
   const from = (r, k) => query({
@@ -86,14 +91,14 @@ const commit = (writes) => call(":commit", { writes });
 const serverTime = (field) => ({ fieldPath: field, setToServerValue: "REQUEST_TIME" });
 
 /** ลอยกระทงใบใหม่ → คืนข้อมูลกระทง (เวลาเป็นเวลาในเครื่องโดยประมาณ) */
-export async function add({ name, wish, style }) {
+export async function add({ name, wish, base = 0, parts = [] }) {
   const id = newId(), rnd = Math.random();
   await commit([{
-    update: { name: docName(KRATHONGS, id), fields: { name: enc(name), wish: enc(wish), style: enc(style), rnd: { doubleValue: rnd }, hidden: enc(false) } },
+    update: { name: docName(KRATHONGS, id), fields: { name: enc(name), wish: enc(wish), style: enc(base | 0), rnd: { doubleValue: rnd }, hidden: enc(false) } },
     updateTransforms: [serverTime("at")],
     currentDocument: { exists: false },
   }]);
-  return { id, name, wish, style, rnd, hidden: false, at: Date.now() };
+  return { id, name, wish, base, parts, rnd, hidden: false, at: Date.now() };
 }
 
 /** แจ้งซ่อน: นับจำนวนครั้งใน reports/{id} ให้แอดมินตรวจ */
