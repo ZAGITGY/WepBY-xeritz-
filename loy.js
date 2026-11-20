@@ -88,7 +88,7 @@ function build() {
         <h3 class="loy__title loy__river-title" id="loy-river-title">กระทงที่ลอยอยู่ตอนนี้</h3>
         <p class="loy__lead" id="loy-river-help">แตะกระทงเพื่ออ่านคำอธิษฐาน ลากนิ้วบนผิวน้ำแล้วจะเห็นระลอกน้ำ<span class="loy__help-keys"> · กด Tab แล้วใช้ลูกศรซ้าย/ขวาเลื่อนไปใบอื่น</span></p>
       </div>
-      <p class="loy__total" aria-live="polite"><b>–</b> <span>ใบที่ลอยแล้ว</span></p>
+      <p class="loy__total" aria-live="polite" hidden><b>–</b> <span>ใบที่ลอยแล้ว</span></p>
       <p class="loy__status" role="status" hidden></p>
     </div>
   </div>
@@ -454,9 +454,10 @@ function createData() {
   function goLocal(why) {
     const was = mode;
     mode = "local"; emit("mode", mode);
+    // ข้อความสั้นพอให้อยู่บรรทัดเดียวใต้ปุ่มบนแม่น้ำ (จอ 360px)
     D.status(why === "config"
-      ? "แม่น้ำรวมยังไม่เปิดให้ใช้งาน กระทงของคุณจะลอยอยู่ในเครื่องนี้ก่อน"
-      : "ตอนนี้เชื่อมต่อแม่น้ำรวมไม่ได้ กระทงของคุณจะลอยอยู่ในเครื่องนี้ก่อน แล้วระบบจะลองเชื่อมต่อใหม่เอง");
+      ? "แม่น้ำรวมยังไม่เปิด ตอนนี้กระทงลอยในเครื่องนี้ก่อน"
+      : "เชื่อมต่อแม่น้ำรวมไม่ได้ กระทงลอยในเครื่องนี้ก่อน");
     if (was === "online") return;
     const local = store.get(KEY.local, []);
     for (const k of local) put(Object.assign(k, { local: true, mine: true }), "load");
@@ -513,7 +514,7 @@ function createData() {
     emit("remove", { id });
     let ok = mode === "online";
     if (ok) { try { await db.report(id); } catch (e) { ok = false; } }
-    D.status(ok ? "ซ่อนกระทงใบนั้นแล้ว และแจ้งผู้ดูแลให้ตรวจสอบ" : "ซ่อนกระทงใบนั้นในเครื่องนี้แล้ว", 6000);
+    D.status(ok ? "ซ่อนกระทงใบนั้นแล้ว และแจ้งผู้ดูแลแล้ว" : "ซ่อนกระทงใบนั้นในเครื่องนี้แล้ว", 6000);
   };
   /* ---------- ตรวจข้อความ / จำกัดเวลา ---------- */
   D.waitLeft = () => Math.max(0, RATE_MS - (Date.now() - (store.get(KEY.last, 0) || 0)));
@@ -537,7 +538,7 @@ function createData() {
         if (err.status === 403 || err.status === 400) return { error: "ระบบไม่รับข้อความนี้ ลองแก้ข้อความแล้วลอยอีกครั้ง" };
         lastErr = Date.now();
         goLocal("error");
-        D.status("ส่งกระทงขึ้นแม่น้ำรวมไม่สำเร็จ กระทงของคุณจึงลอยอยู่ในเครื่องนี้แทน (ระบบจะลองเชื่อมต่อใหม่เอง)");
+        D.status("ส่งขึ้นแม่น้ำรวมไม่สำเร็จ กระทงลอยในเครื่องนี้แทน");
       }
     }
     if (!k) {
@@ -551,7 +552,7 @@ function createData() {
     store.set(KEY.last, Date.now());
     list.set(k.id, k);
     setTotal(total + 1);
-    if (mode === "online") D.status("กระทงของคุณลอยบนแม่น้ำของเราแล้ว ทุกคนเห็นได้เลย", 8000);
+    if (mode === "online") D.status("กระทงของคุณลอยบนแม่น้ำรวมแล้ว ทุกคนเห็นได้", 8000);
     emit("add", { k, how: "own" });
     window.dispatchEvent(new CustomEvent("lvc:krathong", { detail: { own: true } }));
     return { k };
@@ -653,8 +654,9 @@ function bindStatus(el, data) {
   });
 }
 function bindTotal(numEl, labelEl, data) {
-  const shown = { n: 0 };
+  const shown = { n: 0 }, box = numEl.closest(".loy__total");
   data.on("total", (n) => {
+    box.hidden = !n;                                 // ยังไม่มีกระทง → ไม่โชว์เลข 0
     if (gsap && !reduceQ.matches) gsap.to(shown, { n, duration: 1.2, ease: "power2.out", overwrite: true, onUpdate: () => { numEl.textContent = fmt(Math.round(shown.n)); } });
     else numEl.textContent = fmt(n);
     labelEl.textContent = data.mode === "online" ? "ใบที่ลอยแล้ว" : "ใบในเครื่องนี้";
@@ -694,17 +696,17 @@ function build3D() {
       <h2 id="loy-title" class="loy__title">เลือกกระทง แล้วฝากคำอธิษฐาน</h2>
       <p class="loy__lead">กระทงในเว็บไม่มีขยะลงแม่น้ำจริง ลอยได้ทั้งคืนโดยไม่ต้องห่วงสายน้ำ</p>
     </div>
-    <p class="loy__total" aria-live="polite"><b>–</b> <span>ใบที่ลอยแล้ว</span></p>
+    <p class="loy__total" aria-live="polite" hidden><b>–</b> <span>ใบที่ลอยแล้ว</span></p>
   </div>
   <div class="loy3d" id="loy-river" role="region" aria-label="แม่น้ำของเรา: กระทงที่ลอยอยู่ตอนนี้">
     <div class="loy3d__poster" aria-hidden="true"></div>
     <canvas class="loy3d__gl" aria-hidden="true" data-pet-avoid="off"></canvas>
     <div class="loy3d__boats" role="group" aria-label="กระทงในแม่น้ำ" aria-describedby="loy-river-help"></div>
-    <p class="loy__status" role="status" hidden></p>
     <div class="loy3d__cta">
       <p class="loy__help" id="loy-river-help">แตะกระทงเพื่ออ่านคำอธิษฐาน · แตะผิวน้ำแล้วจะเห็นระลอกน้ำ<span class="loy__help-keys"> · กด Tab แล้วใช้ลูกศรซ้าย/ขวาเลือกกระทง</span></p>
       <button class="loy__send loy3d__start" type="button" disabled><span class="loy__send-label">กำลังเตรียมแม่น้ำ…</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></button>
+      <p class="loy__status loy3d__note" role="status" hidden></p>
     </div>
     <div class="loy3d__panel" hidden></div>
     <div class="loy__card loy__card--moon" role="dialog" aria-modal="false" aria-labelledby="loy-card-name" hidden>

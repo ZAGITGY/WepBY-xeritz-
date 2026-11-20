@@ -41,6 +41,7 @@ const AMBIENCE = 80;                  // ข้อมูลน้อยกว่
 const BUTTONS = 24;
 // ฐาน 0 ใบตอง · 1 ดอกบัว · 2 ขนมปัง: ความกว้างโมเดล (หน่วยโมเดล) · ภาพไกลกินกรอบ 0.88 ของความกว้าง (วัดจาก thumbs)
 const BASE_W = [0.47, 0.95, 0.77];
+const FIT_W = [0.62, 0.95, 0.8];       // ขนาดที่ใช้จัดกล้องตอนแต่ง (ใบตองเล็กแต่ธูปสูง → นับเผื่อความสูง)
 const FAR_W = BASE_W.map((w) => (w / 0.88) * KS);
 const FAR_FLAME = [0.62, 0.66, 0.58];  // ความสูงเปลวเทียนในภาพไกล (สัดส่วนของ FAR_W)
 const Q = new URLSearchParams(location.search);
@@ -403,8 +404,11 @@ export function createRiver3D(stage, api) {
     mists.forEach((m) => { m.position.x = cx; });
     updateBuilderPose();
   }
-  // ระยะกล้องตอนแต่ง: ให้กระทงเต็มพื้นที่ครึ่งบนพอดี (ฐานใหญ่ถอยไกลกว่า) · จอตั้งแคบกว่า → ถอยเพิ่ม
-  const buildDist = () => BASE_W[build.base] * KS * (portrait ? 2.05 : 1.7) + 0.7;
+  // ระยะกล้องตอนแต่ง: กระทงกว้างราว 70% ของพื้นที่เหนือแผง (ไม่เกิน 560px) ทุกขนาดจอ · ฐานใหญ่ถอยไกลกว่า
+  function buildDist() {
+    const free = view.h - view.panel.y * 2, px = Math.max(180, Math.min(view.w * 0.7, free * 0.78, 560));
+    return (FIT_W[build.base] * KS * view.h) / (2 * Math.tan((camera.fov * Math.PI) / 360) * px) + 0.25;
+  }
   function updateBuilderPose() {
     const t = BUILD_AT, ty = (man ? M.placeOf(man, build.base).y : 0.15) * KS * 0.75;
     orbit.dist = buildDist();
@@ -685,7 +689,7 @@ export function createRiver3D(stage, api) {
     f.traverse((m) => { if (m.isMesh) m.material = flameMat(m.name, build.flameAmp); });
     f.position.y = man.flameY;
     const glow = new THREE.Sprite(glowSpriteMat);
-    glow.scale.setScalar(0.17); glow.position.y = 0.026;
+    glow.scale.setScalar(0.26); glow.position.y = 0.026;
     glow.raycast = () => {};
     f.add(glow);
     f.visible = false;
@@ -1082,7 +1086,7 @@ export function createRiver3D(stage, api) {
     hemi.color.lerpColors(HEMI_SKY[0], HEMI_SKY[1], b); hemi.groundColor.lerpColors(HEMI_GROUND[0], HEMI_GROUND[1], b);
     hemi.intensity = 2.0 - 0.55 * b;
     amb.intensity = 0.55 * (1 - b); moonLight.intensity = 1.4 * (1 - b); fill.intensity = 1.1 * (1 - b);
-    waterU.uDim.value = 0.6 * b;
+    waterU.uDim.value = 0.45 * b;
     back.material.color.setScalar(1 - 0.55 * b);
     mists.forEach((m) => { m.material.uniforms.uAlpha.value = m.userData.a * (1 - 0.7 * b); });
     if (!build.group.visible) { candleLight.intensity = 0; return; }
@@ -1091,10 +1095,10 @@ export function createRiver3D(stage, api) {
     const ci = build.parts.findIndex((p) => p.k === M.CANDLE);
     if (ci >= 0 && build.objs[ci]) candleLight.position.copy(wickWorld(ci));
     else build.group.localToWorld(candleLight.position.set(0, place().y + 0.3, 0));
-    candleLight.position.y += 0.4;
-    candleLight.intensity = b * (0.9 + 2.6 * lit * flick(t)) * (1 + build.lift * 0.5);
+    candleLight.position.lerp(camera.position, 0.3).y += 0.3;     // ค่อนมาทางกล้อง: ด้านที่เห็นได้แสงอุ่น (ไม่ใช่แค่ยอดเทียน)
+    candleLight.intensity = b * (1.6 + 3.2 * lit * flick(t)) * (1 + build.lift * 0.5);
     build.flameAmp.value = lit * (1 + build.lift * 0.4);
-    glowSpriteMat.opacity = lit * 0.85 * flick(t + 0.4);
+    glowSpriteMat.opacity = lit * flick(t + 0.4);
     build.objs.forEach((o, i) => {
       const f = o.userData.flame;
       if (f) { f.visible = build.lit.has(i) && build.litAmp > 0.01; if (f.visible) f.scale.setScalar(0.35 + 0.65 * lit); }
@@ -1200,7 +1204,7 @@ export function createRiver3D(stage, api) {
     prepare, openBuilder, closeBuilder, setBase, addPart, undo, select, editSel, setSelColor, removeSel, release, resetBuild, loadPreset, snapshot,
     selectStep(d) { if (build.parts.length) select(((build.sel < 0 ? (d > 0 ? -1 : 0) : build.sel) + d + build.parts.length) % build.parts.length); },
     state: () => ({ base: build.base, parts: build.parts.map(M.packPart) }),
-    setPanel(x, y) { view.panel.x = x; view.panel.y = y; applyViewOffset(); },
+    setPanel(x, y) { view.panel.x = x; view.panel.y = y; updateBuilderPose(); applyViewOffset(); },
     /** ปลายไส้เทียนเล่มแรกบนจอ (px) หรือ null */
     wickOnScreen() {
       const i = build.parts.findIndex((p) => p.k === M.CANDLE);
