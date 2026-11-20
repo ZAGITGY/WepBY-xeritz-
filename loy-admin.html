@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b1027">
+  <title>ดูแลกระทง — ลอยกระทงออนไลน์ 2569</title>
+  <link rel="icon" href="./images/crest.png">
+  <link rel="stylesheet" href="./fonts/fonts.css?v=2026-11-06.13.0">
+  <!-- หน้าแอดมินแบบง่าย: ใส่รหัส (เก็บไว้ใน admin/config ของ Firestore ดู FIREBASE-TH.md) แล้วซ่อน/แสดงกระทงได้
+       รหัสอยู่ในแท็บนี้เท่านั้น (sessionStorage) ปิดแท็บ = ออกจากระบบ · ทุกคำสั่งถูกตรวจรหัสฝั่งเซิร์ฟเวอร์ (firestore.rules) -->
+  <style>
+    :root { --paper: #0b1027; --ink: #f3efe4; --muted: #b9bdd0; --line: #2b3358; --gold: #e8c27c; --surface: #121a3a; --raised: #182146; --warn: #b8303f; color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--paper); color: var(--ink); font: 400 16px/1.6 "IBM Plex Sans Thai", system-ui, sans-serif; }
+    main { width: min(980px, 100% - 32px); margin: 0 auto; padding: 40px 0 80px; }
+    h1 { margin: 0; font: 400 clamp(28px, 4vw, 38px)/1.3 "Noto Serif Thai", Georgia, serif; }
+    h1 span { color: var(--gold); }
+    .lead { margin: 8px 0 28px; color: var(--muted); }
+    .card { padding: 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+    label { display: block; margin-bottom: 6px; font-size: 14px; }
+    input[type=password] { width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid #3d4775; border-radius: 12px; background: #0a1029; color: var(--ink); font: inherit; }
+    input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px #e8c27c33; }
+    button { min-height: 44px; padding: 9px 16px; border: 1px solid #3d4775; border-radius: 10px; background: var(--raised); color: var(--ink); font-family: inherit; font-weight: 500; font-size: 14px; line-height: 1.4; cursor: pointer; }
+    button:hover { border-color: #6b76ab; }
+    button:focus-visible, [role=tab]:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    button:disabled { opacity: .5; cursor: progress; }
+    .primary { background: linear-gradient(180deg, #f6d084, #e7a548); border: 0; color: #22160a; }
+    .warn { background: var(--warn); border-color: var(--warn); color: #fff; }
+    .row-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .msg { min-height: 1.6em; margin: 12px 0 0; color: #ffb3a7; font-size: 14px; }
+    .msg.ok { color: #b8e6c1; }
+    .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    [role=tablist] { display: flex; flex-wrap: wrap; gap: 6px; }
+    [role=tab] { border-radius: 999px; }
+    [role=tab][aria-selected=true] { border-color: var(--gold); color: var(--gold); background: #2a2a55; }
+    ul.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 20px; align-items: center; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+    .item.is-hidden { opacity: .7; border-style: dashed; }
+    .wish { margin: 0; font: 400 18px/1.6 "Noto Serif Thai", Georgia, serif; overflow-wrap: anywhere; }
+    .meta { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+    .meta b { color: #ffb3a7; font-weight: 500; }
+    .empty { padding: 28px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 14px; }
+    @media (max-width: 640px) { .item { grid-template-columns: minmax(0, 1fr); } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>ดูแลกระทง <span>ลอยกระทงออนไลน์ 2569</span></h1>
+  <p class="lead">ซ่อนกระทงที่ไม่เหมาะสมออกจาก “แม่น้ำของเรา” และตรวจรายการที่ผู้ใช้แจ้งไว้</p>
+
+  <form class="card" id="login" autocomplete="on">
+    <label for="key">รหัสผู้ดูแล</label>
+    <input id="key" type="password" autocomplete="current-password" required>
+    <p class="msg" id="login-msg" role="alert"></p>
+    <div class="row-actions"><button class="primary" type="submit">เข้าสู่ระบบ</button></div>
+  </form>
+
+  <section id="panel" hidden aria-label="รายการกระทง">
+    <div class="bar">
+      <div role="tablist" aria-label="รายการ">
+        <button role="tab" id="tab-reports" aria-selected="true" aria-controls="list">ถูกแจ้ง</button>
+        <button role="tab" id="tab-latest" aria-selected="false" aria-controls="list">ล่าสุด</button>
+        <button role="tab" id="tab-hidden" aria-selected="false" aria-controls="list">ซ่อนอยู่</button>
+      </div>
+      <div class="row-actions">
+        <button type="button" id="refresh">โหลดใหม่</button>
+        <button type="button" id="logout">ออกจากระบบ</button>
+      </div>
+    </div>
+    <p class="msg ok" id="panel-msg" role="status"></p>
+    <ul class="list" id="list" role="tabpanel" aria-live="polite"></ul>
+  </section>
+</main>
+<script type="module">
+  import * as db from "./loy-db.js?v=2026-11-22.1";
+  const $ = (s) => document.querySelector(s);
+  const SKEY = "lvc.loy.admin";
+  let key = sessionStorage.getItem(SKEY) || "", tab = "reports";
+  const when = (ms) => ms ? new Date(ms).toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" }) : "";
+
+  if (!db.configured) {
+    $("#login-msg").textContent = "ยังไม่ได้ใส่ค่า Firebase ในไฟล์ loy-config.js (ดู FIREBASE-TH.md)";
+    $("#login button").disabled = true;
+  }
+  $("#login").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const k = $("#key").value;
+    const btn = $("#login button");
+    btn.disabled = true; $("#login-msg").textContent = "";
+    try { await db.adminLogin(k); key = k; sessionStorage.setItem(SKEY, k); open(); }
+    catch (err) { $("#login-msg").textContent = err.status === 403 ? "รหัสไม่ถูกต้อง" : "เชื่อมต่อไม่ได้: " + err.message; }
+    btn.disabled = false;
+  });
+  $("#logout").addEventListener("click", () => { sessionStorage.removeItem(SKEY); key = ""; $("#panel").hidden = true; $("#login").hidden = false; $("#key").value = ""; $("#key").focus(); });
+  $("#refresh").addEventListener("click", () => load());
+  for (const t of ["reports", "latest", "hidden"]) {
+    $("#tab-" + t).addEventListener("click", () => {
+      tab = t;
+      document.querySelectorAll("[role=tab]").forEach((b) => b.setAttribute("aria-selected", String(b.id === "tab-" + t)));
+      load();
+    });
+  }
+
+  function open() { $("#login").hidden = true; $("#panel").hidden = false; load(); }
+
+  async function load() {
+    const list = $("#list");
+    list.innerHTML = '<li class="empty">กำลังโหลด…</li>';
+    try {
+      let rows;
+      if (tab === "reports") {
+        const reps = await db.reports(50);
+        const docs = await db.getMany(reps.map((r) => r.id));
+        rows = reps.map((r) => Object.assign({ reports: r.n, reportedAt: r.at }, docs.find((d) => d.id === r.id) || { id: r.id, wish: "(ไม่พบกระทงใบนี้)", missing: true }));
+      } else if (tab === "latest") rows = await db.latest(50);
+      else rows = (await db.hiddenList(100)).sort((a, b) => (b.at || 0) - (a.at || 0));
+      render(rows);
+    } catch (err) {
+      list.innerHTML = "";
+      list.append(Object.assign(document.createElement("li"), { className: "empty", textContent: "โหลดไม่สำเร็จ: " + err.message }));
+    }
+  }
+
+  function render(rows) {
+    const list = $("#list");
+    list.innerHTML = "";
+    if (!rows.length) {
+      list.append(Object.assign(document.createElement("li"), { className: "empty", textContent: tab === "reports" ? "ยังไม่มีกระทงที่ถูกแจ้ง" : "ไม่มีรายการ" }));
+      return;
+    }
+    for (const k of rows) {
+      const li = document.createElement("li");
+      li.className = "item" + (k.hidden ? " is-hidden" : "");
+      const text = document.createElement("div");
+      const wish = Object.assign(document.createElement("p"), { className: "wish", textContent: k.wish || "" });
+      const meta = Object.assign(document.createElement("p"), { className: "meta" });
+      meta.textContent = `${k.name || "ไม่ระบุชื่อ"} · ${when(k.at)}${k.hidden ? " · ซ่อนอยู่" : ""}`;
+      if (k.reports) { const b = document.createElement("b"); b.textContent = ` · ถูกแจ้ง ${k.reports} ครั้ง`; meta.append(b); }
+      text.append(wish, meta);
+      const acts = Object.assign(document.createElement("div"), { className: "row-actions" });
+      if (!k.missing) {
+        const toggle = Object.assign(document.createElement("button"), { type: "button", className: k.hidden ? "" : "warn", textContent: k.hidden ? "แสดงอีกครั้ง" : "ซ่อน" });
+        toggle.addEventListener("click", () => act(toggle, () => db.setHidden(key, k.id, !k.hidden), k.hidden ? "แสดงกระทงอีกครั้งแล้ว" : "ซ่อนกระทงแล้ว"));
+        acts.append(toggle);
+      }
+      if (k.reports) {
+        const ok = Object.assign(document.createElement("button"), { type: "button", textContent: "ไม่ผิด ปิดรายงาน" });
+        ok.addEventListener("click", () => act(ok, () => db.dismissReport(key, k.id), "ปิดรายงานแล้ว"));
+        acts.append(ok);
+      }
+      li.append(text, acts);
+      list.append(li);
+    }
+  }
+
+  async function act(btn, fn, done) {
+    btn.disabled = true;
+    try { await fn(); $("#panel-msg").textContent = done; await load(); }
+    catch (err) {
+      btn.disabled = false;
+      $("#panel-msg").textContent = err.status === 403 ? "รหัสหมดอายุหรือไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่" : "ทำไม่สำเร็จ: " + err.message;
+    }
+  }
+
+  if (key && db.configured) open(); else $("#key").focus();
+</script>
+</body>
+</html>

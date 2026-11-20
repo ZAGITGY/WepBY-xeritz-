@@ -109,8 +109,9 @@
     if (countEl && n !== lastCount) { countEl.textContent = (n < 10 ? "00" : n < 100 ? "0" : "") + n; lastCount = n; }
     if (barEl) barEl.style.transform = "scaleX(" + shown.toFixed(4) + ")";
     var t = introTime(performance.now());
-    var label = phase === "handoff" || phase === "fade" || (phase === "hold" && allReady()) ? "พร้อมแล้ว · ยินดีต้อนรับ"
-      : start && t >= (C ? C.INTRO.bloomAt : 1) ? "กำลังเติมสีให้ภาพมีชีวิต" : "กำลังเตรียมภาพวิทยาลัย";
+    var night = root.hasAttribute("data-loy");             // ลอยกระทง 2569: ฉากกลางคืน
+    var label = phase === "handoff" || phase === "fade" || (phase === "hold" && allReady()) ? (night ? "พร้อมแล้ว · สุขสันต์วันลอยกระทง" : "พร้อมแล้ว · ยินดีต้อนรับ")
+      : start && t >= (C ? C.INTRO.bloomAt : 1) ? (night ? "พระจันทร์กำลังขึ้นหลังวิทยาลัย" : "กำลังเติมสีให้ภาพมีชีวิต") : (night ? "กำลังเตรียมคืนลอยกระทง" : "กำลังเตรียมภาพวิทยาลัย");
     if (labelEl && label !== lastLabel) { labelEl.textContent = label; lastLabel = label; }
   }
 
@@ -290,7 +291,7 @@
     el.classList.add("is-fallback");
     placeFallbackBloom();
     var ghost = $(".lvc-intro__ghost"), color = $(".lvc-intro__color");
-    var src = (ghost && ghost.getAttribute("data-src")) || "./images/campus.webp";
+    var src = C && C.src ? C.src() : (ghost && ghost.getAttribute("data-src")) || "./images/campus.webp";   // ลอยกระทง = ภาพกลางคืน
     var shown2 = false;
     function go() {
       if (shown2 || finished || skipping) return;

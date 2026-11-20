@@ -1,0 +1,397 @@
+{
+ "units": "1 หน่วย ≈ 1 ฟุต · ทุกชิ้นตั้งบน y=0",
+ "flameY": 0.272,
+ "bases": {
+  "lotus": {
+   "file": "bases/lotus.glb",
+   "thumb": "thumbs/base-lotus.png",
+   "place": {
+    "y": 0.2,
+    "radius": 0.13
+   },
+   "parts": [
+    "base_trunk",
+    "pins",
+    "leaf_skirt",
+    "petals_outer",
+    "petals_middle",
+    "petals_inner",
+    "petals_core",
+    "stamen_center"
+   ]
+  },
+  "small": {
+   "file": "bases/small.glb",
+   "thumb": "thumbs/base-small.png",
+   "place": {
+    "y": 0.1,
+    "radius": 0.15
+   },
+   "parts": [
+    "base_trunk",
+    "leaf_band",
+    "pins",
+    "folds_outer",
+    "folds_inner"
+   ]
+  },
+  "bread": {
+   "file": "bases/bread.glb",
+   "thumb": "thumbs/base-bread.png",
+   "place": {
+    "y": 0.12,
+    "radius": 0.07
+   },
+   "parts": [
+    "bread_base",
+    "bread_braid",
+    "bread_toppings",
+    "bread_center"
+   ]
+  }
+ },
+ "decor": {
+  "marigold": {
+   "file": "decor/marigold.glb",
+   "thumb": "thumbs/marigold.png",
+   "height": 0.077,
+   "radius": 0.065,
+   "meshes": [
+    {
+     "mesh": "marigold",
+     "material": "marigold",
+     "color": "#f7a51c"
+    }
+   ]
+  },
+  "chrysanthemum": {
+   "file": "decor/chrysanthemum.glb",
+   "thumb": "thumbs/chrysanthemum.png",
+   "height": 0.045,
+   "radius": 0.055,
+   "meshes": [
+    {
+     "mesh": "chrysanthemum",
+     "material": "chrysanthemum",
+     "color": "#9b6fd6"
+    }
+   ]
+  },
+  "orchid": {
+   "file": "decor/orchid.glb",
+   "thumb": "thumbs/orchid.png",
+   "height": 0.039,
+   "radius": 0.049,
+   "meshes": [
+    {
+     "mesh": "orchid",
+     "material": "orchid",
+     "color": "#c03fa8"
+    }
+   ]
+  },
+  "jasmine": {
+   "file": "decor/jasmine.glb",
+   "thumb": "thumbs/jasmine.png",
+   "height": 0.025,
+   "radius": 0.044,
+   "meshes": [
+    {
+     "mesh": "jasmine",
+     "material": "jasmine",
+     "color": "#fffdf6"
+    }
+   ]
+  },
+  "rose": {
+   "file": "decor/rose.glb",
+   "thumb": "thumbs/rose.png",
+   "height": 0.047,
+   "radius": 0.073,
+   "meshes": [
+    {
+     "mesh": "rose",
+     "material": "rose",
+     "color": "#c8243a"
+    }
+   ]
+  },
+  "lotus_bud": {
+   "file": "decor/lotus_bud.glb",
+   "thumb": "thumbs/lotus_bud.png",
+   "height": 0.129,
+   "radius": 0.06,
+   "meshes": [
+    {
+     "mesh": "lotus_bud",
+     "material": "lotus_bud",
+     "color": "#ec8aab"
+    },
+    {
+     "mesh": "lotus_bud_stem",
+     "material": "leaf",
+     "color": "#ffffff"
+    }
+   ]
+  },
+  "candle": {
+   "file": "decor/candle.glb",
+   "thumb": "thumbs/candle.png",
+   "height": 0.274,
+   "radius": 0.021,
+   "meshes": [
+    {
+     "mesh": "candle_body",
+     "material": "wax",
+     "color": "#f4cf2c"
+    },
+    {
+     "mesh": "candle_wick",
+     "material": "wick",
+     "color": "#2a211b"
+    }
+   ]
+  },
+  "flame": {
+   "file": "decor/flame.glb",
+   "thumb": "thumbs/flame.png",
+   "height": 0.056,
+   "radius": 0.011,
+   "meshes": [
+    {
+     "mesh": "flame_outer",
+     "material": "flame_outer",
+     "color": "#ffb02e"
+    },
+    {
+     "mesh": "flame_core",
+     "material": "flame_core",
+     "color": "#fff4c2"
+    }
+   ]
+  },
+  "incense": {
+   "file": "decor/incense.glb",
+   "thumb": "thumbs/incense.png",
+   "height": 0.424,
+   "radius": 0.022,
+   "meshes": [
+    {
+     "mesh": "incense_sticks",
+     "material": "incense",
+     "color": "#ffffff"
+    },
+    {
+     "mesh": "incense_ember",
+     "material": "incense_ember",
+     "color": "#ff4a1a"
+    }
+   ]
+  }
+ },
+ "presets": {
+  "lotus": [
+   [
+    "marigold",
+    [
+     -0.06,
+     0,
+     0.04
+    ],
+    0,
+    1.3
+   ],
+   [
+    "marigold",
+    [
+     0.055,
+     0,
+     0.05
+    ],
+    1,
+    1.25
+   ],
+   [
+    "marigold",
+    [
+     -0.045,
+     0,
+     -0.06
+    ],
+    2,
+    1.2
+   ],
+   [
+    "marigold",
+    [
+     0.065,
+     0,
+     -0.04
+    ],
+    3,
+    1.15
+   ],
+   [
+    "orchid",
+    [
+     0.005,
+     0.035,
+     0.085
+    ],
+    0.4,
+    1.3,
+    "#c03fa8"
+   ],
+   [
+    "orchid",
+    [
+     0.095,
+     0.025,
+     0.005
+    ],
+    2,
+    1.2,
+    "#b04ad0"
+   ],
+   [
+    "chrysanthemum",
+    [
+     -0.095,
+     0,
+     -0.005
+    ],
+    0,
+    1.2,
+    "#8a4fd0"
+   ],
+   [
+    "candle",
+    [
+     0,
+     0,
+     -0.005
+    ],
+    0,
+    1.25
+   ],
+   [
+    "incense",
+    [
+     0.035,
+     0,
+     -0.03
+    ],
+    0,
+    1.25
+   ]
+  ],
+  "small": [
+   [
+    "marigold",
+    [
+     -0.06,
+     0,
+     -0.05
+    ],
+    0,
+    1.15
+   ],
+   [
+    "chrysanthemum",
+    [
+     0.06,
+     0,
+     -0.05
+    ],
+    0,
+    1.25,
+    "#9b6fd6"
+   ],
+   [
+    "chrysanthemum",
+    [
+     0.075,
+     0,
+     0.055
+    ],
+    1,
+    1.1,
+    "#f3f0ff"
+   ],
+   [
+    "orchid",
+    [
+     -0.02,
+     0.01,
+     0.075
+    ],
+    0.6,
+    1.2,
+    "#c03fa8"
+   ],
+   [
+    "chrysanthemum",
+    [
+     -0.085,
+     0,
+     0.035
+    ],
+    2,
+    1.05,
+    "#6c3aa8"
+   ],
+   [
+    "candle",
+    [
+     0.02,
+     0,
+     -0.005
+    ],
+    0,
+    0.85
+   ],
+   [
+    "incense",
+    [
+     -0.012,
+     0,
+     -0.03
+    ],
+    0,
+    0.9
+   ]
+  ],
+  "bread": [
+   [
+    "candle",
+    [
+     0,
+     0,
+     0
+    ],
+    0,
+    0.95
+   ],
+   [
+    "incense",
+    [
+     0.03,
+     0,
+     0.012
+    ],
+    0,
+    1
+   ],
+   [
+    "jasmine",
+    [
+     -0.035,
+     0,
+     0.02
+    ],
+    0,
+    1
+   ]
+  ]
+ }
+}

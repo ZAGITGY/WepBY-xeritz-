@@ -1,0 +1,68 @@
+rules_version = '2';
+// ลอยกระทงออนไลน์ 2569 — กติกาฝั่งเซิร์ฟเวอร์ (คู่กับ loy-db.js) · วิธีติดตั้งดู FIREBASE-TH.md
+// - ทุกคนอ่านกระทงได้ (แม่น้ำรวม) · เขียนได้เฉพาะกระทงใหม่ที่ถูกรูปแบบ: ชนิดข้อมูล ความยาว เวลาเซิร์ฟเวอร์ hidden=false
+// - แอดมินไม่มีบัญชี: รหัสอยู่ใน admin/config (ไม่มีใครอ่านได้ rules อ่านได้เอง) ทุกคำสั่งแอดมินต้องเขียน mod/{id}
+//   ที่มีรหัสถูกต้องไปพร้อมกันในคำสั่งเดียว (getAfter + เวลาเดียวกัน) จึงจะซ่อน/แสดงกระทงได้
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function adminKey() { return get(/databases/$(database)/documents/admin/config).data.key; }
+    // คำสั่งนี้เขียน mod/{id} (ที่ผ่านการตรวจรหัสแล้ว) มาพร้อมกันหรือไม่
+    function modOk(id) {
+      return existsAfter(/databases/$(database)/documents/mod/$(id))
+        && getAfter(/databases/$(database)/documents/mod/$(id)).data.at == request.time;
+    }
+    // ข้อความ: ชนิด string ความยาว min–max ห้ามมีลิงก์/เบอร์โทร (ตรวจละเอียดอีกชั้นที่ loy-filter.js)
+    function text(s, min, max) {
+      return s is string && s.size() >= min && s.size() <= max
+        && !s.matches('(?i).*(https?://|www[.]).*')
+        && !s.matches('.*([0-9๐-๙][ .()/_-]{0,3}){9,}.*');
+    }
+
+    // ชิ้นส่วนกระทงเก็บเป็นข้อความ JSON สั้น ๆ: [{"k":ชนิด,"x":..,"y":..,"z":..,"r":มุม,"s":ขนาด,"c":"#rrggbb"}, ...]
+    // ตรวจทั้งก้อนด้วย regex เดียว (rules จำกัด 1,000 expression ต่อคำขอ ตรวจทีละฟิลด์ 24 ชิ้นไม่พอ)
+    // ชนิด 0–7 (ลำดับตาม loy-models.js ITEMS: 0 ดาวเรือง 1 มะลิ 2 กุหลาบ 3 บัวตูม 4 เทียน 5 ธูป 6 เบญจมาศ 7 กล้วยไม้)
+    // x,z −0.6–0.6 (หน่วยโมเดล ≈ ฟุต) · y 0–0.6 (ทศนิยม ≤3) · มุม −180–180 (จำนวนเต็ม) · ขนาด 0.6–1.6 (ทศนิยม ≤2) · ไม่เกิน 24 ชิ้น
+    function partsOk(ps) {
+      return ps is string && ps.size() <= 2000
+        && ps.matches('[\\[](([{]"k":[0-7],"x":-?0([.]([0-5][0-9]{0,2}|6))?,"y":0([.]([0-5][0-9]{0,2}|6))?,"z":-?0([.]([0-5][0-9]{0,2}|6))?,"r":-?([0-9]|[1-9][0-9]|1[0-7][0-9]|180),"s":(0[.][6-9][0-9]?|1([.]([0-5][0-9]?|6))?),"c":"#[0-9a-f]{6}"[}])(,([{]"k":[0-7],"x":-?0([.]([0-5][0-9]{0,2}|6))?,"y":0([.]([0-5][0-9]{0,2}|6))?,"z":-?0([.]([0-5][0-9]{0,2}|6))?,"r":-?([0-9]|[1-9][0-9]|1[0-7][0-9]|180),"s":(0[.][6-9][0-9]?|1([.]([0-5][0-9]?|6))?),"c":"#[0-9a-f]{6}"[}])){0,23})?[\\]]');
+    }
+
+    match /krathongs/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['name', 'wish', 'base', 'parts', 'at', 'rnd', 'hidden'])
+        && request.resource.data.keys().hasAll(['name', 'wish', 'base', 'parts', 'at', 'rnd', 'hidden'])
+        && text(request.resource.data.name, 0, 20)
+        && text(request.resource.data.wish, 1, 80)
+        && request.resource.data.base is int && request.resource.data.base >= 0 && request.resource.data.base <= 2
+        && partsOk(request.resource.data.parts)
+        && request.resource.data.at == request.time
+        && request.resource.data.rnd is float && request.resource.data.rnd >= 0 && request.resource.data.rnd < 1
+        && request.resource.data.hidden == false;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hidden'])
+        && request.resource.data.hidden is bool
+        && modOk(id);
+      allow delete: if false;
+    }
+
+    match /reports/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['n', 'at'])
+        && request.resource.data.n == 1 && request.resource.data.at == request.time
+        && exists(/databases/$(database)/documents/krathongs/$(id));
+      allow update: if request.resource.data.keys().hasOnly(['n', 'at'])
+        && request.resource.data.n == resource.data.n + 1 && request.resource.data.at == request.time;
+      allow delete: if modOk(id);
+    }
+
+    match /mod/{id} {
+      allow read: if false;
+      allow create, update: if request.resource.data.keys().hasOnly(['key', 'act', 'at'])
+        && request.resource.data.key == adminKey()
+        && request.resource.data.act in ['login', 'hide', 'show', 'dismiss']
+        && request.resource.data.at == request.time;
+      allow delete: if false;
+    }
+
+    match /admin/{d} { allow read, write: if false; }
+  }
+}

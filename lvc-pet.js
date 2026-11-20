@@ -9,10 +9,10 @@
  * - เข้า/ออกพร้อมริบบิ้นเปลี่ยนหน้า (lvc:tx-open / lvc:tx-leave) · โหมดผู้ชมในฉาก lvc-journey · หลบของสำคัญ
  * - ?petdebug=1 แสดงค่าวัดและเมนูเล่นทุกท่า
  */
-import LINES from "./pet-lines.js?v=2026-11-08.2";
-import ACTS from "./pet-reactions.js?v=2026-11-08.2";
+import LINES from "./pet-lines.js?v=2026-11-20.1";
+import ACTS from "./pet-reactions.js?v=2026-11-20.1";
 
-const VERSION = "2026-11-08.2";
+const VERSION = "2026-11-20.1";
 // อ้างอิงจากตำแหน่งไฟล์นี้ ใช้ได้แม้หน้า 404 ที่อยู่ลึกกว่า
 const here = (p) => new URL(p, import.meta.url).href;
 const THREE_URL = here("./vendor/three/three.module.min.js");
@@ -52,6 +52,7 @@ const PAGE = (() => {
 
 /* วันพิเศษ */
 const SPECIAL = (() => {
+  if (root.hasAttribute("data-loy")) return "loykrathong";   // ลอยกระทง 2569: ช่วงเดียวกับธีม (theme.js ตามวันที่ หรือ ?loy=1)
   const d = new Date(), m = d.getMonth() + 1, day = d.getDate();
   if (m === 1 && day === 1) return "newyear";
   if (m === 2 && day === 14) return "valentine";
@@ -1315,6 +1316,7 @@ class Pet {
     if (sleeping || (this.act && /wake$/.test(this.act.id) && this.act.t < 1)) return;   // แตะตอนหลับ = แค่ปลุก
     this.taps = this.taps.filter((t) => now - t < 6000).concat(now);
     if (SPECIAL === "songkran") this.sym("drop", 2, "head");
+    if (SPECIAL === "loykrathong") this.sym("spark", 2, "head");
     if (this.taps.length >= 10) { this.taps = []; this.playAct("tap.sulk"); return; }
     if (this.act && /^tap\.sulk/.test(this.act.id)) return;               // งอนอยู่: ไม่สนใจ
     if (this.taps.filter((t) => now - t < 3000).length >= 5) { this.playAct("tap.dizzy"); return; }
@@ -1462,7 +1464,13 @@ class Pet {
       }
     }, { passive: true });
     // ธีม
+    // ลอยกระทง (loy.js): ใครปล่อยกระทง = ดีใจ · ของเราเองตอบทันที ของคนอื่นไม่บ่อยกว่านาทีละครั้ง
+    addEventListener("lvc:krathong", (e) => {
+      const own = !!(e.detail && e.detail.own);
+      if (this.webAct("web.loy", "loy", own ? 4000 : 60000)) this.sayKey("loy.float", "event", { force: own });
+    });
     addEventListener("lvc:themechange", (e) => {
+      if (e.detail && e.detail.loy) return;                               // ธีมลอยกระทงไม่ใช่ "มืดแล้ว ง่วง"
       const th = e.detail && e.detail.theme;
       this.webAct(th === "dark" ? "web.dark" : "web.light", "theme", 4000);
     });

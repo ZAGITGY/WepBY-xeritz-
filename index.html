@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f4f4ee" />
-    <script src="./theme.js?v=2026-11-06.13.0"></script><script src="./tx-head.js?v=2026-11-06.13.0"></script><link rel="stylesheet" href="./transition.css?v=2026-11-06.13.0">
+    <script src="./theme.js?v=2026-11-21.1"></script><script src="./tx-head.js?v=2026-11-06.13.0"></script><link rel="stylesheet" href="./transition.css?v=2026-11-06.13.0">
     <script src="./preview-kit.js?v=2026-11-06.13.0"></script>
     <meta name="description" content="รู้จักวิทยาลัยอาชีวศึกษาเลย สำรวจหลักสูตร ข่าวสาร และเข้าถึงบริการสำหรับนักเรียน นักศึกษา และประชาชน" />
     <!-- ฉบับทดลอง: ไม่ให้ Google เก็บเข้าผลค้นหา (ลบบรรทัดนี้ตอนเปิดใช้จริง) -->
@@ -115,18 +115,24 @@
     <link rel="stylesheet" href="./extras.css?v=2026-11-06.13.0">
     <link rel="stylesheet" href="./campus.css?v=2026-11-06.13.0">
     <link rel="stylesheet" href="./alive.css?v=2026-11-06.13.0">
-    <link rel="preload" href="./images/campus.webp" as="image" type="image/webp" fetchpriority="high" />
+    <script>
+      // โหลดภาพฉากเปิดล่วงหน้า: ช่วงลอยกระทง (theme.js ใส่ data-loy แล้ว) ใช้ภาพกลางคืน
+      (function (l) { l.rel = "preload"; l.as = "image"; l.type = "image/webp"; l.setAttribute("fetchpriority", "high");
+        l.href = document.documentElement.hasAttribute("data-loy") ? "./images/campus-night-nomoon.webp" : "./images/campus.webp";
+        document.head.appendChild(l); })(document.createElement("link"));
+    </script>
     <script defer src="./scroll-fx.js?v=2026-11-06.13.0" onerror="window.__LVC_FX=0"></script>
     <script defer src="./app.js?v=2026-11-06.13.0"></script>
-    <script defer src="./campus-gl.js?v=2026-11-06.13.0"></script>
-    <script defer src="./campus-backdrop.js?v=2026-11-06.13.0"></script>
+    <script type="module" src="./loy.js?v=2026-11-22.1"></script>
+    <script defer src="./campus-gl.js?v=2026-11-21.1"></script>
+    <script defer src="./campus-backdrop.js?v=2026-11-21.1"></script>
     <script type="module" src="./lvc-journey.js?v=2026-11-08.2"></script>
     <script defer src="./vendor/paper-liquid-metal.js?v=2026-11-06.13.0"></script>
     <script defer src="./metal-button.js?v=2026-11-06.13.0"></script>
     <script defer src="./hero-motion.js?v=2026-11-06.13.0"></script>
-    <script defer src="./intro.js?v=2026-11-06.13.0"></script>
+    <script defer src="./intro.js?v=2026-11-21.1"></script>
     <link rel="stylesheet" href="./assets/glass-folder/documents.css?v=2026-11-06.13.0">
-    <link rel="stylesheet" href="./refine.css?v=2026-11-06.13.0"><link rel="stylesheet" href="./v12.css?v=2026-11-06.13.0">
+    <link rel="stylesheet" href="./refine.css?v=2026-11-06.13.0"><link rel="stylesheet" href="./v12.css?v=2026-11-06.13.0"><link rel="stylesheet" href="./loy.css?v=2026-11-22.1">
     <script defer src="./assets/glass-folder/documents.js?v=2026-11-06.13.0"></script>
     <script defer src="./doc-links.js?v=2026-11-06.13.0"></script>
     <script defer src="./extras.js?v=2026-11-06.13.0"></script>
@@ -134,7 +140,7 @@
     <script defer src="./refine.js?v=2026-11-06.13.0"></script>
     <script type="module" src="./lvc-ribbons.js?v=2026-11-06.13.0"></script><script type="module" src="./lvc-objects.js?v=2026-11-06.13.0"></script><script defer src="./v12.js?v=2026-11-06.13.0"></script>
     <script defer src="./lvc-transition.js?v=2026-11-08.2"></script>
-    <script defer src="./lvc-interact.js?v=2026-11-06.13.0"></script><script type="module" src="./lvc-pet.js?v=2026-11-08.2"></script>
+    <script defer src="./lvc-interact.js?v=2026-11-06.13.0"></script><script type="module" src="./lvc-pet.js?v=2026-11-20.1"></script>
   </head>
   <body><script>window.__LVC_TX&&__LVC_TX.mount()</script>
     <!-- ฉากเข้าเว็บ: ภาพวิทยาลัยจากหุ่นจำลองสีขาว สีซึมแบบสีน้ำ แล้วเลื่อนเป็นพื้นหลังหน้าแรก (ควบคุมโดย intro.js) -->
@@ -149,6 +155,7 @@
         <span class="lvc-intro__eyebrow"><i></i>ยินดีต้อนรับสู่</span>
         <p class="lvc-intro__name"><span>วิทยาลัย</span><span>อาชีวศึกษาเลย</span></p>
         <span class="lvc-intro__sub">LEARN · CREATE · GROW</span>
+        <span class="lvc-intro__loy">คืนลอยกระทง 2569</span>
       </div>
       <div class="lvc-intro__hud">
         <div class="lvc-intro__top">

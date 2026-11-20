@@ -1,0 +1,531 @@
+/* ============================================================================
+ * loy.css — ธีมลอยกระทง 2569 (เปิดเองตามวันที่ ดู theme.js)
+ * ทุกกฎขึ้นต้นด้วย html[data-loy] นอกเทศกาลจึงไม่มีผลอะไรเลย
+ * ระหว่างเทศกาล theme.js ตั้ง data-theme="dark" ด้วย กฎโหมดมืดเดิมทั้งหมดจึงยังทำงาน ไฟล์นี้แค่เปลี่ยนโทนเป็นกลางคืนริมน้ำ
+ * ============================================================================ */
+
+/* ---------- โทนสี: ฟ้ากลางคืน แสงจันทร์ แสงเทียน ---------- */
+html[data-loy] {
+  /* token จากไฟล์ร่าง drafts/loykrathong-draft.html (คืนวันเพ็ญ) */
+  --sky-0: #08101d; --sky-1: #0f1b2e; --sky-2: #172741;
+  --water-0: #050b16; --water-1: #0c1829;
+  --moon: #f4ead2; --moon-dim: #d8c9a3;
+  --gold-h: #ffd84a; --candle: #ffb547; --red-soft: #ef929c; --ink-dark: #231e20;
+  --paper: var(--sky-0);
+  --ink: #f3eee7;
+  --muted: #bdb8b1;
+  --line: rgba(243, 238, 231, .14);
+  --red: var(--red-soft);
+  --gold: #f5c518;
+  --champagne: var(--moon);
+  --surface: var(--sky-1);
+  --surface-raised: var(--sky-2);
+  --surface-soft: #12203a;
+  --theme-outline: #f5c518;
+  --theme-border: rgba(243, 238, 231, .24);
+  --theme-selected: rgba(245, 197, 24, .1);
+  --x-gold: var(--moon);
+  --loy-moon: var(--moon);
+  --loy-candle: var(--candle);
+  --loy-water: var(--water-1);
+  background: var(--paper);
+}
+html[data-loy] .site-header { background: rgba(8, 16, 29, .86); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+html[data-loy] .button:not(.lvc-metal) { background: var(--gold); color: var(--ink-dark); }
+html[data-loy] .button:not(.lvc-metal):hover { background: var(--gold-h); }
+html[data-loy] .scene-opening h1 .accent, html[data-loy] .content-page .page-intro h1 span:not([class]) { color: var(--gold); -webkit-text-fill-color: var(--gold); }
+html[data-loy] .achievement { background: var(--sky-2); }
+html[data-loy] .program-photo, html[data-loy] .poster-button { background: var(--sky-2); }
+html[data-loy] .menu-panel::backdrop { background: rgba(5, 11, 22, .82); }
+html[data-loy] ::selection { background: rgba(245, 197, 24, .32); color: #fff; }
+html[data-loy] .theme-list span { border-color: rgba(243, 238, 231, .3); }
+html[data-loy] .scene-technical p { color: var(--ink); }
+html[data-loy] .hero-bottom { color: var(--muted) !important; }
+html[data-loy] .page-intro h1 span { color: var(--gold); }
+
+/* แสงสีจาง ๆ (aurora) เป็นแสงจันทร์/แสงเทียน/น้ำ */
+html[data-loy] .lvc-aurora i:nth-child(1) { --c: #1d31573d; }
+html[data-loy] .lvc-aurora i:nth-child(2) { --c: #ffb5472b; }
+html[data-loy] .lvc-aurora i:nth-child(3) { --c: #f4ead21c; }
+
+/* ฉากเข้าเว็บ: ม่าน/ป้ายเป็นสีกลางคืน */
+html[data-loy] .lvc-intro { background: var(--paper); }
+html[data-loy] .lvc-intro__shade { background: linear-gradient(0deg, rgba(8, 16, 29, .95) 4%, rgba(8, 16, 29, .72) 24%, rgba(8, 16, 29, .3) 40%, rgba(8, 16, 29, 0) 56%); }
+html[data-loy] .lvc-intro__brand { background: rgba(8, 16, 29, .58); }
+html[data-loy] .lvc-intro__skip { background: rgba(8, 16, 29, .66); }
+html[data-loy] .lvc-intro__bottom { background: rgba(8, 16, 29, .5); }
+html[data-loy] .lvc-campus.is-fallback::after {
+  background:
+    linear-gradient(90deg, rgba(8, 16, 29, 1) 18%, rgba(8, 16, 29, .66) 44%, rgba(8, 16, 29, .2) 64%),
+    linear-gradient(0deg, rgba(8, 16, 29, 1) 1%, rgba(8, 16, 29, 0) 14%);
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  html[data-loy] .lvc-campus.is-fallback::after { background: linear-gradient(180deg, rgba(8, 16, 29, 1) 36%, rgba(8, 16, 29, .4) 62%, rgba(8, 16, 29, .2) 100%); }
+}
+.lvc-intro__loy { display: none; }
+html[data-loy] .lvc-intro__loy { display: block; margin-top: 10px; color: var(--loy-candle); font-size: 14px; letter-spacing: .08em; opacity: 0; transition: opacity 1s ease .6s; }
+html[data-loy] .lvc-intro.is-title .lvc-intro__loy { opacity: 1; }
+
+/* ริบบิ้นเปลี่ยนหน้า: กรมท่า ทอง คราม (ยังมีแดงประจำวิทยาลัยหนึ่งผืน) */
+html[data-loy] .lvc-tx__band--0 { --c: #0f1b2e; }
+html[data-loy] .lvc-tx__band--1 { --c: #c9a227; }
+html[data-loy] .lvc-tx__band--2 { --c: #172741; }
+html[data-loy] .lvc-tx__band--3 { --c: var(--sky-0); }
+html[data-loy] .lvc-tx__band--4 { --c: #9b182a; }
+html[data-loy] .lvc-tx__band--5 { --c: #f5c518; }
+html[data-loy] .lvc-tx__band--6 { --c: #12203a; }
+
+/* ประติมากรรม LVC อยู่ในฉากกลางคืน: แสงจันทร์เย็นลงเล็กน้อย + แสงเทียนอุ่นจากผิวน้ำด้านล่าง */
+html[data-loy] .sculpture canvas { filter: brightness(.86) saturate(.92) drop-shadow(0 18px 34px rgba(255, 190, 100, .16)); }
+
+/* หน้าย่อย: พระจันทร์กับดาวมุมขวาบน เป็นพื้นหลังของ .page-main (CSS ล้วน ไม่มีแคนวาส ไม่ทับตัวหนังสือ ไม่สร้าง stacking context) */
+html[data-loy] .content-page .page-main {
+  background:
+    radial-gradient(circle at calc(100% - 56px) 76px, #fffaf0 0 26px, #f3e2b8 31px, #fff3d640 33px, #fff3d614 70px, transparent 120px),
+    radial-gradient(1.4px 1.4px at 62% 30px, #fff 99%, transparent), radial-gradient(1px 1px at 74% 120px, #fff 99%, transparent),
+    radial-gradient(1.2px 1.2px at 83% 22px, #fffbe8 99%, transparent), radial-gradient(1px 1px at 91% 170px, #fff 99%, transparent),
+    radial-gradient(1.5px 1.5px at 70% 200px, #fff 99%, transparent), radial-gradient(1px 1px at 97% 60px, #fffbe8 99%, transparent);
+  background-repeat: no-repeat;
+}
+@media (max-width: 720px) {
+  html[data-loy] .content-page .page-main {
+    background:
+      radial-gradient(circle at calc(100% - 30px) 34px, #fffaf0cc 0 14px, #f3e2b866 17px, #fff3d61a 34px, transparent 60px),
+      radial-gradient(1px 1px at 70% 14px, #fff 99%, transparent), radial-gradient(1px 1px at 86% 70px, #fff 99%, transparent);
+    background-repeat: no-repeat;
+  }
+}
+
+/* ไม่มี WebGL (ภาพนิ่งด้วย CSS): ย้อมภาพเป็นกลางคืน + พระจันทร์ */
+html[data-loy] .lvc-intro__ghost { filter: grayscale(.85) contrast(.55) brightness(.45); }
+html[data-loy] .lvc-intro__fb::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at 80% 18%, #fffaf0 0 2.6%, #fff3d655 3%, #fff3d612 9%, transparent 14%), linear-gradient(var(--sky-0)55, var(--sky-0)88);
+}
+html[data-loy] .lvc-campus.is-fallback {
+  background: radial-gradient(circle at 82% 14%, #fffaf0 0 2.4%, #f4ead255 2.8%, #f4ead212 8%, transparent 12%) no-repeat,
+    url(./images/campus-night-nomoon.webp) 62% 34% / cover no-repeat;
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  html[data-loy] .lvc-campus.is-fallback { background-size: auto, auto 100%; background-position: 0 0, 66% 50%; }
+}
+
+/* ============================================================================
+ * ลอยกระทงออนไลน์ + แม่น้ำของเรา (loy.js สร้าง section นี้เฉพาะช่วงเทศกาล)
+ * ============================================================================ */
+.loy { position: relative; padding-top: clamp(72px, 9vw, 120px); color: var(--ink); background: linear-gradient(180deg, var(--paper) 0%, var(--sky-1) 30%, var(--sky-1) 100%); }
+.loy__eyebrow { display: flex; align-items: center; gap: 12px; margin: 0; color: var(--gold); font-size: 14px; letter-spacing: .02em; }
+.loy__eyebrow i { display: block; width: 36px; height: 1px; background: currentColor; }
+.loy__title { margin: 16px 0 0; font-family: var(--f-display, serif); font-weight: 500; font-size: clamp(32px, 3.6vw, 50px); line-height: 1.3; letter-spacing: -.02em; color: var(--ink); }
+.loy__title span { display: block; color: var(--gold); }
+.loy__lead { margin: 16px 0 0; max-width: 560px; color: var(--muted); font-size: 16px; line-height: 1.8; }
+.loy__help { margin: 4px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+@media (hover: none) { .loy__help-keys { display: none; } }
+
+/* ---------- แบบ 2D (ไม่มี WebGL2 / เปิด Reduced Motion) ตามไฟล์ร่าง: ฟอร์ม + ตัวอย่าง → แม่น้ำ ---------- */
+.loy__grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(32px, 5vw, 64px); margin-top: 48px; align-items: start; }
+.loy__pick { margin: 0; padding: 0; border: 0; min-width: 0; }
+.loy__pick legend { padding: 0; margin-bottom: 12px; font-size: 15px; font-weight: 500; color: var(--ink); }
+.loy__styles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.loy__style {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 44px; padding: 16px 12px; text-align: center;
+  border: 1px solid var(--line); border-radius: 12px; background: rgba(23, 39, 65, .55); cursor: pointer; transition: border-color .2s, background-color .2s;
+}
+.loy__style input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.loy__style-art svg { display: block; width: 84px; height: 70px; overflow: visible; }
+.loy__style-name { font-weight: 500; font-size: 15px; color: var(--ink); }
+.loy__style small { font-size: 13px; line-height: 1.5; color: var(--muted); }
+.loy__style:hover { border-color: rgba(245, 197, 24, .5); }
+.loy__style:has(input:checked) { border-color: var(--gold); background: rgba(245, 197, 24, .08); }
+.loy__style:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
+.loy__field { position: relative; display: grid; gap: 8px; margin-top: 24px; }
+.loy__field label { font-size: 14px; color: var(--ink); }
+.loy__field label small { color: var(--muted); font-size: 13px; }
+.loy--2d .loy__field label { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; font-weight: 500; }
+.loy--2d .loy__field label .loy__n { font-weight: 400; font-size: 13px; }
+.loy__field input, .loy__field textarea {
+  width: 100%; box-sizing: border-box; min-height: 48px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px;
+  background: rgba(8, 16, 29, .6); color: var(--ink); font: 400 16px/1.6 var(--f-text, sans-serif); resize: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.loy--2d .loy__field input, .loy--2d .loy__field textarea { padding: 14px 16px; }
+.loy__field textarea { min-height: 84px; }
+.loy--2d .loy__field textarea { min-height: 104px; line-height: 1.7; resize: vertical; }
+.loy__field ::placeholder { color: #8f8b86; }
+.loy__field input:focus, .loy__field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245, 197, 24, .2); }
+.loy__field [aria-invalid] { border-color: #ff9d8f; }
+.loy__n { justify-self: end; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.loy__hint { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.loy__error { min-height: 0; margin: 10px 0 0; color: var(--red-soft); font-size: 14px; line-height: 1.6; }
+.loy__error:empty { margin: 0; }
+.loy--2d .loy__error:empty { display: none; }
+.loy__send {
+  display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 52px; margin-top: 16px;
+  border: 0; border-radius: 14px; cursor: pointer; color: var(--ink-dark); font: 500 16px/1.4 var(--f-text, sans-serif);
+  background: var(--gold); box-shadow: 0 8px 30px -8px rgba(245, 197, 24, .55);
+  transition: transform .18s, filter .18s, opacity .18s;
+}
+.loy--2d .loy__send { display: inline-flex; width: auto; margin-top: 32px; padding: 12px 24px; font-size: 15px; }
+.loy__send svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.loy__send:hover:not(:disabled) { background: var(--gold-h); transform: translateY(-1px); }
+.loy__send:active:not(:disabled) { transform: translateY(0) scale(.99); }
+.loy__send:disabled { cursor: not-allowed; opacity: .62; box-shadow: none; }
+.loy__send:focus-visible, .loy__btn:focus-visible { outline: 2px solid var(--theme-outline); outline-offset: 3px; }
+/* ตัวอย่างกระทง */
+.loy__preview {
+  position: sticky; top: 120px; aspect-ratio: 4 / 3.4; overflow: hidden; border: 1px solid var(--line); border-radius: 20px;
+  background: radial-gradient(90% 70% at 50% 100%, rgba(255, 181, 71, .12), transparent 60%), linear-gradient(to bottom, var(--sky-2), var(--water-1) 62%, var(--water-0));
+}
+.loy__preview-water { position: absolute; left: 0; right: 0; bottom: 0; height: 38%; border-top: 1px solid rgba(244, 234, 210, .12); }
+.loy__preview-boat { position: absolute; left: 21%; right: 21%; bottom: 24%; }
+.loy__preview-svg { position: relative; display: block; }
+.loy__preview-svg svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 14px 14px rgba(0, 0, 0, .45)); }
+.loy__preview-boat .loy-boat__glow { width: 120%; }
+.loy__preview-wish { position: absolute; z-index: 1; left: 24px; right: 24px; top: 24px; min-height: 2em; margin: 0; font-family: var(--f-display, serif); font-size: 20px; line-height: 1.55; color: var(--ink); overflow-wrap: anywhere; }
+.loy__preview-wish small { display: block; margin-top: 8px; font-family: var(--f-text, sans-serif); font-size: 13px; color: var(--muted); }
+.loy__ph { color: #8f8b86; }
+
+/* ---------- แม่น้ำของเรา (2D) ---------- */
+.loy__river-head { margin-top: clamp(64px, 8vw, 96px); }
+.loy__total { margin: 0; color: var(--muted); font-size: 14px; text-align: right; }
+.loy__total b { display: inline-block; min-width: 1ch; color: var(--gold); font-family: var(--f-display, serif); font-weight: 500; font-size: clamp(24px, 2.4vw, 32px); font-variant-numeric: tabular-nums; margin-right: 4px; }
+.loy__status {
+  flex: 1 0 100%; width: max-content; max-width: 100%; box-sizing: border-box; margin: 8px 0 0; padding: 10px 16px; border-radius: 12px;
+  background: rgba(8, 16, 29, .88); border: 1px solid rgba(245, 197, 24, .33); color: var(--moon); font-size: 14px; line-height: 1.6; flex-grow: 0;
+}
+.loy__status[hidden] { display: none; }
+.loy__river {
+  position: relative; height: clamp(420px, 62vh, 640px); margin-top: 32px; overflow: hidden; isolation: isolate;
+  border-top: 1px solid rgba(244, 234, 210, .08); background: linear-gradient(to bottom, var(--water-1), var(--water-0));
+}
+.loy__water { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.loy__moon { position: absolute; left: 50%; top: -30px; width: 220px; height: 60px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(244, 234, 210, .35), transparent); pointer-events: none; }
+.loy__boats { position: absolute; inset: 0; z-index: 2; }
+.loy-boat {
+  position: absolute; left: 0; top: 0; width: 96px; height: 80px; padding: 0; border: 0; border-radius: 12px; background: none; color: inherit;
+  transform-origin: 50% 90%; will-change: transform; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.loy-boat__body { position: relative; display: block; width: 100%; height: 100%; }
+.loy-boat svg { position: relative; display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 6px 6px rgba(0, 0, 0, .35)); transition: translate .25s ease; }
+.loy-boat__glow {
+  position: absolute; left: 50%; top: 6%; width: 140%; aspect-ratio: 1; transform: translate(-50%, -30%); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 181, 71, .38), rgba(255, 181, 71, .08) 40%, transparent 65%); mix-blend-mode: screen;
+}
+.loy-boat__tag { position: absolute; left: 50%; bottom: 100%; transform: translate(-50%, -4px); padding: 3px 10px; border-radius: 999px; background: var(--gold); color: var(--ink-dark); font-size: 12px; font-weight: 500; white-space: nowrap; pointer-events: none; }
+.loy-boat.is-decor { opacity: .5; cursor: default; pointer-events: none; }
+.loy-boat:focus-visible { outline: 2px solid var(--candle); outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) { .loy-boat:hover svg { translate: 0 -4px; } }
+.flame { transform-box: fill-box; transform-origin: 50% 100%; animation: loy-flick 1.4s ease-in-out infinite alternate; }
+@keyframes loy-flick { 0% { transform: scale(.92, .9) rotate(-2deg); } 50% { transform: scale(1.04, 1.08) rotate(1.5deg); } 100% { transform: scale(.97, 1) rotate(-1deg); } }
+.loy__river-hint { position: absolute; z-index: 3; left: 50%; bottom: 24px; transform: translateX(-50%); margin: 0; color: var(--muted); font-size: 13px; white-space: nowrap; pointer-events: none; }
+
+.loy__card {
+  position: absolute; z-index: 90; left: 0; top: 0; width: min(300px, calc(100% - 24px)); box-sizing: border-box; padding: 16px 18px;
+  border: 1px solid var(--theme-border); border-radius: 16px; background: var(--surface-raised); color: var(--ink);
+  box-shadow: 0 24px 60px -24px #000, 0 0 0 1px #ffffff0a inset;
+}
+.loy__card[hidden] { display: none; }
+.loy__card p { margin: 0; }
+.loy__card-mine { display: inline-block; margin-bottom: 8px !important; padding: 1px 9px; border-radius: 999px; background: var(--gold); color: var(--ink-dark); font-size: 12px; }
+.loy__card-mine[hidden] { display: none; }
+.loy__card-name { color: var(--gold); font-size: 14px; font-weight: 500; }
+.loy__card-wish { margin-top: 6px !important; font-family: var(--f-display, serif); font-size: 18px; line-height: 1.65; overflow-wrap: anywhere; }
+.loy__card-time { margin-top: 6px !important; color: var(--muted); font-size: 12px; }
+.loy__card-confirm p { margin-top: 12px !important; font-size: 14px; line-height: 1.6; color: var(--ink); }
+.loy__card-confirm[hidden], .loy__card-main[hidden] { display: none; }
+.loy__card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.loy__btn {
+  flex: 1 1 auto; min-height: 44px; padding: 9px 14px; border: 1px solid var(--theme-border); border-radius: 10px; cursor: pointer;
+  background: var(--surface-soft); color: var(--ink); font: 500 14px/1.4 var(--f-text, sans-serif);
+}
+.loy__btn:hover { border-color: rgba(245, 197, 24, .5); }
+.loy__btn--ghost { background: transparent; color: var(--muted); }
+.loy__btn--warn { background: #b8303f; border-color: #b8303f; color: #fff; }
+.loy__btn--warn:hover { background: #c93a4a; }
+.loy__btn[hidden] { display: none; }
+
+@media (max-width: 900px) {
+  .loy__grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .loy__preview { position: relative; top: 0; order: -1; aspect-ratio: 16 / 10; }
+}
+@media (max-width: 560px) {
+  .loy__style-art svg { width: 64px; height: 54px; }
+  .loy__style small { display: none; }
+  .loy__style { padding: 12px 8px; }
+  .loy__preview-boat { left: 28%; right: 28%; bottom: 20%; }
+  .loy__preview-wish { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flame { animation: none; }
+  .loy__send, .loy__style, .loy-boat svg { transition: none; }
+}
+
+/* ---------- หน้าแรกช่วงเทศกาล: นับถอยหลังใน hero (ตามไฟล์ร่าง) ---------- */
+html[data-loy] .hero-note.is-loy {
+  opacity: 1; display: inline-flex; align-items: center; gap: 12px; width: auto; max-width: 100%; padding: 8px 16px 8px 12px;
+  border: 1px solid var(--line); border-radius: 999px; background: rgba(8, 16, 29, .5); color: var(--muted); font-size: max(13px, .875rem); line-height: 1.5; letter-spacing: 0;
+}
+html[data-loy] .hero-note.is-loy .note-mark { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--candle); box-shadow: 0 0 12px var(--candle); }
+html[data-loy] .hero-note.is-loy .loy-countdown { font-variant-numeric: tabular-nums; }
+
+/* ---------- ถ้าจะไปลอยที่ท่าน้ำ (ตามไฟล์ร่าง) ---------- */
+.loy-eco { padding: clamp(64px, 8vw, 96px) 0; background: var(--sky-0); color: var(--ink); }
+.loy-eco__title { margin: 16px 0 0; font-family: var(--f-display, serif); font-weight: 500; font-size: clamp(32px, 3.6vw, 50px); line-height: 1.3; }
+.loy-eco__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 48px 0 0; padding: 0; list-style: none; }
+.loy-eco__list li { padding: 32px 24px; border: 1px solid var(--line); border-radius: 20px; background: rgba(23, 39, 65, .35); }
+.loy-eco__list svg { width: 36px; height: 36px; fill: none; stroke: var(--gold); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.loy-eco__list h3 { margin: 16px 0 0; font-family: var(--f-display, serif); font-weight: 500; font-size: 22px; line-height: 1.4; }
+.loy-eco__list p { margin: 8px 0 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
+@media (max-width: 860px) { .loy-eco__list { grid-template-columns: minmax(0, 1fr); } }
+
+/* ============================================================================
+ * แม่น้ำ 3D + แต่งกระทง (loy3d.js / loy3d-ui.js)
+ * ============================================================================ */
+.loy--3d { padding-top: clamp(72px, 9vw, 120px); background: linear-gradient(180deg, var(--paper) 0%, var(--water-0) 100%); }
+.loy__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px 32px; }
+.loy__head .loy__title { font-size: clamp(32px, 3.6vw, 50px); font-weight: 500; }
+.loy__head .loy__total b { display: block; font-size: clamp(40px, 4vw, 60px); line-height: 1.1; }
+.loy__head .loy__lead { margin-top: 16px; font-size: 16px; }
+.loy3d {
+  position: relative; margin-top: clamp(32px, 4vw, 48px); height: min(calc(100svh - 76px), 940px); min-height: 600px; overflow: hidden; isolation: isolate;
+  scroll-margin-top: 76px;
+  background: var(--water-0); color: var(--ink); touch-action: pan-y; -webkit-user-select: none; user-select: none;
+}
+.loy3d__gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.loy3d.is-building .loy3d__gl { touch-action: none; cursor: grab; }
+.loy3d.is-dragging .loy3d__gl { cursor: grabbing; }
+.loy3d__poster {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(5, 11, 22, 0) 40%, var(--water-1) 56%, var(--water-0) 100%), url(./images/campus-night@1x.webp) 64% 32% / cover no-repeat;
+}
+.loy3d__boats { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.loy3d__boat {
+  position: absolute; left: 0; top: 0; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent;
+  pointer-events: auto; cursor: pointer; will-change: transform; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.loy3d__boat:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; box-shadow: 0 0 0 6px rgba(245, 197, 24, .18); }
+.loy3d__tag {
+  position: absolute; left: 50%; bottom: 100%; transform: translate(-50%, -2px); padding: 2px 10px; border-radius: 999px;
+  background: var(--gold); color: var(--ink-dark); font-size: 12px; font-weight: 500; line-height: 1.6; white-space: nowrap; pointer-events: none;
+}
+.loy3d__hud {
+  position: absolute; z-index: 5; left: var(--gutter, 24px); right: var(--gutter, 24px); top: 20px;
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 6px 24px; pointer-events: none;
+  transition: opacity .35s ease;
+}
+.loy3d__hud-text { max-width: 560px; text-shadow: 0 1px 12px rgba(5, 11, 22, .9); }
+.loy3d__title { margin: 10px 0 0; font-family: var(--f-display, serif); font-weight: 500; font-size: clamp(24px, 2.6vw, 36px); line-height: 1.3; }
+.loy3d .loy__total { text-shadow: 0 1px 12px rgba(5, 11, 22, .9); }
+.loy3d .loy__total b { font-size: clamp(36px, 3.6vw, 56px); line-height: 1.1; }
+.loy3d .loy__status { pointer-events: auto; }
+.loy3d.is-building .loy3d__hud, .loy3d.is-building .loy3d__cta, .loy3d.is-building .loy3d__boats { opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
+.loy3d__cta {
+  position: absolute; z-index: 5; left: 50%; bottom: 68px;   /* พ้นปุ่มลอยของเว็บที่มุมล่าง (แจ้งปัญหา / กลับขึ้นบน) */ transform: translateX(-50%); width: min(560px, calc(100% - 32px));
+  display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; transition: opacity .35s ease;
+}
+.loy3d__cta .loy__help { margin: 0; color: var(--ink); opacity: .82; font-size: 13px; text-shadow: 0 1px 10px rgba(5, 11, 22, .95); }
+.loy3d__cta .loy__send { width: auto; min-width: 240px; padding: 0 28px; margin: 0; }
+/* สถานะแม่น้ำ (เช่น ยังไม่เปิดแม่น้ำรวม): บรรทัดเล็กบรรทัดเดียวใต้ปุ่ม ไม่ใช่กล่องเตือน */
+.loy3d__note { max-width: 100%; margin: 0; padding: 0; border: 0; background: none; color: var(--ink); opacity: .74; font-size: 13px; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 10px rgba(5, 11, 22, .95); }
+.loy__total[hidden] { display: none; }
+
+/* ============================================================================
+ * หน้าแต่งกระทง: โหมดเต็มจอ + bottom sheet (loy3d-ui.js)
+ * token ชุดเดียวทั้งแผง · ระยะจากสเกล 4/8/12/16/24 · ปุ่ม/พื้นที่แตะ ≥ 44px
+ * ============================================================================ */
+.loy3d {
+  --lb-bg: rgba(9, 16, 30, .97);
+  --lb-card: rgba(23, 39, 65, .55);
+  --lb-card-on: rgba(245, 197, 24, .1);
+  --lb-line: rgba(243, 238, 231, .12);
+  --lb-r: 14px;
+  --lb-r-sheet: 24px;
+  --lb-t-fast: .18s;
+  --lb-t: .3s;
+  --lb-ease: cubic-bezier(.2, .7, .2, 1);
+  --lb-sheet-h: clamp(388px, 50dvh, 460px);     /* ครึ่งล่างของจอ · ครึ่งบนเป็นกระทง */
+}
+/* เต็มจอ: ฉากเดิมกลายเป็น fixed (ตำแหน่งเดิมบนหน้าเว็บมี .loy3d__spacer กันเนื้อหาเลื่อน) */
+.loy3d.is-full { position: fixed; inset: 0; z-index: 1000; margin: 0; width: 100%; height: 100vh; height: 100dvh; min-height: 0; scroll-margin-top: 0; }
+.loy3d__spacer { margin-top: clamp(32px, 4vw, 48px); }
+html.loy-building, html.loy-building body { overflow: hidden; overscroll-behavior: none; }
+html.loy-building .lvc-pet, html.loy-building .lvc-pet-bubble, html.loy-building .lvc-pet-show,
+html.loy-building .lvc-top, html.loy-building .lvc-kit, html.loy-building .lvc-kit-pill { visibility: hidden !important; opacity: 0 !important; }
+
+.loy3d__panel {
+  position: absolute; z-index: 8; left: 0; right: 0; bottom: 0; margin-inline: auto; width: min(680px, 100%); height: var(--lb-sheet-h);
+  display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  border: 1px solid var(--lb-line); border-bottom: 0; border-radius: var(--lb-r-sheet) var(--lb-r-sheet) 0 0;
+  background: var(--lb-bg); box-shadow: 0 -24px 48px -24px rgba(0, 0, 0, .65);
+  color: var(--ink); -webkit-user-select: text; user-select: text;
+}
+.loy3d__panel[hidden] { display: none; }
+
+/* แถบขั้น 1-2-3 (เส้นเล็ก + ชื่อขั้น) · ปุ่มไอคอนมุมขวา */
+.lb__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: none; min-height: 44px; }
+.lb__steps { display: grid; grid-template-columns: repeat(3, 52px); gap: 6px; margin: 0; padding: 0; list-style: none; }
+.lb__steps li { position: relative; padding-top: 10px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.lb__steps li::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: 2px; background: rgba(243, 238, 231, .16); transition: background-color var(--lb-t) var(--lb-ease); }
+.lb__steps .is-done::before { background: rgba(245, 197, 24, .45); }
+.lb__steps [aria-current] { color: var(--ink); font-weight: 500; }
+.lb__steps [aria-current]::before { background: var(--gold); }
+.lb__icons { display: flex; gap: 8px; }
+.lb__icon {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 1px solid var(--lb-line); border-radius: 50%;
+  background: transparent; color: var(--ink); cursor: pointer; transition: border-color var(--lb-t-fast), background-color var(--lb-t-fast), opacity var(--lb-t-fast);
+}
+.lb__icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.lb__icon:hover:not(:disabled) { border-color: rgba(245, 197, 24, .5); background: rgba(243, 238, 231, .04); }
+.lb__icon:disabled { opacity: .3; cursor: default; }
+.lb__icon[hidden] { display: none; }
+
+/* เนื้อหาแต่ละขั้น: แผงสูงคงที่ ถ้าเกินเลื่อนในตัว · ปุ่มล่างอยู่กับที่เสมอ */
+.lb__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 -16px; padding: 0 16px 4px; }
+.lb__step { display: flex; flex-direction: column; gap: 12px; }
+.lb__step[hidden] { display: none; }
+.lb__h { margin: 0; font-family: var(--f-display, serif); font-weight: 500; font-size: 20px; line-height: 1.35; outline: none; }
+/* ขั้น 3 มีช่องกรอกที่มีป้ายชื่ออยู่แล้ว → หัวข้อไว้ให้ screen reader (ประหยัดที่ในแผง) */
+.lb__step[data-step="3"] .lb__h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.lb__count { margin-left: 8px; font-family: var(--f-text, sans-serif); font-size: 13px; font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ขั้น 1: ฐาน */
+.lb__bases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.lb__bases button {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; padding: 8px 6px 12px; border: 1px solid var(--lb-line); border-radius: var(--lb-r);
+  background: var(--lb-card); color: var(--ink); font: 500 15px/1.4 var(--f-text, sans-serif); cursor: pointer; text-align: center;
+  transition: border-color var(--lb-t-fast), background-color var(--lb-t-fast), box-shadow var(--lb-t-fast);
+}
+.lb__bases img { width: 76px; height: 76px; object-fit: contain; margin-bottom: 2px; }
+.lb__bases small { font-weight: 400; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.lb__bases [aria-checked="true"] { border-color: var(--gold); background: var(--lb-card-on); box-shadow: inset 0 0 0 1px var(--gold); }
+
+/* ขั้น 2: ถาดของแต่ง (เลื่อนแนวนอน ขอบขวาจางบอกว่ามีต่อ) */
+.lb__tray {
+  display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; overscroll-behavior-x: contain;
+  margin: 0 -16px; padding: 2px 16px 4px;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+}
+.lb__tray::-webkit-scrollbar { display: none; }
+.lb__tray button {
+  flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; width: 76px; padding: 6px 4px 8px; border: 1px solid var(--lb-line); border-radius: var(--lb-r);
+  background: var(--lb-card); color: var(--ink); font: 500 13px/1.4 var(--f-text, sans-serif); cursor: pointer; scroll-snap-align: start;
+  transition: border-color var(--lb-t-fast), transform var(--lb-t-fast) var(--lb-ease);
+}
+.lb__tray button:last-child { margin-right: 24px; }
+.lb__tray img { width: 48px; height: 48px; object-fit: contain; }
+.lb__tray button:hover:not(:disabled), .lb__bases button:hover { border-color: rgba(245, 197, 24, .5); }
+.lb__tray button:active:not(:disabled) { transform: scale(.95); }
+.lb__tray button:disabled { opacity: .4; cursor: not-allowed; }
+/* แตะชิ้นที่วางแล้ว: จุดสี 1 แถว + ขนาด + หมุน + ลบ (พื้นที่สูงคงที่ ไม่ดันแผง) */
+.lb__edit { display: flex; flex-direction: column; justify-content: center; min-height: 140px; }
+.lb__hint { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; text-align: center; }
+.lb__hint[hidden], .lb__sel[hidden] { display: none; }
+.lb__hint--left { text-align: left; font-size: 14px; }
+.lb__sel { display: flex; flex-direction: column; }
+.lb__sel-row { display: flex; align-items: center; gap: 8px; min-height: 48px; }
+.lb__swatches { display: flex; gap: 2px; flex: 1; min-width: 0; margin-left: -6px; overflow-x: auto; scrollbar-width: none; }
+.lb__swatches[hidden] { display: none; }
+.lb__swatches button { position: relative; flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+.lb__swatches button::before { content: ""; position: absolute; inset: 8px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(243, 238, 231, .3); }
+.lb__swatches button::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; border: 2px solid transparent; transition: border-color var(--lb-t-fast); }
+.lb__swatches [aria-checked="true"]::after { border-color: var(--gold); }
+.lb__sel-name { flex: 1; font-size: 15px; font-weight: 500; }
+.lb__sel-name:empty { display: none; }
+.lb__del { margin-left: auto; color: var(--red-soft); border-color: rgba(239, 146, 156, .35); }
+.lb__del:hover:not(:disabled) { border-color: var(--red-soft); background: rgba(239, 146, 156, .08); }
+.lb__slider { display: flex; align-items: center; gap: 12px; min-height: 44px; color: var(--muted); font-size: 14px; }
+.lb__slider span { flex: none; width: 36px; }
+.lb__slider input { flex: 1; min-width: 0; height: 44px; margin: 0; background: transparent; cursor: pointer; -webkit-appearance: none; appearance: none; }
+.lb__slider input::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: rgba(243, 238, 231, .2); }
+.lb__slider input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; margin-top: -10px; border: 4px solid #0f1b2e; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 1px var(--gold); transition: box-shadow var(--lb-t-fast); }
+.lb__slider input::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(243, 238, 231, .2); }
+.lb__slider input::-moz-range-thumb { width: 16px; height: 16px; border: 4px solid #0f1b2e; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.lb__slider input:focus-visible { outline: none; }
+.lb__slider input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 1px var(--gold), 0 0 0 5px rgba(245, 197, 24, .35); }
+.lb__slider input:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 1px var(--gold), 0 0 0 5px rgba(245, 197, 24, .35); }
+
+/* ขั้น 3: คำอธิษฐาน → จุดเทียน → กดค้างอธิษฐาน */
+.lb__field { margin-top: 0; gap: 4px; }
+.lb__field label { font-size: 14px; }
+.lb__field .loy__n { position: absolute; right: 12px; bottom: 8px; pointer-events: none; }
+.lb__field textarea { min-height: 72px; padding-bottom: 24px; }
+.lb__field input { padding-right: 56px; }
+.lb__err:empty { display: none; }
+.lb__err { margin: 0; }
+.lb__rite {
+  display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 4px 4px 12px; border: 1px dashed rgba(255, 181, 71, .45); border-radius: var(--lb-r);
+  color: var(--ink); font-size: 14px; transition: background-color var(--lb-t), border-color var(--lb-t);
+}
+.lb__rite > svg { flex: none; width: 20px; height: 20px; fill: none; stroke: var(--candle); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.lb__rite-text { flex: 1; line-height: 1.5; }
+.lb__rite.is-done { border-style: solid; border-color: rgba(255, 181, 71, .3); background: rgba(255, 181, 71, .08); }
+.lb__light { flex: none; min-height: 44px; padding: 8px 16px; border: 1px solid rgba(255, 181, 71, .55); border-radius: 999px; background: rgba(255, 181, 71, .12); color: var(--ink); font: 500 14px/1.4 var(--f-text, sans-serif); cursor: pointer; transition: background-color var(--lb-t-fast); }
+.lb__light:hover:not(:disabled) { background: rgba(255, 181, 71, .22); }
+.lb__light:disabled { border-color: transparent; background: none; color: var(--candle); cursor: default; }
+
+/* ปุ่มล่าง */
+.lb__nav { display: flex; gap: 8px; flex: none; }
+.lb__nav [hidden] { display: none; }
+.lb__btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 20px; border: 1px solid var(--lb-line); border-radius: 14px;
+  background: var(--lb-card); color: var(--ink); font: 500 15px/1.3 var(--f-text, sans-serif); cursor: pointer; transition: border-color var(--lb-t-fast), background-color var(--lb-t-fast);
+}
+.lb__btn:hover { border-color: rgba(245, 197, 24, .5); }
+.lb__idea { flex: 1; padding-left: 10px; }
+.lb__idea img { width: 32px; height: 32px; object-fit: contain; }
+.lb__nav .loy__send { flex: 1; margin: 0; }
+.lb__msg {
+  position: absolute; left: 50%; bottom: calc(100% + 12px); max-width: calc(100% - 32px); margin: 0; padding: 8px 16px; border-radius: 999px;
+  background: rgba(9, 16, 30, .88); color: var(--moon); font-size: 14px; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transform: translate(-50%, 6px); opacity: 0; pointer-events: none; transition: opacity var(--lb-t) var(--lb-ease), transform var(--lb-t) var(--lb-ease);
+}
+.lb__msg.is-on { opacity: 1; transform: translate(-50%, 0); }
+.lb__close:focus-visible, .lb__icon:focus-visible, .lb__bases button:focus-visible, .lb__tray button:focus-visible, .lb__btn:focus-visible, .lb__swatches button:focus-visible, .lb__light:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.loy3d.is-building .loy3d__gl:focus-visible { outline: 2px solid var(--gold); outline-offset: -4px; }
+.lb__pray { position: relative; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.lb__ring { width: 30px; height: 30px; flex: none; transform: rotate(-90deg); }
+.lb__ring circle { fill: none; stroke: rgba(35, 30, 32, .22); stroke-width: 3.5; }
+.lb__ring .lb__ring-fill { stroke: var(--ink-dark); stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.lb__pray.is-holding { background: var(--gold-h); box-shadow: 0 0 0 6px rgba(245, 197, 24, .18), 0 10px 40px -6px rgba(255, 181, 71, .8); }
+.lb__pray.is-ready { background: var(--candle); }
+.lb__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+/* จุดชี้ไส้เทียนบนฉาก (ตำแหน่งจาก loy3d-ui.js) */
+.lb__wick { position: absolute; z-index: 4; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; pointer-events: none; border: 2px solid rgba(255, 216, 74, .9); box-shadow: 0 0 18px rgba(255, 181, 71, .7); animation: lb-wick 1.6s ease-out infinite; }
+.lb__wick[hidden] { display: none; }
+@keyframes lb-wick { 0% { scale: .45; opacity: 1; } 100% { scale: 1.15; opacity: 0; } }
+.loy3d.is-moving .loy3d__gl { cursor: move; }
+
+@media (max-width: 380px) {
+  .lb__bases small { display: none; }
+  .lb__idea img { display: none; }
+}
+@media (max-height: 700px) {
+  .loy3d { --lb-sheet-h: min(400px, 56dvh); }
+  .lb__bases small { display: none; }
+  .lb__edit { min-height: 132px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lb__msg, .lb__steps li::before, .lb__tray button { transition: none; }
+  .lb__wick { animation: none; }
+}
+
+/* ---------- การ์ดคำอธิษฐาน (กล่องสีแสงจันทร์ตามไฟล์ร่าง) ---------- */
+.loy__card--moon { width: min(280px, calc(100% - 20px)); padding: 14px 16px; border: 0; border-radius: 12px; background: var(--moon); color: var(--ink-dark); box-shadow: 0 18px 50px -24px rgba(0, 0, 0, .7); }
+.loy__card--moon::after { content: ""; position: absolute; left: calc(50% + var(--ax, 0px)); bottom: -6px; width: 12px; height: 12px; background: var(--moon); transform: translateX(-50%) rotate(45deg); }
+.loy__card--moon .loy__card-wish { margin: 0 !important; font-family: var(--f-display, serif); font-size: 17px; line-height: 1.6; }
+.loy__card--moon .loy__card-name { margin-top: 4px !important; color: #5f5852; font-weight: 400; font-size: 13px; }
+.loy__card--moon .loy__card-time { color: #5f5852; }
+.loy__card--moon .loy__card-mine { background: var(--ink-dark); color: var(--moon); }
+.loy__card--moon .loy__btn { background: rgba(35, 30, 32, .06); border-color: rgba(35, 30, 32, .2); color: var(--ink-dark); }
+.loy__card--moon .loy__btn--ghost { background: transparent; color: #5f5852; }
+.loy__card--moon .loy__btn--warn { background: #9b182a; border-color: #9b182a; color: #fff; }
+.loy__card--moon .loy__card-confirm p { color: var(--ink-dark); }
+.loy__card--moon .loy__btn:focus-visible { outline: 2px solid #9b182a; outline-offset: 2px; }
+
+@media (max-width: 700px) {
+  .loy3d { height: min(calc(100svh - 64px), 860px); min-height: 560px; scroll-margin-top: 64px; }
+  .loy3d.is-full { height: 100vh; height: 100dvh; min-height: 0; }
+  .loy__head .loy__total { text-align: left; }
+}
+.loy3d__debug { position: absolute; z-index: 9; left: 8px; bottom: 8px; margin: 0; padding: 6px 10px; border-radius: 8px; background: rgba(0, 0, 0, .7); color: #9effa8; font: 12px/1.5 ui-monospace, Menlo, monospace; pointer-events: none; white-space: nowrap; }

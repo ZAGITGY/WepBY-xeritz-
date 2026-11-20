@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LVC Krathong Kit · พรีวิวโมเดลกระทง</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500&family=Noto+Serif+Thai:wght@500&display=swap">
+<style>
+:root{--bg:#08101d;--panel:rgba(15,27,46,.92);--line:rgba(243,238,231,.14);--text:#f3eee7;--muted:#bdb8b1;--gold:#f5c518}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"IBM Plex Sans Thai",system-ui,sans-serif}
+#c{position:fixed;left:0;top:0;width:100%;display:block;touch-action:none}
+header{position:fixed;left:0;right:0;top:0;padding:16px 20px;pointer-events:none}
+h1{font-family:"Noto Serif Thai",serif;font-weight:500;font-size:22px;margin:0}
+header p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.tray{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:12px 12px calc(12px + env(safe-area-inset-bottom))}
+.tabs{display:flex;gap:6px;margin:0 4px 10px}.tabs button{min-height:40px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:none;color:var(--muted);font:inherit;font-size:14px;cursor:pointer}.tabs button[aria-selected=true]{background:var(--gold);color:#231e20;border-color:var(--gold)}.row[hidden]{display:none}
+.row{display:flex;gap:8px;overflow-x:auto;padding:0 4px 6px;scrollbar-width:none}
+.row button{flex:none;width:84px;padding:6px 4px 8px;border:1px solid var(--line);border-radius:12px;background:rgba(8,16,29,.6);color:var(--text);font:inherit;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:44px}
+.row button img{width:64px;height:64px;object-fit:contain}
+.row button[aria-pressed=true]{border-color:var(--gold);background:rgba(245,197,24,.1)}
+.row button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.info{position:fixed;right:16px;top:16px;font-size:12px;color:var(--muted);text-align:right;max-width:46vw}
+</style></head><body>
+<canvas id="c"></canvas>
+<header><h1>LVC Krathong Kit</h1><p>ลากเพื่อหมุนดู · ถ่างนิ้วเพื่อซูม</p></header>
+<p class="info" id="info"></p>
+<nav class="tray" aria-label="เลือกโมเดล">
+  <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-t="r-presets">กระทงตัวอย่าง</button><button role="tab" aria-selected="false" data-t="r-bases">ฐานเปล่า</button><button role="tab" aria-selected="false" data-t="r-decor">ของแต่ง</button></div>
+  <div class="row" id="r-presets"></div><div class="row" id="r-bases" hidden></div><div class="row" id="r-decor" hidden></div>
+</nav>
+<script type="importmap">{"imports":{"three":"../../vendor/three/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+const NAMES={lotus:"ดอกบัว",small:"อันเล็ก",bread:"ขนมปัง",marigold:"ดาวเรือง",chrysanthemum:"เบญจมาศ",orchid:"กล้วยไม้",jasmine:"มะลิ",rose:"กุหลาบ",lotus_bud:"บัวตูม",candle:"เทียน",flame:"เปลวเทียน",incense:"ธูป"};
+const man = await (await fetch("manifest.json")).json();
+const cv=document.getElementById("c"), r=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+r.setPixelRatio(Math.min(2,devicePixelRatio)); r.toneMapping=THREE.ACESFilmicToneMapping; r.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x08101d); scene.fog=new THREE.Fog(0x08101d,3,9);
+scene.add(new THREE.HemisphereLight(0xdfe6ff,0x2a2016,1.7));
+const key=new THREE.DirectionalLight(0xffe2b8,2.8); key.position.set(1.5,2.5,2); scene.add(key);
+const candleLight=new THREE.PointLight(0xffa23a,0,1.5,2); scene.add(candleLight);
+const water=new THREE.Mesh(new THREE.CircleGeometry(6,64),new THREE.MeshStandardMaterial({color:0x0c1829,roughness:.15,metalness:.4})); water.rotation.x=-Math.PI/2; water.position.y=-0.005; scene.add(water);
+const cam=new THREE.PerspectiveCamera(35,1,.01,50); const ctl=new OrbitControls(cam,cv); ctl.enableDamping=true; ctl.maxPolarAngle=Math.PI*0.49;
+function fit(){const w=innerWidth,h=innerHeight-document.querySelector('.tray').offsetHeight+16;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();} addEventListener("resize",fit); fit();
+const loader=new GLTFLoader(); let cur=null, flames=[];
+async function show(file,label){
+  const g=await loader.loadAsync(file); if(cur) scene.remove(cur); cur=g.scene; scene.add(cur);
+  flames=[]; cur.traverse(o=>{ if(/flame/.test(o.name)&&o.isMesh) flames.push(o); });
+  const fl=cur.getObjectByName("flame"); candleLight.intensity=fl?0.6:0; if(fl){ fl.getWorldPosition(candleLight.position); }
+  const b=new THREE.Box3().setFromObject(cur), c=b.getCenter(new THREE.Vector3()), s=b.getSize(new THREE.Vector3()), R=Math.max(s.x,s.y,s.z);
+  ctl.target.copy(c); const k=1/Math.min(1,cam.aspect*1.15); cam.position.copy(c).add(new THREE.Vector3(0,R*0.75*k,R*1.75*k)); ctl.update();
+  let tris=0; cur.traverse(o=>{ if(o.isMesh) tris+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3; });
+  document.getElementById("info").textContent=label+" · "+Math.round(tris).toLocaleString()+" สามเหลี่ยม";
+}
+function add(row,key,file,thumb){
+  const b=document.createElement("button"); b.type="button"; b.innerHTML=`<img src="${thumb}" alt="">${NAMES[key]||key}`;
+  b.onclick=()=>{document.querySelectorAll(".row button").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); show(file,NAMES[key]||key);};
+  b.setAttribute("aria-pressed","false"); document.getElementById(row).appendChild(b); return b;
+}
+let first;
+for(const k of Object.keys(man.presets)){ const b=add("r-presets",k,`presets/${k}.glb`,`thumbs/preset-${k}.png`); first=first||b; }
+for(const [k,v] of Object.entries(man.bases)) add("r-bases",k,v.file,v.thumb);
+for(const [k,v] of Object.entries(man.decor)) add("r-decor",k,v.file,v.thumb);
+first.click();
+document.querySelectorAll('.tabs button').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===t));document.querySelectorAll('.row').forEach(rw=>rw.hidden=rw.id!==t.dataset.t);});
+fit();
+const clock=new THREE.Clock();
+r.setAnimationLoop(()=>{const t=clock.getElapsedTime(); flames.forEach((f,i)=>{f.scale.set(1+Math.sin(t*9+i)*.05,1+Math.sin(t*13+i)*.09,1);}); candleLight.intensity=candleLight.intensity?0.55+Math.sin(t*11)*.08:0; ctl.update(); r.render(scene,cam);});
+</script></body></html>
