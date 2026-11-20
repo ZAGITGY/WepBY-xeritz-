@@ -11,6 +11,7 @@
  * ============================================================================ */
 import * as db from "./loy-db.js?v=2026-11-21.1";
 import { tidy, problem, MESSAGES } from "./loy-filter.js?v=2026-11-20.1";
+import { krathongSVG } from "./loy-art.js?v=2026-11-21.1";
 
 const root = document.documentElement;
 const L = window.__LVC || {};
@@ -19,49 +20,14 @@ const ST = L.ScrollTrigger || null;
 const reduceQ = matchMedia("(prefers-reduced-motion: reduce)");
 const MAX = 40, PAGE = 100, FEED_MAX = 600, RATE_MS = 30000, POLL_MS = 45000;   // FEED_MAX: ดึงไม่เกิน 6 หน้าต่อการเข้าชม (คุมโควตาอ่าน)
 const KEY = { last: "lvc.loy.last", mine: "lvc.loy.mine", local: "lvc.loy.local", hidden: "lvc.loy.hidden" };
-const STYLES = ["ใบตอง", "ดอกบัว", "ขนมปัง", "ดาวเรือง"];
+// ตัวเลือกแบบ 2D ตามไฟล์ร่าง (เลข = ฐานเดียวกับแบบ 3D: 0 ใบตอง · 1 กลีบบัว · 2 ขนมปัง)
+const CHOICES = [[0, "ใบตอง", "พับกลีบซ้อนเป็นชั้น แบบดั้งเดิม"], [2, "ขนมปัง", "ปั้นเป็นกลีบดอกไม้"], [1, "กลีบบัว", "พับจากกลีบดอกบัว"]];
+const baseOf = (k) => (k.base != null ? Math.min(2, Math.max(0, k.base | 0)) : [0, 1, 2, 0][k.style | 0] || 0);
 
 const store = {
   get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
 };
-
-/* ---------- ภาพกระทง (SVG) 4 แบบ ---------- */
-const PAL = [
-  { base: "#2d5a34", petal: "#4f9a57", fold: "#2f6b39", flower: "#f4a531", core: "#ffd76a" },   // ใบตอง
-  { base: "#2d5a34", petal: "#f29bb5", fold: "#d16b8c", flower: "#fff1c2", core: "#f6c94f" },   // ดอกบัว
-  { base: "#a8642f", petal: "#dca063", fold: "#b97a3f", flower: "#f6d7a0", core: "#e9604e" },   // ขนมปัง
-  { base: "#2d5a34", petal: "#f39a1e", fold: "#d9770f", flower: "#ffc14a", core: "#ffe28a" },   // ดาวเรือง
-];
-function art(style) {
-  const p = PAL[style] || PAL[0];
-  let body;
-  if (style === 1) {          // ดอกบัว: กลีบมน ซ้อนสองชั้น
-    body = `<path d="M10 44c4-10 10-14 15-15 1 7-2 13-6 17zM70 44c-4-10-10-14-15-15-1 7 2 13 6 17z" fill="${p.fold}"/>
-      <path d="M22 44c0-13 6-20 11-23 3 8 1 18-3 24zM58 44c0-13-6-20-11-23-3 8-1 18 3 24z" fill="${p.petal}"/>
-      <path d="M33 45c-2-12 2-21 7-26 5 5 9 14 7 26z" fill="${p.petal}"/>`;
-  } else if (style === 2) {   // ขนมปัง: ก้อนกลมมีลาย
-    body = `<path d="M12 44c0-12 12-19 28-19s28 7 28 19z" fill="${p.petal}"/>
-      <path d="M20 36c5-3 9-3 13 0M35 33c5-3 9-3 13 0M50 36c4-2 7-2 10 0" stroke="${p.fold}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
-  } else if (style === 3) {   // ดาวเรือง: กลีบหยักเป็นวง
-    body = `<path d="M12 43l3-8 4 6 3-10 5 8 3-11 5 9 5-9 3 11 5-8 3 10 4-6 3 8z" fill="${p.fold}"/>
-      <circle cx="22" cy="37" r="6" fill="${p.petal}"/><circle cx="58" cy="37" r="6" fill="${p.petal}"/>`;
-  } else {                    // ใบตอง: กลีบแหลมพับซ้อน
-    body = `<path d="M11 43l5-15 6 13 6-16 6 15 6-17 6 17 6-15 6 16 6-13 5 15z" fill="${p.petal}"/>
-      <path d="M16 28l2 13M28 25l2 15M40 23v16M52 25l-2 15M64 28l-2 13" stroke="${p.fold}" stroke-width="1.6"/>`;
-  }
-  return `<svg class="loy-art" viewBox="0 0 80 60" aria-hidden="true" focusable="false">
-    <path d="M7 43c10 11 56 11 66 0l-3 6c-12 9-48 9-60 0z" fill="${p.base}"/>
-    <ellipse cx="40" cy="44" rx="33" ry="6" fill="${p.base}"/>
-    ${body}
-    <circle cx="40" cy="33" r="7.5" fill="${p.flower}"/><circle cx="40" cy="33" r="3.2" fill="${p.core}"/>
-    <path d="M32 33l-3-17M48 33l3-16" stroke="#7b5236" stroke-width="1.3" stroke-linecap="round"/>
-    <circle cx="29" cy="15.5" r="1.1" fill="#ff8a3d"/><circle cx="51" cy="16.5" r="1.1" fill="#ff8a3d"/>
-    <rect x="38.4" y="13" width="3.2" height="17" rx="1.2" fill="#fff3da"/>
-    <path class="loy-flame" d="M40 1.5c3.6 4.2 4.2 7.6 0 11.2-4.2-3.6-3.6-7 0-11.2z" fill="#ffd36e"/>
-    <path d="M40 6.2c1.4 1.8 1.6 3.4 0 4.8-1.6-1.4-1.4-3 0-4.8z" fill="#fff7d6"/>
-  </svg>`;
-}
 
 /* ---------- เวลาแบบ "x นาทีที่แล้ว" ---------- */
 const RTF = (() => { try { return new Intl.RelativeTimeFormat("th", { numeric: "auto" }); } catch (e) { return null; } })();
@@ -81,56 +47,60 @@ const fmt = (n) => Number(n || 0).toLocaleString("th-TH");
 function build() {
   const sec = document.createElement("section");
   sec.id = "loy";
-  sec.className = "loy";
+  sec.className = "loy loy--2d";
   sec.setAttribute("aria-labelledby", "loy-title");
   sec.innerHTML = `
-  <div class="wrap loy__top">
-    <div class="loy__intro">
-      <p class="loy__eyebrow"><i aria-hidden="true"></i>ลอยกระทง 2569</p>
-      <h2 id="loy-title" class="loy__title">ลอยกระทง<span>ออนไลน์</span></h2>
-      <p class="loy__lead">เลือกกระทง เขียนคำอธิษฐาน แล้วปล่อยลง “แม่น้ำของเรา” กระทงทุกใบลอยอยู่ด้วยกัน ใครเข้าเว็บก็เห็น</p>
-      <ul class="loy__rules" id="loy-rules">
-        <li>ข้อความจะแสดงให้ทุกคนเห็น</li>
-        <li>ไม่ใส่เบอร์โทร ลิงก์ หรือคำไม่สุภาพ</li>
-        <li>ลอยได้ 1 ใบทุก 30 วินาที</li>
-      </ul>
-    </div>
-    <form class="loy__form" novalidate aria-describedby="loy-rules">
-      <fieldset class="loy__pick">
-        <legend>เลือกกระทง</legend>
-        <div class="loy__styles">${STYLES.map((n, i) => `
-          <label class="loy__style"><input type="radio" name="kt" value="${i}"${i ? "" : " checked"}>
-            <span class="loy__style-art">${art(i)}</span><span class="loy__style-name">${n}</span></label>`).join("")}
+  <div class="wrap">
+    <p class="loy__eyebrow"><i aria-hidden="true"></i>ลอยกระทงออนไลน์</p>
+    <h2 id="loy-title" class="loy__title">เลือกกระทง แล้วฝากคำอธิษฐาน</h2>
+    <p class="loy__lead">กระทงในเว็บไม่มีขยะลงแม่น้ำจริง ลอยได้ทั้งคืนโดยไม่ต้องห่วงสายน้ำ</p>
+    <div class="loy__grid">
+      <form class="loy__form" novalidate>
+        <fieldset class="loy__pick">
+          <legend>1. เลือกกระทง</legend>
+          <div class="loy__styles">${CHOICES.map(([v, n, d], i) => `
+            <label class="loy__style"><input type="radio" name="kt" value="${v}"${i ? "" : " checked"}>
+              <span class="loy__style-art">${krathongSVG(v)}</span><b class="loy__style-name">${n}</b><small>${d}</small></label>`).join("")}
+          </div>
+        </fieldset>
+        <div class="loy__field">
+          <label for="loy-wish">2. คำอธิษฐาน <span class="loy__n" id="loy-wish-n">0/80</span></label>
+          <textarea id="loy-wish" name="wish" rows="3" maxlength="80" required enterkeyhint="send" placeholder="เช่น ขอให้สอบผ่านทุกวิชาเทอมนี้" aria-describedby="loy-wish-hint loy-error"></textarea>
+          <p class="loy__hint" id="loy-wish-hint">คนอื่นจะเห็นข้อความนี้ อย่าใส่เบอร์โทร ลิงก์ หรือข้อมูลส่วนตัว · ลอยได้ 1 ใบทุก 30 วินาที</p>
+          <p class="loy__error" id="loy-error" role="alert"></p>
         </div>
-      </fieldset>
-      <div class="loy__field">
-        <label for="loy-name">ชื่อ <small>(ไม่ใส่ก็ได้)</small></label>
-        <input id="loy-name" name="name" type="text" maxlength="20" autocomplete="nickname" enterkeyhint="next" aria-describedby="loy-name-n">
-        <span class="loy__n" id="loy-name-n">0/20</span>
+        <div class="loy__field">
+          <label for="loy-name">3. ชื่อที่จะแสดง <span class="loy__n"><span id="loy-name-n">0/20</span> · ไม่ใส่ก็ได้</span></label>
+          <input id="loy-name" name="name" type="text" maxlength="20" autocomplete="nickname" enterkeyhint="next" placeholder="เช่น เบส ปวส.1">
+        </div>
+        <button class="loy__send" type="submit"><span class="loy__send-label">ปล่อยกระทงลงน้ำ</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v15M5 13l7 7 7-7"/></svg></button>
+      </form>
+      <div class="loy__preview" aria-hidden="true">
+        <p class="loy__preview-wish"></p>
+        <div class="loy__preview-water"></div>
+        <div class="loy__preview-boat"><span class="loy-boat__glow"></span><span class="loy__preview-svg"></span></div>
       </div>
-      <div class="loy__field">
-        <label for="loy-wish">คำอธิษฐาน</label>
-        <textarea id="loy-wish" name="wish" rows="2" maxlength="80" required enterkeyhint="send" aria-describedby="loy-wish-n loy-error"></textarea>
-        <span class="loy__n" id="loy-wish-n">0/80</span>
+    </div>
+    <div class="loy__head loy__river-head">
+      <div>
+        <p class="loy__eyebrow"><i aria-hidden="true"></i>แม่น้ำของเรา</p>
+        <h3 class="loy__title loy__river-title" id="loy-river-title">กระทงที่ลอยอยู่ตอนนี้</h3>
+        <p class="loy__lead" id="loy-river-help">แตะกระทงเพื่ออ่านคำอธิษฐาน ลากนิ้วบนผิวน้ำแล้วจะเห็นระลอกน้ำ<span class="loy__help-keys"> · กด Tab แล้วใช้ลูกศรซ้าย/ขวาเลื่อนไปใบอื่น</span></p>
       </div>
-      <p class="loy__error" id="loy-error" role="alert"></p>
-      <button class="loy__send" type="submit"><span class="loy__send-label">ลอยกระทง</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></button>
-    </form>
-  </div>
-  <div class="loy__river" id="loy-river">
-    <div class="wrap loy__river-head">
-      <div><h3 class="loy__river-title" id="loy-river-title">แม่น้ำของเรา</h3>
-      <p class="loy__help" id="loy-river-help">แตะกระทงเพื่ออ่านคำอธิษฐาน<span class="loy__help-keys"> · กด Tab แล้วใช้ลูกศรซ้าย/ขวาเลื่อนไปใบอื่น</span></p></div>
-      <p class="loy__total" aria-live="polite"><b>–</b> <span>ใบที่ลอยอยู่</span></p>
+      <p class="loy__total" aria-live="polite"><b>–</b> <span>ใบที่ลอยแล้ว</span></p>
       <p class="loy__status" role="status" hidden></p>
     </div>
+  </div>
+  <div class="loy__river" id="loy-river">
     <canvas class="loy__water" aria-hidden="true" data-pet-avoid="off"></canvas>
+    <div class="loy__moon" aria-hidden="true"></div>
     <div class="loy__boats" role="group" aria-labelledby="loy-river-title" aria-describedby="loy-river-help"></div>
-    <div class="loy__card" role="dialog" aria-modal="false" aria-labelledby="loy-card-name" hidden>
+    <p class="loy__river-hint" aria-hidden="true">แตะกระทงเพื่ออ่าน</p>
+    <div class="loy__card loy__card--moon" role="dialog" aria-modal="false" aria-labelledby="loy-card-name" hidden>
       <p class="loy__card-mine" hidden>กระทงของคุณ</p>
-      <p class="loy__card-name" id="loy-card-name"></p>
       <p class="loy__card-wish"></p>
+      <p class="loy__card-name" id="loy-card-name"></p>
       <p class="loy__card-time"></p>
       <div class="loy__card-confirm" hidden>
         <p>ซ่อนกระทงใบนี้จากหน้าจอของคุณ และแจ้งผู้ดูแลให้ตรวจสอบ?</p>
@@ -156,15 +126,15 @@ class River {
     this.el = el;
     this.layer = el.querySelector(".loy__boats");
     this.canvas = el.querySelector(".loy__water");
-    this.head = el.querySelector(".loy__river-head");
     this.ctx = this.canvas.getContext("2d");
     this.card = el.querySelector(".loy__card");
     this.boats = new Map();
     this.w = 0; this.h = 0; this.dpr = 1;
     this.active = false; this.lastDraw = 0; this.t = 0;
     this.open = null;
-    this.ripples = Array.from({ length: 46 }, () => ({ x: Math.random(), y: Math.random(), w: 0.02 + Math.random() * 0.06, a: 0.05 + Math.random() * 0.12 }));
-    this.sparks = Array.from({ length: 70 }, () => ({ y: Math.random(), o: Math.random() * 6.28, s: 0.6 + Math.random() * 1.6 }));
+    // ตามไฟล์ร่าง: เส้นแสงพลิ้วทั้งผิวน้ำ + ระลอกจากการแตะ/ลากนิ้ว
+    this.streaks = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), l: 20 + Math.random() * 90, p: Math.random() * 6 }));
+    this.rip = [];
     this.tick = this.tick.bind(this);
     this.resize();
     new ResizeObserver(() => { this.resize(); this.draw(); }).observe(el);
@@ -174,7 +144,21 @@ class River {
     reduceQ.addEventListener && reduceQ.addEventListener("change", () => { this.layout(); this.sync(); this.draw(); });
     this.bindCard();
     this.bindKeys();
+    let last = 0;
+    el.addEventListener("pointermove", (e) => {
+      const now = performance.now();
+      if (now - last < 90 || this.still) return;
+      last = now;
+      const r = el.getBoundingClientRect();
+      this.ripple(e.clientX - r.left, e.clientY - r.top, 0.5);
+    });
+    el.addEventListener("pointerdown", (e) => {
+      if (e.target.closest(".loy-boat, .loy__card") || this.still) return;
+      const r = el.getBoundingClientRect();
+      this.ripple(e.clientX - r.left, e.clientY - r.top, 1);
+    });
   }
+  ripple(x, y, k) { this.rip.push({ x, y, r: 4, a: 0.55 * k, k }); if (this.rip.length > 24) this.rip.shift(); }
   get still() { return reduceQ.matches; }
   sync() {
     const on = !!this.visible && !document.hidden && !this.still;
@@ -188,18 +172,15 @@ class River {
     this.w = Math.max(1, r.width); this.h = Math.max(1, r.height);
     // กว้างเปลี่ยน (หมุนจอ / section เพิ่งได้ขนาดจริงหลังฉากเข้าเว็บ) → ย้ายกระทงตามสัดส่วน ไม่กองอยู่ขอบซ้าย
     if (oldW && oldW !== this.w) for (const b of this.boats.values()) b.x *= this.w / oldW;
-    this.dpr = Math.min(window.devicePixelRatio || 1, this.w > 900 ? 1.25 : 1.5);
-    // ช่องลอยเริ่มใต้หัวข้อ/ข้อความแจ้ง (มือถือหัวข้อสูงกว่า)
-    this.top = Math.min(0.52, Math.max(0.3, (this.head.offsetTop + this.head.offsetHeight + 40) / this.h));
+    this.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     this.canvas.width = Math.round(this.w * this.dpr); this.canvas.height = Math.round(this.h * this.dpr);
     this.layout();
   }
-  // ช่องลอย: บนสุด = ไกล (เล็ก ช้า จางลง) · ล่าง = ใกล้
+  // ช่องลอย (ตามไฟล์ร่าง): บนสุด = ไกล (เล็ก ช้า) · ล่าง = ใกล้ · b.y = ระดับน้ำใต้กระทง
   lane(b) {
-    const top = this.top || 0.3, span = 0.9 - top;
     b.depth = b.lane;
-    b.y = (top + span * b.lane) * this.h;
-    b.scale = (0.66 + 0.5 * b.lane) * (this.w > 900 ? 1.3 : 1);
+    b.scale = 0.55 + b.lane * 0.6;
+    b.y = 30 + 64 * b.scale + b.lane * Math.max(60, this.h - 150);
     b.speed = (7 + 12 * b.lane) * (b.dir || 1);
     if (b.el) b.el.style.zIndex = String(10 + Math.round(b.lane * 50));
   }
@@ -213,8 +194,8 @@ class River {
     }
   }
   place(b) {
-    const bob = this.still ? 0 : Math.sin(this.t * b.f + b.p) * 2.4;
-    b.el.style.transform = `translate3d(${(b.x - 28).toFixed(1)}px,${(b.y - 44 + bob).toFixed(1)}px,0)`;
+    const bob = this.still ? 0 : Math.sin(this.t * 1.3 + b.p) * 3, rot = this.still ? 0 : Math.sin(this.t * 0.9 + b.p) * 3;
+    b.el.style.transform = `translate3d(${(b.x - 48).toFixed(1)}px,${(b.y - 72 + bob).toFixed(1)}px,0) scale(${b.scale.toFixed(3)}) rotate(${rot.toFixed(2)}deg)`;
   }
   add(k, opts = {}) {
     if (this.boats.has(k.id)) return this.boats.get(k.id);
@@ -224,11 +205,10 @@ class River {
     el.tabIndex = -1;
     if (k.decor) { el.setAttribute("aria-hidden", "true"); el.disabled = true; }
     else el.setAttribute("aria-label", `กระทง${k.mine ? "ของคุณ" : ""} ${k.name || "ไม่ระบุชื่อ"}: ${k.wish}`);
-    el.innerHTML = `<span class="loy-boat__body" style="--s:${(0.66 + 0.5 * (opts.lane != null ? opts.lane : 0.5)).toFixed(3)}">${art(k.style != null ? k.style | 0 : k.base | 0)}</span>`;
+    el.innerHTML = `<span class="loy-boat__body"><span class="loy-boat__glow"></span>${krathongSVG(baseOf(k))}</span>${k.mine ? '<span class="loy-boat__tag">กระทงของคุณ</span>' : ""}`;
     const b = { k, el, body: el.firstChild, lane: opts.lane != null ? opts.lane : Math.random(), x: opts.x != null ? opts.x : Math.random() * this.w,
       dir: 1, f: 1.1 + Math.random() * 0.8, p: Math.random() * 6.28, held: false };
     this.lane(b);
-    b.body.style.setProperty("--s", b.scale.toFixed(3));
     if (this.still && opts.x == null) b.x = ((this.boats.size * 0.618 + 0.08) % 1) * (this.w - 60) + 30;
     el.addEventListener("click", () => this.show(b));
     el.addEventListener("focus", () => { b.held = true; this.roving(b); });
@@ -238,7 +218,8 @@ class River {
     this.place(b);
     if (!this.layer.querySelector('.loy-boat[tabindex="0"]')) this.roving(b);
     if (opts.launch && gsap && !this.still) {
-      gsap.fromTo(b.body, { y: -70, scale: 0.4, autoAlpha: 0, rotation: -8 }, { y: 0, scale: 1, autoAlpha: 1, rotation: 0, duration: 1.3, ease: "back.out(1.5)", clearProps: "transform,opacity,visibility" });
+      gsap.fromTo(b.body, { y: -90, scale: 0.5, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 1, ease: "back.out(1.5)", clearProps: "transform,opacity,visibility" });
+      this.ripple(b.x, b.y, 1.4); this.ripple(b.x, b.y, 0.9);
     } else if (opts.arrive && gsap && !this.still) {
       gsap.fromTo(b.body, { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.2, clearProps: "opacity,visibility" });
     }
@@ -255,11 +236,12 @@ class River {
     else gone();
     if (b.el.tabIndex === 0) { const n = this.boats.values().next().value; if (n) this.roving(n); }
   }
-  // ไม่เกิน MAX ใบ: เอาใบเก่าสุดที่ไม่ใช่ของเราออก
+  // ไม่เกิน MAX ใบ (จอแคบลดตามความกว้าง ~1 ใบต่อ 36px: มือถือ ~12 ใบ): เอาใบเก่าสุดที่ไม่ใช่ของเราออก
   trim() {
-    if (this.boats.size <= MAX) return;
+    const max = Math.max(12, Math.min(MAX, Math.round(this.w / 36)));
+    if (this.boats.size <= max) return;
     const list = [...this.boats.values()].filter((b) => !b.k.mine && b !== this.open).sort((a, b) => (a.k.at || 0) - (b.k.at || 0));
-    while (this.boats.size > MAX && list.length) this.remove(list.shift().k.id, true);
+    while (this.boats.size > max && list.length) this.remove(list.shift().k.id, true);
   }
   clear() { for (const id of [...this.boats.keys()]) this.remove(id); }
 
@@ -278,53 +260,34 @@ class River {
       }
       this.place(b);
     }
-    if (time - this.lastDraw >= 1 / 30) { this.lastDraw = time; this.draw(); }
+    if (time - this.lastDraw >= 1 / 30) { this.draw(Math.min(0.1, time - this.lastDraw)); this.lastDraw = time; }
   }
 
-  /* ผิวน้ำ: ไล่สี + ระลอก + ทางแสงจันทร์ + แสงเทียนสะท้อนใต้กระทง */
-  draw() {
-    const c = this.ctx, W = this.w, H = this.h, t = this.still ? 0 : this.t;
+  /* ผิวน้ำ (ตามไฟล์ร่าง): เส้นแสงพลิ้ว + เงาจันทร์ทอดลงน้ำ + ระลอกน้ำ · แสงเทียนใต้กระทงเป็น CSS (.loy-boat__glow) */
+  draw(dt = 0) {
+    const c = this.ctx, w = this.w, h = this.h, t = this.still ? 0 : this.t;
     if (!c) return;
     c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    c.clearRect(0, 0, W, H);
-    const g = c.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, "rgba(11,16,39,0)"); g.addColorStop(0.22, "#0d1838"); g.addColorStop(1, "#060b20");
-    c.fillStyle = g; c.fillRect(0, 0, W, H);
-    // แนวน้ำไกล ๆ (เส้นขอบฟ้า)
-    c.fillStyle = "rgba(160,180,255,.10)"; c.fillRect(0, H * 0.22, W, 1);
-    c.lineCap = "round";
-    for (const r of this.ripples) {
-      const y = H * (0.24 + r.y * 0.74), k = 0.3 + r.y;
-      const x = ((r.x * W + t * 9 * k) % (W + 80)) - 40;
-      c.strokeStyle = `rgba(170,190,255,${(r.a * k).toFixed(3)})`;
-      c.lineWidth = 0.8 + r.y;
-      c.beginPath(); c.moveTo(x, y); c.lineTo(x + r.w * W * k, y); c.stroke();
+    c.clearRect(0, 0, w, h);
+    for (const s of this.streaks) {
+      const a = 0.05 + 0.06 * (0.5 + 0.5 * Math.sin(t * 1.2 + s.p));
+      c.fillStyle = `rgba(170,195,235,${a.toFixed(3)})`;
+      c.fillRect(((s.x + t * 0.004 * (0.5 + s.y)) % 1) * w, s.y * h, s.l * (0.4 + s.y), 1);
     }
-    // ทางแสงจันทร์ (ขวาของลำน้ำ ตรงกับพระจันทร์ในฉากหน้าแรก)
-    const mx = W * 0.8;
-    const mg = c.createRadialGradient(mx, H * 0.22, 0, mx, H * 0.22, H * 0.9);
-    mg.addColorStop(0, "rgba(255,240,210,.20)"); mg.addColorStop(1, "rgba(255,240,210,0)");
-    c.fillStyle = mg; c.fillRect(0, 0, W, H);
-    for (const s of this.sparks) {
-      const y = H * (0.23 + s.y * 0.76), spread = 10 + s.y * W * 0.09;
-      const x = mx + Math.sin(s.o * 3.1 + s.y * 7) * spread;
-      const a = Math.max(0, Math.sin(t * s.s * 2 + s.o)) * (0.25 + 0.55 * (1 - s.y * 0.5));
-      if (a < 0.03) continue;
-      c.fillStyle = `rgba(255,242,214,${a.toFixed(3)})`;
-      c.fillRect(x, y, 4 + s.y * 14, 1.2 + s.y);
+    const mx = w * 0.5;
+    for (let y = 2; y < h; y += 4) {
+      const f = y / h, wob = Math.sin(t * 1.6 + y * 0.09) * (6 + f * 18), len = (26 + f * 150) * (0.55 + 0.45 * Math.sin(t * 2.1 + y * 0.21));
+      c.fillStyle = `rgba(244,234,210,${(0.42 * (1 - f * 0.7)).toFixed(3)})`;
+      c.fillRect(mx - len / 2 + wob, y, len, 2);
     }
-    // แสงเทียนใต้กระทง: ริ้วแสงบาง ๆ บนระลอกน้ำ จางลงเมื่อห่างกระทง
-    c.globalCompositeOperation = "lighter";
-    for (const b of this.boats.values()) {
-      const x = b.x, y = b.y + 3, len = (24 + 36 * b.lane) * b.scale, n = 8;
-      for (let i = 0; i < n; i++) {
-        const k = i / n, ww = (5 + 9 * b.lane) * b.scale * (1 - k * 0.55);
-        const off = this.still ? 0 : Math.sin(t * 2.6 + i * 1.3 + b.p) * (1.5 + k * 3);
-        c.fillStyle = `rgba(255,186,96,${((b.k.decor ? 0.16 : 0.32) * (1 - k)).toFixed(3)})`;
-        c.beginPath(); c.ellipse(x + off, y + k * len, ww / 2, 0.9 + k * 0.6, 0, 0, 6.283); c.fill();
-      }
+    for (let i = this.rip.length - 1; i >= 0; i--) {
+      const r = this.rip[i];
+      r.r += (40 + 50 * r.k) * dt; r.a -= 0.45 * dt;
+      if (r.a <= 0) { this.rip.splice(i, 1); continue; }
+      c.strokeStyle = `rgba(244,234,210,${r.a.toFixed(3)})`; c.lineWidth = 1.2;
+      c.beginPath(); c.ellipse(r.x, r.y, r.r, r.r * 0.32, 0, 0, Math.PI * 2); c.stroke();
+      if (r.r > 18) { c.beginPath(); c.ellipse(r.x, r.y, r.r * 0.6, r.r * 0.19, 0, 0, Math.PI * 2); c.stroke(); }
     }
-    c.globalCompositeOperation = "source-over";
   }
 
   /* ---------- การ์ดคำอธิษฐาน ---------- */
@@ -354,8 +317,8 @@ class River {
     this.open = b; b.held = true;
     const card = this.card, k = b.k;
     card.querySelector(".loy__card-mine").hidden = !k.mine;
-    card.querySelector(".loy__card-name").textContent = k.name || "ไม่ระบุชื่อ";
-    card.querySelector(".loy__card-wish").textContent = `“${k.wish}”`;
+    card.querySelector(".loy__card-name").textContent = "— " + (k.name || "ไม่ระบุชื่อ");
+    card.querySelector(".loy__card-wish").textContent = k.wish;
     card.querySelector(".loy__card-time").textContent = ago(k.at);
     card.querySelector('[data-act="report"]').hidden = !!(k.mine || k.local);
     this.resetCard();
@@ -363,10 +326,12 @@ class River {
     // วางเหนือกระทง ไม่ล้นขอบแม่น้ำ
     const cw = card.offsetWidth, ch = card.offsetHeight;
     const x = Math.min(Math.max(12, b.x - cw / 2), this.w - cw - 12);
-    let y = b.y - ch - 52;
+    let y = b.y - 72 * b.scale - ch - 12;
     if (y < 8) y = Math.min(this.h - ch - 8, b.y + 14);
     card.style.left = x.toFixed(0) + "px";
     card.style.top = Math.max(8, y).toFixed(0) + "px";
+    card.style.setProperty("--ax", Math.max(-cw / 2 + 20, Math.min(cw / 2 - 20, b.x - x - cw / 2)).toFixed(0) + "px");
+    this.ripple(b.x, b.y, 0.8);
     // opacity ไม่ใช่ autoAlpha: ต้องโฟกัสปุ่มในการ์ดได้ทันที (visibility:hidden โฟกัสไม่ได้)
     if (gsap && !this.still) gsap.fromTo(card, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.28, ease: "power2.out", clearProps: "opacity,transform" });
     card.querySelector('[data-act="close"]').focus({ preventScroll: true });
@@ -618,7 +583,7 @@ function mount2D(sec, data) {
     const first = [...river.boats.values()].find((x) => !x.k.decor);
     if (first && sec.contains(document.activeElement)) first.el.focus({ preventScroll: true });
   });
-  data.on("decor", () => { for (let i = 0; i < 7; i++) river.add({ id: "decor" + i, decor: true, style: i % 4 }, { lane: (i * 0.37) % 1, x: ((i * 0.29 + 0.05) % 1) * river.w }); });
+  data.on("decor", () => { for (let i = 0; i < 7; i++) river.add({ id: "decor" + i, decor: true, base: i % 3 }, { lane: (i * 0.37) % 1, x: ((i * 0.29 + 0.05) % 1) * river.w }); });
   data.on("undecor", () => { for (const id of [...river.boats.keys()]) if (/^decor/.test(id)) river.remove(id); });
   river.onReport = (b) => data.report(b.k.id);
   setInterval(() => data.poll(river.visible), POLL_MS);
@@ -626,6 +591,28 @@ function mount2D(sec, data) {
   const counter = (el, out, max) => { const f = () => { out.textContent = `${el.value.length}/${max}`; }; el.addEventListener("input", f); f(); };
   counter(nameEl, $("#loy-name-n"), 20);
   counter(wishEl, $("#loy-wish-n"), 80);
+
+  // ตัวอย่างกระทง (ตามไฟล์ร่าง): คำอธิษฐาน + กระทงที่เลือก ลอยขึ้นลงช้า ๆ
+  const pvWish = $(".loy__preview-wish"), pvBoat = $(".loy__preview-boat"), pvSvg = $(".loy__preview-svg");
+  const still = () => reduceQ.matches || !gsap;
+  const curBase = () => Number(form.elements.kt.value) | 0;   // ชื่อ "kt" ไม่ใช่ "style" (form.style จะกลายเป็นปุ่มเลือกแทน CSS)
+  function preview(swap) {
+    const t = tidy(wishEl.value), n = tidy(nameEl.value);
+    pvWish.textContent = "";
+    if (t) {
+      pvWish.append(t);
+      const sm = document.createElement("small"); sm.textContent = "— " + (n || "ไม่ระบุชื่อ"); pvWish.append(sm);
+    } else pvWish.innerHTML = '<span class="loy__ph">คำอธิษฐานของคุณจะขึ้นตรงนี้</span>';
+    if (swap) {
+      pvSvg.innerHTML = krathongSVG(curBase());
+      if (!still()) gsap.fromTo(pvBoat, { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: "back.out(1.6)" });
+    }
+  }
+  form.addEventListener("change", (e) => { if (e.target.name === "kt") preview(true); });
+  wishEl.addEventListener("input", () => preview(false));
+  nameEl.addEventListener("input", () => preview(false));
+  preview(true);
+  if (!still()) gsap.to(pvSvg, { y: -6, rotation: 1.5, duration: 2.4, ease: "sine.inOut", yoyo: true, repeat: -1 });
   function fail(msg, field) {
     errEl.textContent = msg;
     [nameEl, wishEl].forEach((el) => el.toggleAttribute("aria-invalid", el === field));
@@ -633,7 +620,7 @@ function mount2D(sec, data) {
   }
   [nameEl, wishEl].forEach((el) => el.addEventListener("input", () => { if (errEl.textContent) { errEl.textContent = ""; el.removeAttribute("aria-invalid"); } }));
   wishEl.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit ? form.requestSubmit() : sendBtn.click(); } });
-  const showWait = waitButton(sendBtn, sendLabel, "ลอยกระทง", data);
+  const showWait = waitButton(sendBtn, sendLabel, "ปล่อยกระทงลงน้ำ", data);
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -642,11 +629,16 @@ function mount2D(sec, data) {
     if (bad) { if (!bad.field) showWait(); return fail(bad.msg, bad.field === "name" ? nameEl : bad.field === "wish" ? wishEl : null); }
     errEl.textContent = "";
     sendBtn.setAttribute("aria-busy", "true"); sendBtn.disabled = true; sendLabel.textContent = "กำลังปล่อยกระทง…";
-    const base = [0, 1, 2, 0][Number(form.elements.kt.value) | 0];   // ชื่อ "kt" ไม่ใช่ "style" (form.style จะกลายเป็นปุ่มเลือกแทน CSS)
-    const res = await data.add({ name: nameEl.value, wish: wishEl.value, base });
+    // กระทงตัวอย่างยกขึ้นแล้วจุ่มลงน้ำ (พร้อมกับการบันทึก) แล้วไปโผล่ในแม่น้ำ
+    if (!still()) gsap.timeline().to(pvBoat, { y: -22, scale: 1.06, duration: 0.35, ease: "power2.out" }).to(pvBoat, { y: 60, autoAlpha: 0, duration: 0.45, ease: "power2.in" })
+      .set(pvBoat, { y: 0, scale: 1 }).to(pvBoat, { autoAlpha: 1, duration: 0.5, delay: 0.6 });
+    const res = await data.add({ name: nameEl.value, wish: wishEl.value, base: curBase() });
     sendBtn.removeAttribute("aria-busy");
     showWait();
-    if (res.error) return fail(res.error, wishEl);
+    if (res.error) {
+      if (!still()) { gsap.killTweensOf(pvBoat); gsap.set(pvBoat, { autoAlpha: 1, y: 0, scale: 1 }); }
+      return fail(res.error, wishEl);
+    }
     wishEl.value = ""; wishEl.dispatchEvent(new Event("input"));
     if (data.mode !== "online" && statusEl.hidden) data.status("กระทงของคุณลอยอยู่ในเครื่องนี้แล้ว");
   });
@@ -788,7 +780,7 @@ function init() {
 
   /* ---------- เปิดตัว section ตอนเลื่อนถึง (GSAP + ScrollTrigger ตัวเดียวกับหน้าแรก) ---------- */
   if (gsap && ST && !reduceQ.matches) {
-    const parts = sec.querySelectorAll(".loy__head > *, .loy__eyebrow:not(.loy3d .loy__eyebrow), .loy__title, .loy__lead, .loy__rules, .loy__form, .loy__river-head");
+    const parts = sec.querySelectorAll(".loy__head > *, .loy__eyebrow:not(.loy3d .loy__eyebrow), .loy__title, .loy__lead, .loy__form, .loy__preview");
     gsap.set(eco.querySelectorAll(".loy__eyebrow, .loy-eco__title, li"), { autoAlpha: 0, y: 24 });
     ST.batch(eco.querySelectorAll(".loy__eyebrow, .loy-eco__title, li"), { start: "top 88%", once: true,
       onEnter: (b) => gsap.to(b, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08, ease: "power3.out", overwrite: true, clearProps: "opacity,visibility,transform" }) });

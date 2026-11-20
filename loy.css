@@ -113,73 +113,80 @@ html[data-loy] .lvc-campus.is-fallback {
 /* ============================================================================
  * ลอยกระทงออนไลน์ + แม่น้ำของเรา (loy.js สร้าง section นี้เฉพาะช่วงเทศกาล)
  * ============================================================================ */
-.loy {
-  position: relative; padding-top: clamp(72px, 9vw, 120px); color: var(--ink);
-  background: linear-gradient(180deg, var(--paper) 0%, var(--sky-1) 58%, var(--sky-1) 100%);
-}
-.loy__top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: clamp(32px, 6vw, 96px); align-items: start; }
-.loy__eyebrow { display: flex; align-items: center; gap: 12px; margin: 0; color: var(--gold); font-size: 13px; letter-spacing: .04em; }
+.loy { position: relative; padding-top: clamp(72px, 9vw, 120px); color: var(--ink); background: linear-gradient(180deg, var(--paper) 0%, var(--sky-1) 30%, var(--sky-1) 100%); }
+.loy__eyebrow { display: flex; align-items: center; gap: 12px; margin: 0; color: var(--gold); font-size: 14px; letter-spacing: .02em; }
 .loy__eyebrow i { display: block; width: 36px; height: 1px; background: currentColor; }
-.loy__title {
-  margin: 18px 0 0; font-family: var(--f-display, serif); font-weight: 300; font-size: clamp(40px, 5vw, 68px);
-  line-height: 1.32; letter-spacing: -.025em; color: var(--ink);
-}
+.loy__title { margin: 16px 0 0; font-family: var(--f-display, serif); font-weight: 500; font-size: clamp(32px, 3.6vw, 50px); line-height: 1.3; letter-spacing: -.02em; color: var(--ink); }
 .loy__title span { display: block; color: var(--gold); }
-.loy__lead { margin: 22px 0 0; max-width: 520px; color: var(--muted); font-size: 18px; line-height: 1.85; }
-.loy__rules { margin: 26px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-.loy__rules li { display: flex; gap: 10px; align-items: baseline; }
-.loy__rules li::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--loy-candle); box-shadow: 0 0 8px var(--loy-candle); transform: translateY(-2px); }
+.loy__lead { margin: 16px 0 0; max-width: 560px; color: var(--muted); font-size: 16px; line-height: 1.8; }
+.loy__help { margin: 4px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+@media (hover: none) { .loy__help-keys { display: none; } }
 
-/* ---------- ฟอร์ม ---------- */
-.loy__form {
-  padding: clamp(18px, 2.4vw, 28px); border: 1px solid var(--line); border-radius: 20px;
-  background: linear-gradient(180deg, rgba(23, 39, 65, .55), rgba(15, 27, 46, .7)); box-shadow: 0 30px 70px -40px #000, 0 0 0 1px #ffffff08 inset;
-}
+/* ---------- แบบ 2D (ไม่มี WebGL2 / เปิด Reduced Motion) ตามไฟล์ร่าง: ฟอร์ม + ตัวอย่าง → แม่น้ำ ---------- */
+.loy__grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(32px, 5vw, 64px); margin-top: 48px; align-items: start; }
 .loy__pick { margin: 0; padding: 0; border: 0; min-width: 0; }
-.loy__pick legend { padding: 0; margin-bottom: 10px; font-size: 14px; color: var(--muted); }
-.loy__styles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.loy__style { position: relative; display: grid; justify-items: center; gap: 4px; padding: 10px 4px 8px; border: 1px solid var(--theme-border); border-radius: 14px; cursor: pointer; background: rgba(23, 39, 65, .55); transition: border-color .18s, background-color .18s, transform .18s; }
+.loy__pick legend { padding: 0; margin-bottom: 12px; font-size: 15px; font-weight: 500; color: var(--ink); }
+.loy__styles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.loy__style {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 44px; padding: 16px 12px; text-align: center;
+  border: 1px solid var(--line); border-radius: 12px; background: rgba(23, 39, 65, .55); cursor: pointer; transition: border-color .2s, background-color .2s;
+}
 .loy__style input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.loy__style-art { display: block; width: 100%; max-width: 72px; aspect-ratio: 4 / 3; }
-.loy__style-art .loy-art { width: 100%; height: 100%; overflow: visible; }
-.loy__style-name { font-size: 13px; color: var(--muted); }
+.loy__style-art svg { display: block; width: 84px; height: 70px; overflow: visible; }
+.loy__style-name { font-weight: 500; font-size: 15px; color: var(--ink); }
+.loy__style small { font-size: 13px; line-height: 1.5; color: var(--muted); }
 .loy__style:hover { border-color: rgba(245, 197, 24, .5); }
 .loy__style:has(input:checked) { border-color: var(--gold); background: rgba(245, 197, 24, .08); }
-.loy__style:has(input:checked) .loy__style-name { color: var(--gold); }
-.loy__style:has(input:focus-visible) { outline: 2px solid var(--theme-outline); outline-offset: 3px; }
-.loy__style input:checked ~ .loy__style-name { color: var(--gold); }
-.loy__field { position: relative; display: grid; gap: 6px; margin-top: 18px; }
+.loy__style:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
+.loy__field { position: relative; display: grid; gap: 8px; margin-top: 24px; }
 .loy__field label { font-size: 14px; color: var(--ink); }
 .loy__field label small { color: var(--muted); font-size: 13px; }
+.loy--2d .loy__field label { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; font-weight: 500; }
+.loy--2d .loy__field label .loy__n { font-weight: 400; font-size: 13px; }
 .loy__field input, .loy__field textarea {
-  width: 100%; box-sizing: border-box; min-height: 48px; padding: 12px 14px; border: 1px solid var(--theme-border); border-radius: 12px;
+  width: 100%; box-sizing: border-box; min-height: 48px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px;
   background: rgba(8, 16, 29, .6); color: var(--ink); font: 400 16px/1.6 var(--f-text, sans-serif); resize: none;
   transition: border-color .18s, box-shadow .18s;
 }
+.loy--2d .loy__field input, .loy--2d .loy__field textarea { padding: 14px 16px; }
 .loy__field textarea { min-height: 84px; }
+.loy--2d .loy__field textarea { min-height: 104px; line-height: 1.7; resize: vertical; }
+.loy__field ::placeholder { color: #8f8b86; }
 .loy__field input:focus, .loy__field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245, 197, 24, .2); }
 .loy__field [aria-invalid] { border-color: #ff9d8f; }
 .loy__n { justify-self: end; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.loy__error { min-height: 0; margin: 10px 0 0; color: #ffb3a7; font-size: 14px; line-height: 1.6; }
+.loy__hint { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.loy__error { min-height: 0; margin: 10px 0 0; color: var(--red-soft); font-size: 14px; line-height: 1.6; }
 .loy__error:empty { margin: 0; }
+.loy--2d .loy__error:empty { display: none; }
 .loy__send {
   display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 52px; margin-top: 16px;
   border: 0; border-radius: 14px; cursor: pointer; color: var(--ink-dark); font: 500 16px/1.4 var(--f-text, sans-serif);
   background: var(--gold); box-shadow: 0 8px 30px -8px rgba(245, 197, 24, .55);
   transition: transform .18s, filter .18s, opacity .18s;
 }
+.loy--2d .loy__send { display: inline-flex; width: auto; margin-top: 32px; padding: 12px 24px; font-size: 15px; }
 .loy__send svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .loy__send:hover:not(:disabled) { background: var(--gold-h); transform: translateY(-1px); }
 .loy__send:active:not(:disabled) { transform: translateY(0) scale(.99); }
 .loy__send:disabled { cursor: not-allowed; opacity: .62; box-shadow: none; }
 .loy__send:focus-visible, .loy__btn:focus-visible { outline: 2px solid var(--theme-outline); outline-offset: 3px; }
+/* ตัวอย่างกระทง */
+.loy__preview {
+  position: sticky; top: 120px; aspect-ratio: 4 / 3.4; overflow: hidden; border: 1px solid var(--line); border-radius: 20px;
+  background: radial-gradient(90% 70% at 50% 100%, rgba(255, 181, 71, .12), transparent 60%), linear-gradient(to bottom, var(--sky-2), var(--water-1) 62%, var(--water-0));
+}
+.loy__preview-water { position: absolute; left: 0; right: 0; bottom: 0; height: 38%; border-top: 1px solid rgba(244, 234, 210, .12); }
+.loy__preview-boat { position: absolute; left: 21%; right: 21%; bottom: 24%; }
+.loy__preview-svg { position: relative; display: block; }
+.loy__preview-svg svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 14px 14px rgba(0, 0, 0, .45)); }
+.loy__preview-boat .loy-boat__glow { width: 120%; }
+.loy__preview-wish { position: absolute; z-index: 1; left: 24px; right: 24px; top: 24px; min-height: 2em; margin: 0; font-family: var(--f-display, serif); font-size: 20px; line-height: 1.55; color: var(--ink); overflow-wrap: anywhere; }
+.loy__preview-wish small { display: block; margin-top: 8px; font-family: var(--f-text, sans-serif); font-size: 13px; color: var(--muted); }
+.loy__ph { color: #8f8b86; }
 
-/* ---------- แม่น้ำ ---------- */
-.loy__river { position: relative; height: clamp(340px, 36vw, 460px); margin-top: clamp(40px, 6vw, 88px); overflow: hidden; isolation: isolate; }
-.loy__water { position: absolute; inset: 0; width: 100%; height: 100%; display: block;
-  -webkit-mask-image: linear-gradient(transparent, #000 16%); mask-image: linear-gradient(transparent, #000 16%); }
-.loy__river-head { position: absolute; z-index: 70; left: 0; right: 0; top: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; pointer-events: none; }
-.loy__river-title { margin: 0; font-family: var(--f-display, serif); font-weight: 400; font-size: clamp(24px, 2.4vw, 32px); color: var(--ink); }
+/* ---------- แม่น้ำของเรา (2D) ---------- */
+.loy__river-head { margin-top: clamp(64px, 8vw, 96px); }
 .loy__total { margin: 0; color: var(--muted); font-size: 14px; text-align: right; }
 .loy__total b { display: inline-block; min-width: 1ch; color: var(--gold); font-family: var(--f-display, serif); font-weight: 500; font-size: clamp(24px, 2.4vw, 32px); font-variant-numeric: tabular-nums; margin-right: 4px; }
 .loy__status {
@@ -187,34 +194,30 @@ html[data-loy] .lvc-campus.is-fallback {
   background: rgba(8, 16, 29, .88); border: 1px solid rgba(245, 197, 24, .33); color: var(--moon); font-size: 14px; line-height: 1.6; flex-grow: 0;
 }
 .loy__status[hidden] { display: none; }
+.loy__river {
+  position: relative; height: clamp(420px, 62vh, 640px); margin-top: 32px; overflow: hidden; isolation: isolate;
+  border-top: 1px solid rgba(244, 234, 210, .08); background: linear-gradient(to bottom, var(--water-1), var(--water-0));
+}
+.loy__water { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.loy__moon { position: absolute; left: 50%; top: -30px; width: 220px; height: 60px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(244, 234, 210, .35), transparent); pointer-events: none; }
 .loy__boats { position: absolute; inset: 0; z-index: 2; }
-.loy__help { margin: 4px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
-
-@media (hover: none) { .loy__help-keys { display: none; } }
 .loy-boat {
-  position: absolute; left: 0; top: 0; width: 56px; height: 48px; padding: 0; border: 0; border-radius: 12px; background: transparent;
-  color: inherit; cursor: pointer; will-change: transform; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  position: absolute; left: 0; top: 0; width: 96px; height: 80px; padding: 0; border: 0; border-radius: 12px; background: none; color: inherit;
+  transform-origin: 50% 90%; will-change: transform; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
 }
 .loy-boat__body { position: relative; display: block; width: 100%; height: 100%; }
-.loy-boat .loy-art {
-  position: absolute; left: 0; bottom: 0; width: 56px; height: 42px; overflow: visible;
-  transform: scale(var(--s, 1)); transform-origin: 50% 100%; transition: translate .25s ease;
-  filter: drop-shadow(0 0 8px rgba(255, 190, 100, .32));
+.loy-boat svg { position: relative; display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 6px 6px rgba(0, 0, 0, .35)); transition: translate .25s ease; }
+.loy-boat__glow {
+  position: absolute; left: 50%; top: 6%; width: 140%; aspect-ratio: 1; transform: translate(-50%, -30%); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 181, 71, .38), rgba(255, 181, 71, .08) 40%, transparent 65%); mix-blend-mode: screen;
 }
-.loy-boat__body::before {
-  content: ""; position: absolute; left: 50%; bottom: 14px; width: 70px; height: 70px; margin-left: -35px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(closest-side, rgba(255, 196, 110, .34), rgba(255, 196, 110, 0)); transform: scale(var(--s, 1)); transform-origin: 50% 100%;
-}
-.loy-boat.is-mine .loy-art { filter: drop-shadow(0 0 5px var(--gold)) drop-shadow(0 0 14px rgba(255, 190, 100, .55)); }
-.loy-boat.is-mine::after {
-  content: "ของคุณ"; position: absolute; left: 50%; bottom: calc(48px * var(--s, 1) + 4px); transform: translateX(-50%);
-  padding: 1px 7px; border-radius: 999px; background: var(--gold); color: var(--ink-dark); font-size: 11px; line-height: 1.6; white-space: nowrap; pointer-events: none;
-}
+.loy-boat__tag { position: absolute; left: 50%; bottom: 100%; transform: translate(-50%, -4px); padding: 3px 10px; border-radius: 999px; background: var(--gold); color: var(--ink-dark); font-size: 12px; font-weight: 500; white-space: nowrap; pointer-events: none; }
 .loy-boat.is-decor { opacity: .5; cursor: default; pointer-events: none; }
-.loy-boat:focus-visible { outline: 2px solid var(--loy-candle); outline-offset: 4px; }
-@media (hover: hover) and (pointer: fine) { .loy-boat:hover .loy-art { translate: 0 -4px; } }
-.loy-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: loy-flicker 1.6s ease-in-out infinite alternate; }
-@keyframes loy-flicker { 0% { transform: scale(1, 1); } 40% { transform: scale(.94, 1.08); } 100% { transform: scale(1.04, .94); } }
+.loy-boat:focus-visible { outline: 2px solid var(--candle); outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) { .loy-boat:hover svg { translate: 0 -4px; } }
+.flame { transform-box: fill-box; transform-origin: 50% 100%; animation: loy-flick 1.4s ease-in-out infinite alternate; }
+@keyframes loy-flick { 0% { transform: scale(.92, .9) rotate(-2deg); } 50% { transform: scale(1.04, 1.08) rotate(1.5deg); } 100% { transform: scale(.97, 1) rotate(-1deg); } }
+.loy__river-hint { position: absolute; z-index: 3; left: 50%; bottom: 24px; transform: translateX(-50%); margin: 0; color: var(--muted); font-size: 13px; white-space: nowrap; pointer-events: none; }
 
 .loy__card {
   position: absolute; z-index: 90; left: 0; top: 0; width: min(300px, calc(100% - 24px)); box-sizing: border-box; padding: 16px 18px;
@@ -241,20 +244,20 @@ html[data-loy] .lvc-campus.is-fallback {
 .loy__btn--warn:hover { background: #c93a4a; }
 .loy__btn[hidden] { display: none; }
 
-@media (max-width: 860px) {
-  .loy__top { grid-template-columns: minmax(0, 1fr); }
-  .loy__lead { font-size: 16px; }
+@media (max-width: 900px) {
+  .loy__grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .loy__preview { position: relative; top: 0; order: -1; aspect-ratio: 16 / 10; }
 }
-@media (max-width: 480px) {
-  .loy__styles { gap: 6px; }
-  .loy__style { padding: 8px 2px 6px; }
-  .loy__river { height: 440px; }
-  .loy__river-head { flex-direction: column; gap: 0; }
-  .loy__total { text-align: left; }
+@media (max-width: 560px) {
+  .loy__style-art svg { width: 64px; height: 54px; }
+  .loy__style small { display: none; }
+  .loy__style { padding: 12px 8px; }
+  .loy__preview-boat { left: 28%; right: 28%; bottom: 20%; }
+  .loy__preview-wish { font-size: 18px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .loy-flame { animation: none; }
-  .loy__send, .loy__style, .loy-boat .loy-art { transition: none; }
+  .flame { animation: none; }
+  .loy__send, .loy__style, .loy-boat svg { transition: none; }
 }
 
 /* ---------- หน้าแรกช่วงเทศกาล: นับถอยหลังใน hero (ตามไฟล์ร่าง) ---------- */
