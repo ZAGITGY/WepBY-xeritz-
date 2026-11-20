@@ -318,6 +318,7 @@ html[data-loy] .hero-note.is-loy .loy-countdown { font-variant-numeric: tabular-
 .loy3d .loy__total { text-shadow: 0 1px 12px rgba(5, 11, 22, .9); }
 .loy3d .loy__total b { font-size: clamp(36px, 3.6vw, 56px); line-height: 1.1; }
 .loy3d .loy__status { pointer-events: auto; }
+.loy3d.is-releasing .loy3d__hud, .loy3d.is-releasing .loy3d__cta,
 .loy3d.is-building .loy3d__hud, .loy3d.is-building .loy3d__cta, .loy3d.is-building .loy3d__boats { opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
 .loy3d__cta {
   position: absolute; z-index: 5; left: 50%; bottom: 68px;   /* พ้นปุ่มลอยของเว็บที่มุมล่าง (แจ้งปัญหา / กลับขึ้นบน) */ transform: translateX(-50%); width: min(560px, calc(100% - 32px));

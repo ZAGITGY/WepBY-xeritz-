@@ -204,7 +204,20 @@ export function mount(stage, data, S) {
     gsap.fromTo(stage, { clipPath: inset(r) }, { clipPath: "inset(0px 0px 0px 0px round 0px)", duration: DUR, ease: "power3.inOut", clearProps: "clipPath" });
     gsap.fromTo(panel, { yPercent: 100 }, { yPercent: 0, duration: DUR, ease: "power3.out", delay: 0.08, clearProps: "transform" });
   }
+  // เลื่อนหน้าให้แม่น้ำอยู่กลางจอ: ตอนพิมพ์บน iPhone/iPad เบราว์เซอร์เลื่อนหน้าเว็บข้างหลังไปเอง ออกจากเต็มจอแล้วจึงเด้งไปส่วนอื่น
+  function centerOn(el) {
+    const r = el.getBoundingClientRect();
+    if (!r.height) return;
+    window.scrollTo({ top: Math.max(0, scrollY + r.top - Math.max(0, (innerHeight - r.height) / 2)), behavior: "instant" });
+  }
+  function hidePanel() {
+    if (still()) { panel.hidden = true; return; }
+    gsap.to(panel, { yPercent: 100, duration: DUR * 0.7, ease: "power2.in", onComplete: () => { panel.hidden = true; } });
+  }
   function exitFull(done) {
+    const ae = document.activeElement;
+    if (ae && stage.contains(ae) && ae.blur) ae.blur();   // ปิดแป้นพิมพ์ก่อน
+    centerOn(spacer);
     const end = () => {
       stage.classList.remove("is-full");
       document.documentElement.classList.remove("loy-building");
@@ -212,6 +225,8 @@ export function mount(stage, data, S) {
       setInert(false);
       panel.hidden = true;
       if (gsap) gsap.set([stage, panel], { clearProps: "clipPath,transform" });
+      const r = stage.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) centerOn(stage);
       if (done) done();
     };
     if (still()) return end();
@@ -464,13 +479,19 @@ export function mount(stage, data, S) {
     const res = await data.add({ name: nameEl.value, wish: wishEl.value, base: st.base, parts: st.parts });
     if (res.error) { releasing = false; resetHold(); return fail(res.error, wishEl); }
     // เก็บแผง + ออกจากเต็มจอ → กระทงลงน้ำ น้ำกระเพื่อม กล้องตามไปสักพัก → กลับมุมแม่น้ำ
+    // ลอยแบบเต็มจอทุกอุปกรณ์: เก็บแผง (กระทงอยู่กลางจอ) → กระทงลงน้ำ กล้องตาม → มุมแม่น้ำค้างไว้ครู่หนึ่ง → ค่อยออกจากเต็มจอ
     wick.hidden = true;
+    const ae = document.activeElement;
+    if (ae && panel.contains(ae) && ae.blur) ae.blur();
     stage.classList.remove("is-building");
+    stage.classList.add("is-releasing");        // ซ่อนปุ่ม/ข้อความบนแม่น้ำระหว่างลอย ให้เห็นแต่กระทงกับน้ำเต็มจอ
     leaveCanvas();
     startBtn.disabled = true;
-    exitFull();
-    R.release(res.k, () => {
+    hidePanel();
+    R.release(res.k, () => setTimeout(() => exitFull(afterRelease), still() ? 0 : 1200));
+    function afterRelease() {
       releasing = false;
+      stage.classList.remove("is-releasing");
       R.setPanel(0, 0);
       unlight();
       R.resetBuild();
@@ -482,7 +503,7 @@ export function mount(stage, data, S) {
       startBtn.disabled = false;
       startLabel.textContent = "แต่งกระทงอีกใบ";
       startBtn.focus({ preventScroll: true });
-    });
+    }
   }
   new ResizeObserver(layoutPanel).observe(panel);
 

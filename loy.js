@@ -740,7 +740,7 @@ function mount3D(sec, data, fallback) {
   const start = () => {
     if (started) return;
     started = true;
-    import("./loy3d-ui.js?v=2026-11-22.2").then((m) => {
+    import("./loy3d-ui.js?v=2026-11-22.3").then((m) => {
       ui = m.mount(stage, data, shared);
       if (!ui) throw new Error("WebGL");
       for (const [t, d] of queue.splice(0)) ui.event(t, d);
