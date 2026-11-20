@@ -461,7 +461,7 @@ function createData() {
     if (was === "online") return;
     const local = store.get(KEY.local, []);
     for (const k of local) put(Object.assign(k, { local: true, mine: true }), "load");
-    emit("decor");                                   // ให้ลำน้ำไม่ว่าง: กระทงประดับ (ไม่มีข้อความ กดไม่ได้)
+    // ไม่เติมกระทงประดับ: แม่น้ำแสดงเฉพาะกระทงที่ลอยจริง
     setTotal(local.length);
   }
   D.load = async () => {
@@ -740,7 +740,7 @@ function mount3D(sec, data, fallback) {
   const start = () => {
     if (started) return;
     started = true;
-    import("./loy3d-ui.js?v=2026-11-22.1").then((m) => {
+    import("./loy3d-ui.js?v=2026-11-22.2").then((m) => {
       ui = m.mount(stage, data, shared);
       if (!ui) throw new Error("WebGL");
       for (const [t, d] of queue.splice(0)) ui.event(t, d);
